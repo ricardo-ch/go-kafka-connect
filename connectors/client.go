@@ -6,13 +6,14 @@ import (
 	"strconv"
 )
 
-//Client ...
+//Client represents the kafka connect access configuration
 type Client struct {
-	Host string
-	Port int
+	Host   string
+	Port   int
+	Secure bool
 }
 
-//NewClient ...
+//NewClient generates a new client
 func NewClient(h string, p int) Client {
 	return Client{Host: h, Port: p}
 }
@@ -20,7 +21,15 @@ func NewClient(h string, p int) Client {
 //HTTPGet handles an HTTP Get request to the client
 func (c Client) HTTPGet(adress string) ([]byte, error) {
 
-	res, err := http.Get("http://" + c.Host + ":" + strconv.Itoa(c.Port) + "/connectors")
+	var protocol string
+
+	if c.Secure {
+		protocol = "https"
+	} else {
+		protocol = "http"
+	}
+
+	res, err := http.Get(protocol + "://" + c.Host + ":" + strconv.Itoa(c.Port) + adress)
 	if err != nil {
 		return nil, err
 	}
