@@ -9,7 +9,7 @@ type TaskRequest struct {
 //GetAllTasksresponse ...
 type GetAllTasksresponse struct {
 	Code  int
-	Tasks []Task
+	Tasks []TaskConfig
 }
 
 //TaskResponse ...
@@ -19,7 +19,7 @@ type TaskResponse struct {
 }
 
 //Task ...
-type Task struct {
+type TaskConfig struct {
 	Task   map[string]string `json:"id"`
 	Config map[string]string `json:"config"`
 }

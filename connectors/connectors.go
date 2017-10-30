@@ -30,9 +30,15 @@ type GetAllResponse struct {
 //ConnectorResponse ...
 type ConnectorResponse struct {
 	Code   int
-	Name   string              `json:"name"`
-	Config map[string]string   `json:"config"`
-	Tasks  []map[string]string `json:"tasks"`
+	Name   string            `json:"name"`
+	Config map[string]string `json:"config"`
+	Tasks  []Task            `json:"tasks"`
+}
+
+//Task ...
+type Task struct {
+	Connector string `json:"connector"`
+	TaskID    int    `json:"task"`
 }
 
 //ConfigResponse ...
@@ -54,12 +60,16 @@ type EmptyResponse struct {
 	Code int
 }
 
-//GetAll ...
+//GetAll gets the list of all active connectors
 func (c Client) GetAll() GetAllResponse {
 	var gar GetAllResponse
 	var connectors []string
 
-	res, err := c.HTTPGet("/connectors")
+	res, err := c.HTTPGet("/")
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	err = json.Unmarshal(res, &connectors)
 	if err != nil {
 		log.Fatal(err)
@@ -79,8 +89,20 @@ func (c Client) Create(req CreateRequest) ConnectorResponse {
 
 //Get ...
 func (c Client) Get(req ConnectorRequest) ConnectorResponse {
+	var cr ConnectorResponse
 
-	return ConnectorResponse{}
+	res, err := c.HTTPGet("/" + req.Name)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = json.Unmarshal(res, &cr)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	cr.Code = 200
+	return cr
 }
 
 //GetConfig ...
