@@ -2,10 +2,7 @@ package connectors
 
 import (
 	"encoding/json"
-	"io/ioutil"
 	"log"
-	"net/http"
-	"strconv"
 )
 
 //CreateRequest ...
@@ -60,22 +57,17 @@ type EmptyResponse struct {
 //GetAll ...
 func (c Client) GetAll() GetAllResponse {
 	var gar GetAllResponse
-	res, err := http.Get("http://" + c.Host + ":" + strconv.Itoa(c.Port) + "/connectors")
-	if err != nil {
-		log.Fatal(err)
-	}
-	body, err := ioutil.ReadAll(res.Body)
-	res.Body.Close()
-	if err != nil {
-		log.Fatal(err)
-	}
 	var connectors []string
-	err = json.Unmarshal([]byte(body), &connectors)
+
+	res, err := c.HTTPGet("/connectors")
+	err = json.Unmarshal(res, &connectors)
 	if err != nil {
 		log.Fatal(err)
 	}
-	gar.Code = res.StatusCode
+
+	gar.Code = 200
 	gar.Connectors = connectors
+
 	return gar
 }
 
