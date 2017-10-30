@@ -44,15 +44,15 @@ type Task struct {
 //ConfigResponse ...
 type ConfigResponse struct {
 	Code   int
-	Config map[string]string `json:"config"`
+	Config map[string]string
 }
 
 //StatusResponse ...
 type StatusResponse struct {
 	Code            int
-	Name            string              `json:"name"`
-	ConnectorStatus map[string]string   `json:"connector"`
-	TasksStatus     []map[string]string `json:"tasks"`
+	Name            string                   `json:"name"`
+	ConnectorStatus map[string]string        `json:"connector"`
+	TasksStatus     []map[string]interface{} `json:"tasks"`
 }
 
 //EmptyResponse ...
@@ -108,18 +108,20 @@ func (c Client) Get(req ConnectorRequest) ConnectorResponse {
 //GetConfig ...
 func (c Client) GetConfig(req ConnectorRequest) ConfigResponse {
 	var cr ConfigResponse
+	var config map[string]string
 
-	res, err := c.HTTPGet("/" + req.Name)
+	res, err := c.HTTPGet("/" + req.Name + "/config")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	err = json.Unmarshal(res, &cr)
+	err = json.Unmarshal(res, &config)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	cr.Code = 200
+	cr.Config = config
 	return cr
 }
 
@@ -131,8 +133,19 @@ func (c Client) Update(req UpdateRequest) ConnectorResponse {
 
 //GetStatus ...
 func (c Client) GetStatus(req ConnectorRequest) StatusResponse {
+	var sr StatusResponse
 
-	return StatusResponse{}
+	res, err := c.HTTPGet("/" + req.Name + "/status")
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = json.Unmarshal(res, &sr)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	sr.Code = 200
+	return sr
 }
 
 //Restart ...
