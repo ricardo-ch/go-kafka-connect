@@ -50,9 +50,17 @@ type ConfigResponse struct {
 //StatusResponse ...
 type StatusResponse struct {
 	Code            int
-	Name            string                   `json:"name"`
-	ConnectorStatus map[string]string        `json:"connector"`
-	TasksStatus     []map[string]interface{} `json:"tasks"`
+	Name            string            `json:"name"`
+	ConnectorStatus map[string]string `json:"connector"`
+	TasksStatus     []TaskStatus      `json:"tasks"`
+}
+
+//TaskStatus ...
+type TaskStatus struct {
+	ID       int    `json:"id"`
+	State    string `json:"state"`
+	WorkerID string `json:"worker_id"`
+	Trace    string `json:"trace,omitempty"`
 }
 
 //EmptyResponse ...
