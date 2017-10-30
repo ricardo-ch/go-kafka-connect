@@ -107,8 +107,20 @@ func (c Client) Get(req ConnectorRequest) ConnectorResponse {
 
 //GetConfig ...
 func (c Client) GetConfig(req ConnectorRequest) ConfigResponse {
+	var cr ConfigResponse
 
-	return ConfigResponse{}
+	res, err := c.HTTPGet("/" + req.Name)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = json.Unmarshal(res, &cr)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	cr.Code = 200
+	return cr
 }
 
 //Update ...
