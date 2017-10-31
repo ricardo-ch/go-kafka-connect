@@ -32,13 +32,7 @@ type ConnectorResponse struct {
 	Code   int
 	Name   string            `json:"name"`
 	Config map[string]string `json:"config"`
-	Tasks  []Task            `json:"tasks"`
-}
-
-//Task ...
-type Task struct {
-	Connector string `json:"connector"`
-	TaskID    int    `json:"task"`
+	Tasks  []TaskID          `json:"tasks"`
 }
 
 //ConfigResponse ...
@@ -53,14 +47,6 @@ type StatusResponse struct {
 	Name            string            `json:"name"`
 	ConnectorStatus map[string]string `json:"connector"`
 	TasksStatus     []TaskStatus      `json:"tasks"`
-}
-
-//TaskStatus ...
-type TaskStatus struct {
-	ID       int    `json:"id"`
-	State    string `json:"state"`
-	WorkerID string `json:"worker_id"`
-	Trace    string `json:"trace,omitempty"`
 }
 
 //EmptyResponse ...

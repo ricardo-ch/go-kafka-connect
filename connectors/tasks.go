@@ -3,6 +3,7 @@ package connectors
 import (
 	"encoding/json"
 	"log"
+	"strconv"
 )
 
 //TaskRequest ...
@@ -35,6 +36,20 @@ type TaskResponse struct {
 	TaskStatus map[string]string
 }
 
+//TaskStatusResponse ...
+type TaskStatusResponse struct {
+	Code   int
+	Status TaskStatus
+}
+
+//TaskStatus ...
+type TaskStatus struct {
+	ID       int    `json:"id"`
+	State    string `json:"state"`
+	WorkerID string `json:"worker_id"`
+	Trace    string `json:"trace,omitempty"`
+}
+
 //GetAllTasks ...
 func (c Client) GetAllTasks(req ConnectorRequest) GetAllTasksResponse {
 	var gatr GetAllTasksResponse
@@ -56,8 +71,24 @@ func (c Client) GetAllTasks(req ConnectorRequest) GetAllTasksResponse {
 }
 
 //GetTaskStatus ...
-func (c Client) GetTaskStatus(req TaskRequest) {
+func (c Client) GetTaskStatus(req TaskRequest) TaskStatusResponse {
+	var tsr TaskStatusResponse
+	var ts TaskStatus
 
+	res, err := c.HTTPGet("/" + req.Connector + "/tasks/" + strconv.Itoa(req.TaskID) + "/status")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = json.Unmarshal(res, &ts)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	tsr.Code = 200
+	tsr.Status = ts
+
+	return tsr
 }
 
 //RestartTask ...
