@@ -30,12 +30,6 @@ type TaskID struct {
 	TaskID    int    `json:"task"`
 }
 
-//TaskResponse ...
-type TaskResponse struct {
-	Code       int
-	TaskStatus map[string]string
-}
-
 //TaskStatusResponse ...
 type TaskStatusResponse struct {
 	Code   int
@@ -92,7 +86,15 @@ func (c Client) GetTaskStatus(req TaskRequest) TaskStatusResponse {
 }
 
 //RestartTask ...
-func (c Client) RestartTask(req TaskRequest) TaskResponse {
+func (c Client) RestartTask(req TaskRequest) EmptyResponse {
+	var er EmptyResponse
 
-	return TaskResponse{}
+	_, err := c.HTTPGet("/" + req.Connector + "/tasks/" + strconv.Itoa(req.TaskID) + "/restart")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	er.Code = 200
+
+	return er
 }
