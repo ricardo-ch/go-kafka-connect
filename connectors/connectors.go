@@ -5,11 +5,6 @@ import (
 	"fmt"
 )
 
-const (
-	endpointConnector = "connectors"
-	endpointConnectorConfig = "connectors/%s/config"
-)
-
 //CreateRequest ...
 type CreateRequest struct {
 	Name   string            `json:"name"`
@@ -64,7 +59,7 @@ func (c Client) GetAll() GetAllResponse {
 	var gar GetAllResponse
 	var connectors []string
 
-	statusCode, err := c.Request("GET", endpointConnector, "", &connectors)
+	statusCode, err := c.Request("GET", "connectors", "", &connectors)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -77,17 +72,23 @@ func (c Client) GetAll() GetAllResponse {
 
 //Create ...
 func (c Client) Create(req CreateRequest) ConnectorResponse {
+	resp := ConnectorResponse{}
 
-	statusCode, err := c.Request("GET", endpointConnector, req, &connectors)
+	statusCode, err := c.Request("POST", "connectors", req, &resp)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	return ConnectorResponse{}
+	resp.Code = statusCode
+
+	return resp
 }
 
 //Get ...
 func (c Client) Get(req ConnectorRequest) ConnectorResponse {
 	var cr ConnectorResponse
 
-	statusCode, err := c.Request("GET", endpointConnector + "/" + req.Name, nil, &cr)
+	statusCode, err := c.Request("GET", fmt.Sprintf("connectors/%s", req.Name), nil, &cr)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -101,7 +102,7 @@ func (c Client) GetConfig(req ConnectorRequest) ConfigResponse {
 	var cr ConfigResponse
 	var config map[string]string
 
-	statusCode, err := c.Request("GET", fmt.Sprintf(endpointConnectorConfig, req.Name), nil, &config)
+	statusCode, err := c.Request("GET", fmt.Sprintf("connectors/%s/config", req.Name), nil, &config)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -121,7 +122,7 @@ func (c Client) Update(req UpdateRequest) ConnectorResponse {
 func (c Client) GetStatus(req ConnectorRequest) StatusResponse {
 	var sr StatusResponse
 
-	statusCode, err := c.Request("GET", fmt.Sprintf(endpointConnectorConfig, req.Name), nil, &sr)
+	statusCode, err := c.Request("GET", fmt.Sprintf("connectors/%s/status", req.Name), nil, &sr)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -132,8 +133,14 @@ func (c Client) GetStatus(req ConnectorRequest) StatusResponse {
 
 //Restart ...
 func (c Client) Restart(req ConnectorRequest) EmptyResponse {
+	resp := ConnectorResponse{}
 
-	return EmptyResponse{}
+	statusCode, err := c.Request("POST", fmt.Sprintf("connectors/%s/restart", req.Name), req, &resp)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	resp.Code = statusCode
 }
 
 //Pause ...
