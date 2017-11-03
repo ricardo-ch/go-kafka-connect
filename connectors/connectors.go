@@ -1,8 +1,13 @@
 package connectors
 
 import (
-	"encoding/json"
 	"log"
+	"fmt"
+)
+
+const (
+	endpointConnector = "connectors"
+	endpointConnectorConfig = "connectors/%s/config"
 )
 
 //CreateRequest ...
@@ -59,17 +64,12 @@ func (c Client) GetAll() GetAllResponse {
 	var gar GetAllResponse
 	var connectors []string
 
-	res, err := c.HTTPGet("/")
+	statusCode, err := c.Request("GET", endpointConnector, "", &connectors)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	err = json.Unmarshal(res, &connectors)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	gar.Code = 200
+	gar.Code = statusCode
 	gar.Connectors = connectors
 
 	return gar
@@ -85,17 +85,12 @@ func (c Client) Create(req CreateRequest) ConnectorResponse {
 func (c Client) Get(req ConnectorRequest) ConnectorResponse {
 	var cr ConnectorResponse
 
-	res, err := c.HTTPGet("/" + req.Name)
+	statusCode, err := c.Request("GET", endpointConnector + "/" + req.Name, "", &cr)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	err = json.Unmarshal(res, &cr)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	cr.Code = 200
+	cr.Code = statusCode
 	return cr
 }
 
@@ -104,17 +99,12 @@ func (c Client) GetConfig(req ConnectorRequest) ConfigResponse {
 	var cr ConfigResponse
 	var config map[string]string
 
-	res, err := c.HTTPGet("/" + req.Name + "/config")
+	statusCode, err := c.Request("GET", fmt.Sprintf(endpointConnectorConfig, req.Name), "", &config)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	err = json.Unmarshal(res, &config)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	cr.Code = 200
+	cr.Code = statusCode
 	cr.Config = config
 	return cr
 }
@@ -129,16 +119,12 @@ func (c Client) Update(req UpdateRequest) ConnectorResponse {
 func (c Client) GetStatus(req ConnectorRequest) StatusResponse {
 	var sr StatusResponse
 
-	res, err := c.HTTPGet("/" + req.Name + "/status")
-	if err != nil {
-		log.Fatal(err)
-	}
-	err = json.Unmarshal(res, &sr)
+	statusCode, err := c.Request("GET", fmt.Sprintf(endpointConnectorConfig, req.Name), "", &sr)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	sr.Code = 200
+	sr.Code = statusCode
 	return sr
 }
 

@@ -1,9 +1,14 @@
 package connectors
 
 import (
-	"encoding/json"
 	"log"
-	"strconv"
+	"fmt"
+)
+
+const(
+	endpointTask = "connectors/%s/tasks"
+	endpointTaskStatus = "connectors/%s/tasks/%s/status"
+	endpointTaskRestart = "connectors/%s/tasks/%s/restart"
 )
 
 //TaskRequest ...
@@ -49,17 +54,12 @@ func (c Client) GetAllTasks(req ConnectorRequest) GetAllTasksResponse {
 	var gatr GetAllTasksResponse
 	var taskDetails []TaskDetails
 
-	res, err := c.HTTPGet("/" + req.Name + "/tasks")
+	statusCode, err := c.Request("GET", fmt.Sprintf(endpointTask, req.Name), "", &taskDetails)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	err = json.Unmarshal(res, &taskDetails)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	gatr.Code = 200
+	gatr.Code = statusCode
 	gatr.Tasks = taskDetails
 	return gatr
 }
@@ -69,17 +69,12 @@ func (c Client) GetTaskStatus(req TaskRequest) TaskStatusResponse {
 	var tsr TaskStatusResponse
 	var ts TaskStatus
 
-	res, err := c.HTTPGet("/" + req.Connector + "/tasks/" + strconv.Itoa(req.TaskID) + "/status")
+	statusCode, err := c.Request("GET", fmt.Sprintf( endpointTaskStatus, req.Connector, req.TaskID), "", &ts)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	err = json.Unmarshal(res, &ts)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	tsr.Code = 200
+	tsr.Code = statusCode
 	tsr.Status = ts
 
 	return tsr
@@ -89,12 +84,12 @@ func (c Client) GetTaskStatus(req TaskRequest) TaskStatusResponse {
 func (c Client) RestartTask(req TaskRequest) EmptyResponse {
 	var er EmptyResponse
 
-	_, err := c.HTTPGet("/" + req.Connector + "/tasks/" + strconv.Itoa(req.TaskID) + "/restart")
+	statusCode, err := c.Request("GET", fmt.Sprintf(endpointTaskRestart, req.Connector, req.TaskID ), "", nil)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	er.Code = 200
+	er.Code = statusCode
 
 	return er
 }

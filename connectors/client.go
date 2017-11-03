@@ -1,12 +1,12 @@
 package connectors
 
 import (
-	"io/ioutil"
 	"net/http"
 	"strconv"
+	"encoding/json"
+	"net/url"
+	"strings"
 )
-
-var endpoint = "/connectors"
 
 //Client represents the kafka connect access configuration
 type Client struct {
@@ -20,8 +20,10 @@ func NewClient(h string, p int, s bool) Client {
 	return Client{Host: h, Port: p, Secure: s}
 }
 
-//HTTPGet handles an HTTP Get request to the client
-func (c Client) HTTPGet(adress string) ([]byte, error) {
+//Request handles an HTTP Get request to the client
+// execute request and return parsed body content in result var
+// result need to be pointer to expected type
+func (c Client) Request(method string, endpoint string, body string, result interface{}) (int, error) {
 
 	var protocol string
 
@@ -31,16 +33,27 @@ func (c Client) HTTPGet(adress string) ([]byte, error) {
 		protocol = "http"
 	}
 
-	res, err := http.Get(protocol + "://" + c.Host + ":" + strconv.Itoa(c.Port) + endpoint + adress)
+	endPointUrl, err := url.Parse(protocol + "://" + c.Host + ":" + strconv.Itoa(c.Port) + endpoint)
 	if err != nil {
-		return nil, err
+		return 0, err
 	}
 
-	body, err := ioutil.ReadAll(res.Body)
-	res.Body.Close()
+	req, err := http.NewRequest(method, endPointUrl.String(), strings.NewReader(body))
 	if err != nil {
-		return nil, err
+		return 0, err
 	}
 
-	return []byte(body), nil
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return 0, err
+	}
+
+	if result != nil {
+		err = json.NewDecoder(res.Body).Decode(result)
+		if err != nil {
+			return res.StatusCode, err
+		}
+	}
+
+	return res.StatusCode, nil
 }
