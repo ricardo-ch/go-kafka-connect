@@ -3,6 +3,7 @@ package connectors
 import (
 	"log"
 	"fmt"
+	"net/http"
 )
 
 //CreateRequest ...
@@ -59,7 +60,7 @@ func (c Client) GetAll() GetAllResponse {
 	var gar GetAllResponse
 	var connectors []string
 
-	statusCode, err := c.Request("GET", "connectors", nil, &connectors)
+	statusCode, err := c.Request(http.MethodGet, "connectors", nil, &connectors)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -74,7 +75,7 @@ func (c Client) GetAll() GetAllResponse {
 func (c Client) Create(req CreateRequest) ConnectorResponse {
 	resp := ConnectorResponse{}
 
-	statusCode, err := c.Request("POST", "connectors", req, &resp)
+	statusCode, err := c.Request(http.MethodPost, "connectors", req, &resp)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -88,7 +89,7 @@ func (c Client) Create(req CreateRequest) ConnectorResponse {
 func (c Client) Get(req ConnectorRequest) ConnectorResponse {
 	var cr ConnectorResponse
 
-	statusCode, err := c.Request("GET", fmt.Sprintf("connectors/%s", req.Name), nil, &cr)
+	statusCode, err := c.Request(http.MethodGet, fmt.Sprintf("connectors/%s", req.Name), nil, &cr)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -102,7 +103,7 @@ func (c Client) GetConfig(req ConnectorRequest) ConfigResponse {
 	var cr ConfigResponse
 	var config map[string]string
 
-	statusCode, err := c.Request("GET", fmt.Sprintf("connectors/%s/config", req.Name), nil, &config)
+	statusCode, err := c.Request(http.MethodGet, fmt.Sprintf("connectors/%s/config", req.Name), nil, &config)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -122,7 +123,7 @@ func (c Client) Update(req UpdateRequest) ConnectorResponse {
 func (c Client) GetStatus(req ConnectorRequest) StatusResponse {
 	var sr StatusResponse
 
-	statusCode, err := c.Request("GET", fmt.Sprintf("connectors/%s/status", req.Name), nil, &sr)
+	statusCode, err := c.Request(http.MethodGet, fmt.Sprintf("connectors/%s/status", req.Name), nil, &sr)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -135,7 +136,7 @@ func (c Client) GetStatus(req ConnectorRequest) StatusResponse {
 func (c Client) Restart(req ConnectorRequest) EmptyResponse {
 	resp := EmptyResponse{}
 
-	statusCode, err := c.Request("POST", fmt.Sprintf("connectors/%s/restart", req.Name), nil, &resp)
+	statusCode, err := c.Request(http.MethodPost, fmt.Sprintf("connectors/%s/restart", req.Name), nil, &resp)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -148,7 +149,7 @@ func (c Client) Restart(req ConnectorRequest) EmptyResponse {
 func (c Client) Pause(req ConnectorRequest) EmptyResponse {
 	resp := EmptyResponse{}
 
-	statusCode, err := c.Request("PUT", fmt.Sprintf("connectors/%s/pause", req.Name), nil, &resp)
+	statusCode, err := c.Request(http.MethodPut, fmt.Sprintf("connectors/%s/pause", req.Name), nil, &resp)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -161,7 +162,7 @@ func (c Client) Pause(req ConnectorRequest) EmptyResponse {
 func (c Client) Resume(req ConnectorRequest) EmptyResponse {
 	resp := EmptyResponse{}
 
-	statusCode, err := c.Request("PUT", fmt.Sprintf("connectors/%s/resume", req.Name), nil, &resp)
+	statusCode, err := c.Request(http.MethodPut, fmt.Sprintf("connectors/%s/resume", req.Name), nil, &resp)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -174,7 +175,7 @@ func (c Client) Resume(req ConnectorRequest) EmptyResponse {
 func (c Client) Delete(req ConnectorRequest) EmptyResponse {
 	resp := EmptyResponse{}
 
-	statusCode, err := c.Request("DELETE", fmt.Sprintf("connectors/%s", req.Name), nil, &resp)
+	statusCode, err := c.Request(http.MethodDelete, fmt.Sprintf("connectors/%s", req.Name), nil, &resp)
 	if err != nil {
 		log.Fatal(err)
 	}

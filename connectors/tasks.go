@@ -3,6 +3,7 @@ package connectors
 import (
 	"log"
 	"fmt"
+	"net/http"
 )
 
 //TaskRequest ...
@@ -48,7 +49,7 @@ func (c Client) GetAllTasks(req ConnectorRequest) GetAllTasksResponse {
 	var gatr GetAllTasksResponse
 	var taskDetails []TaskDetails
 
-	statusCode, err := c.Request("GET", fmt.Sprintf("connectors/%s/tasks", req.Name), nil, &taskDetails)
+	statusCode, err := c.Request(http.MethodGet, fmt.Sprintf("connectors/%s/tasks", req.Name), nil, &taskDetails)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -63,7 +64,7 @@ func (c Client) GetTaskStatus(req TaskRequest) TaskStatusResponse {
 	var tsr TaskStatusResponse
 	var ts TaskStatus
 
-	statusCode, err := c.Request("GET", fmt.Sprintf( "connectors/%s/tasks/%s/status", req.Connector, req.TaskID), nil, &ts)
+	statusCode, err := c.Request(http.MethodGet, fmt.Sprintf( "connectors/%s/tasks/%s/status", req.Connector, req.TaskID), nil, &ts)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -78,7 +79,7 @@ func (c Client) GetTaskStatus(req TaskRequest) TaskStatusResponse {
 func (c Client) RestartTask(req TaskRequest) EmptyResponse {
 	var er EmptyResponse
 
-	statusCode, err := c.Request("GET", fmt.Sprintf("connectors/%s/tasks/%s/restart", req.Connector, req.TaskID ), nil, nil)
+	statusCode, err := c.Request(http.MethodGet, fmt.Sprintf("connectors/%s/tasks/%s/restart", req.Connector, req.TaskID ), nil, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
