@@ -59,7 +59,7 @@ func (c Client) GetAll() GetAllResponse {
 	var gar GetAllResponse
 	var connectors []string
 
-	statusCode, err := c.Request("GET", "connectors", "", &connectors)
+	statusCode, err := c.Request("GET", "connectors", nil, &connectors)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -133,30 +133,52 @@ func (c Client) GetStatus(req ConnectorRequest) StatusResponse {
 
 //Restart ...
 func (c Client) Restart(req ConnectorRequest) EmptyResponse {
-	resp := ConnectorResponse{}
+	resp := EmptyResponse{}
 
-	statusCode, err := c.Request("POST", fmt.Sprintf("connectors/%s/restart", req.Name), req, &resp)
+	statusCode, err := c.Request("POST", fmt.Sprintf("connectors/%s/restart", req.Name), nil, &resp)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	resp.Code = statusCode
+	return resp
 }
 
 //Pause ...
 func (c Client) Pause(req ConnectorRequest) EmptyResponse {
+	resp := EmptyResponse{}
 
-	return EmptyResponse{}
+	statusCode, err := c.Request("PUT", fmt.Sprintf("connectors/%s/pause", req.Name), nil, &resp)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	resp.Code = statusCode
+	return resp
 }
 
 //Resume ...
 func (c Client) Resume(req ConnectorRequest) EmptyResponse {
+	resp := EmptyResponse{}
 
-	return EmptyResponse{}
+	statusCode, err := c.Request("PUT", fmt.Sprintf("connectors/%s/resume", req.Name), nil, &resp)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	resp.Code = statusCode
+	return resp
 }
 
 //Delete ...
 func (c Client) Delete(req ConnectorRequest) EmptyResponse {
+	resp := EmptyResponse{}
 
-	return EmptyResponse{}
+	statusCode, err := c.Request("DELETE", fmt.Sprintf("connectors/%s", req.Name), nil, &resp)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	resp.Code = statusCode
+	return resp
 }
