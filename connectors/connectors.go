@@ -19,6 +19,7 @@ type ConnectorRequest struct {
 
 //UpdateRequest ...
 type UpdateRequest struct {
+	Name   string            `json:"name"`
 	Config map[string]string `json:"config"`
 }
 
@@ -71,6 +72,19 @@ func (c Client) GetAll() GetAllResponse {
 	return gar
 }
 
+//Get ...
+func (c Client) Get(req ConnectorRequest) ConnectorResponse {
+	var cr ConnectorResponse
+
+	statusCode, err := c.Request(http.MethodGet, fmt.Sprintf("connectors/%s", req.Name), nil, &cr)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	cr.Code = statusCode
+	return cr
+}
+
 //Create ...
 func (c Client) Create(req CreateRequest) ConnectorResponse {
 	resp := ConnectorResponse{}
@@ -85,17 +99,30 @@ func (c Client) Create(req CreateRequest) ConnectorResponse {
 	return resp
 }
 
-//Get ...
-func (c Client) Get(req ConnectorRequest) ConnectorResponse {
-	var cr ConnectorResponse
+//Update ...
+func (c Client) Update(req UpdateRequest) ConnectorResponse {
+	sr := ConnectorResponse{}
 
-	statusCode, err := c.Request(http.MethodGet, fmt.Sprintf("connectors/%s", req.Name), nil, &cr)
+	statusCode, err := c.Request(http.MethodPut, fmt.Sprintf("connectors/%s/config", req.Name), req.Config, &sr)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	cr.Code = statusCode
-	return cr
+	sr.Code = statusCode
+	return sr
+}
+
+//Delete ...
+func (c Client) Delete(req ConnectorRequest) EmptyResponse {
+	resp := EmptyResponse{}
+
+	statusCode, err := c.Request(http.MethodDelete, fmt.Sprintf("connectors/%s", req.Name), nil, &resp)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	resp.Code = statusCode
+	return resp
 }
 
 //GetConfig ...
@@ -111,12 +138,6 @@ func (c Client) GetConfig(req ConnectorRequest) ConfigResponse {
 	cr.Code = statusCode
 	cr.Config = config
 	return cr
-}
-
-//Update ...
-func (c Client) Update(req UpdateRequest) ConnectorResponse {
-
-	return ConnectorResponse{}
 }
 
 //GetStatus ...
@@ -171,15 +192,3 @@ func (c Client) Resume(req ConnectorRequest) EmptyResponse {
 	return resp
 }
 
-//Delete ...
-func (c Client) Delete(req ConnectorRequest) EmptyResponse {
-	resp := EmptyResponse{}
-
-	statusCode, err := c.Request(http.MethodDelete, fmt.Sprintf("connectors/%s", req.Name), nil, &resp)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	resp.Code = statusCode
-	return resp
-}
