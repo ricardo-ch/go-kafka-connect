@@ -78,6 +78,8 @@ func (c Client) GetAll() GetAllResponse {
 //Create ...
 func (c Client) Create(req CreateRequest) ConnectorResponse {
 
+	statusCode, err := c.Request("GET", endpointConnector, req, &connectors)
+
 	return ConnectorResponse{}
 }
 
@@ -85,7 +87,7 @@ func (c Client) Create(req CreateRequest) ConnectorResponse {
 func (c Client) Get(req ConnectorRequest) ConnectorResponse {
 	var cr ConnectorResponse
 
-	statusCode, err := c.Request("GET", endpointConnector + "/" + req.Name, "", &cr)
+	statusCode, err := c.Request("GET", endpointConnector + "/" + req.Name, nil, &cr)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -99,7 +101,7 @@ func (c Client) GetConfig(req ConnectorRequest) ConfigResponse {
 	var cr ConfigResponse
 	var config map[string]string
 
-	statusCode, err := c.Request("GET", fmt.Sprintf(endpointConnectorConfig, req.Name), "", &config)
+	statusCode, err := c.Request("GET", fmt.Sprintf(endpointConnectorConfig, req.Name), nil, &config)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -119,7 +121,7 @@ func (c Client) Update(req UpdateRequest) ConnectorResponse {
 func (c Client) GetStatus(req ConnectorRequest) StatusResponse {
 	var sr StatusResponse
 
-	statusCode, err := c.Request("GET", fmt.Sprintf(endpointConnectorConfig, req.Name), "", &sr)
+	statusCode, err := c.Request("GET", fmt.Sprintf(endpointConnectorConfig, req.Name), nil, &sr)
 	if err != nil {
 		log.Fatal(err)
 	}
