@@ -6,30 +6,30 @@ import (
 	"net/http"
 )
 
-//CreateRequest ...
-type CreateRequest struct {
-	Name   string            `json:"name"`
-	Config map[string]string `json:"config"`
-}
-
-//ConnectorRequest ...
+//ConnectorRequest is generic request used when interacting with connector endpoint
 type ConnectorRequest struct {
-	Name string
+	Name string  `json:"name"`
 }
 
-//UpdateRequest ...
-type UpdateRequest struct {
-	Name   string            `json:"name"`
+//CreateConnectorRequest is request used for creating connector
+type CreateConnectorRequest struct {
+	ConnectorRequest
 	Config map[string]string `json:"config"`
 }
 
-//GetAllResponse ...
-type GetAllResponse struct {
+//UpdateRequest is request used for updating connector
+type UpdateRequest struct {
+	ConnectorRequest
+	Config map[string]string `json:"config"`
+}
+
+//GetAllConnectorsResponse is request used to get list of available connectors
+type GetAllConnectorsResponse struct {
 	Code       int
 	Connectors []string
 }
 
-//ConnectorResponse ...
+//ConnectorResponse is generic response when interacting with connector endpoint
 type ConnectorResponse struct {
 	Code   int
 	Name   string            `json:"name"`
@@ -37,28 +37,28 @@ type ConnectorResponse struct {
 	Tasks  []TaskID          `json:"tasks"`
 }
 
-//ConfigResponse ...
-type ConfigResponse struct {
+//GetConfigResponse is response returned by GetConfig endpoint
+type GetConfigResponse struct {
 	Code   int
 	Config map[string]string
 }
 
-//StatusResponse ...
-type StatusResponse struct {
+//GetStatusResponse is response returned by GetStatus endpoint
+type GetStatusResponse struct {
 	Code            int
 	Name            string            `json:"name"`
 	ConnectorStatus map[string]string `json:"connector"`
 	TasksStatus     []TaskStatus      `json:"tasks"`
 }
 
-//EmptyResponse ...
+//EmptyResponse is response returned by multiple endpoint when only StatusCode matter
 type EmptyResponse struct {
 	Code int
 }
 
 //GetAll gets the list of all active connectors
-func (c Client) GetAll() GetAllResponse {
-	var gar GetAllResponse
+func (c Client) GetAll() GetAllConnectorsResponse {
+	var gar GetAllConnectorsResponse
 	var connectors []string
 
 	statusCode, err := c.Request(http.MethodGet, "connectors", nil, &connectors)
@@ -72,8 +72,8 @@ func (c Client) GetAll() GetAllResponse {
 	return gar
 }
 
-//Get ...
-func (c Client) Get(req ConnectorRequest) ConnectorResponse {
+//GetConnector return information on specific connector
+func (c Client) GetConnector(req ConnectorRequest) ConnectorResponse {
 	var cr ConnectorResponse
 
 	statusCode, err := c.Request(http.MethodGet, fmt.Sprintf("connectors/%s", req.Name), nil, &cr)
@@ -85,8 +85,8 @@ func (c Client) Get(req ConnectorRequest) ConnectorResponse {
 	return cr
 }
 
-//Create ...
-func (c Client) Create(req CreateRequest) ConnectorResponse {
+//CreateConnector create connector using specified config and name
+func (c Client) CreateConnector(req CreateConnectorRequest) ConnectorResponse {
 	resp := ConnectorResponse{}
 
 	statusCode, err := c.Request(http.MethodPost, "connectors", req, &resp)
@@ -99,8 +99,8 @@ func (c Client) Create(req CreateRequest) ConnectorResponse {
 	return resp
 }
 
-//Update ...
-func (c Client) Update(req UpdateRequest) ConnectorResponse {
+//UpdateConnector update a connector config
+func (c Client) UpdateConnector(req UpdateRequest) ConnectorResponse {
 	sr := ConnectorResponse{}
 
 	statusCode, err := c.Request(http.MethodPut, fmt.Sprintf("connectors/%s/config", req.Name), req.Config, &sr)
@@ -112,8 +112,8 @@ func (c Client) Update(req UpdateRequest) ConnectorResponse {
 	return sr
 }
 
-//Delete ...
-func (c Client) Delete(req ConnectorRequest) EmptyResponse {
+//DeleteConnector delete a connector
+func (c Client) DeleteConnector(req ConnectorRequest) EmptyResponse {
 	resp := EmptyResponse{}
 
 	statusCode, err := c.Request(http.MethodDelete, fmt.Sprintf("connectors/%s", req.Name), nil, &resp)
@@ -125,9 +125,9 @@ func (c Client) Delete(req ConnectorRequest) EmptyResponse {
 	return resp
 }
 
-//GetConfig ...
-func (c Client) GetConfig(req ConnectorRequest) ConfigResponse {
-	var cr ConfigResponse
+//GetConnectorConfig return config of a connector
+func (c Client) GetConnectorConfig(req ConnectorRequest) GetConfigResponse {
+	var cr GetConfigResponse
 	var config map[string]string
 
 	statusCode, err := c.Request(http.MethodGet, fmt.Sprintf("connectors/%s/config", req.Name), nil, &config)
@@ -140,9 +140,9 @@ func (c Client) GetConfig(req ConnectorRequest) ConfigResponse {
 	return cr
 }
 
-//GetStatus ...
-func (c Client) GetStatus(req ConnectorRequest) StatusResponse {
-	var sr StatusResponse
+//GetConnectorStatus return current status of connector
+func (c Client) GetConnectorStatus(req ConnectorRequest) GetStatusResponse {
+	var sr GetStatusResponse
 
 	statusCode, err := c.Request(http.MethodGet, fmt.Sprintf("connectors/%s/status", req.Name), nil, &sr)
 	if err != nil {
@@ -153,8 +153,8 @@ func (c Client) GetStatus(req ConnectorRequest) StatusResponse {
 	return sr
 }
 
-//Restart ...
-func (c Client) Restart(req ConnectorRequest) EmptyResponse {
+//RestartConnector restart connector
+func (c Client) RestartConnector(req ConnectorRequest) EmptyResponse {
 	resp := EmptyResponse{}
 
 	statusCode, err := c.Request(http.MethodPost, fmt.Sprintf("connectors/%s/restart", req.Name), nil, &resp)
@@ -166,8 +166,8 @@ func (c Client) Restart(req ConnectorRequest) EmptyResponse {
 	return resp
 }
 
-//Pause ...
-func (c Client) Pause(req ConnectorRequest) EmptyResponse {
+//PauseConnector pause a running connector
+func (c Client) PauseConnector(req ConnectorRequest) EmptyResponse {
 	resp := EmptyResponse{}
 
 	statusCode, err := c.Request(http.MethodPut, fmt.Sprintf("connectors/%s/pause", req.Name), nil, &resp)
@@ -179,8 +179,8 @@ func (c Client) Pause(req ConnectorRequest) EmptyResponse {
 	return resp
 }
 
-//Resume ...
-func (c Client) Resume(req ConnectorRequest) EmptyResponse {
+//ResumeConnector resume a paused connector
+func (c Client) ResumeConnector(req ConnectorRequest) EmptyResponse {
 	resp := EmptyResponse{}
 
 	statusCode, err := c.Request(http.MethodPut, fmt.Sprintf("connectors/%s/resume", req.Name), nil, &resp)
