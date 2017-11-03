@@ -17,8 +17,8 @@ type CreateConnectorRequest struct {
 	Config map[string]string `json:"config"`
 }
 
-//UpdateRequest is request used for updating connector
-type UpdateRequest struct {
+//UpdateConnectorRequest is request used for updating connector
+type UpdateConnectorRequest struct {
 	ConnectorRequest
 	Config map[string]string `json:"config"`
 }
@@ -37,14 +37,14 @@ type ConnectorResponse struct {
 	Tasks  []TaskID          `json:"tasks"`
 }
 
-//GetConfigResponse is response returned by GetConfig endpoint
-type GetConfigResponse struct {
+//GetConnectorConfigResponse is response returned by GetConfig endpoint
+type GetConnectorConfigResponse struct {
 	Code   int
 	Config map[string]string
 }
 
-//GetStatusResponse is response returned by GetStatus endpoint
-type GetStatusResponse struct {
+//GetConnectorStatusResponse is response returned by GetStatus endpoint
+type GetConnectorStatusResponse struct {
 	Code            int
 	Name            string            `json:"name"`
 	ConnectorStatus map[string]string `json:"connector"`
@@ -100,7 +100,7 @@ func (c Client) CreateConnector(req CreateConnectorRequest) ConnectorResponse {
 }
 
 //UpdateConnector update a connector config
-func (c Client) UpdateConnector(req UpdateRequest) ConnectorResponse {
+func (c Client) UpdateConnector(req UpdateConnectorRequest) ConnectorResponse {
 	sr := ConnectorResponse{}
 
 	statusCode, err := c.Request(http.MethodPut, fmt.Sprintf("connectors/%s/config", req.Name), req.Config, &sr)
@@ -126,8 +126,8 @@ func (c Client) DeleteConnector(req ConnectorRequest) EmptyResponse {
 }
 
 //GetConnectorConfig return config of a connector
-func (c Client) GetConnectorConfig(req ConnectorRequest) GetConfigResponse {
-	var cr GetConfigResponse
+func (c Client) GetConnectorConfig(req ConnectorRequest) GetConnectorConfigResponse {
+	var cr GetConnectorConfigResponse
 	var config map[string]string
 
 	statusCode, err := c.Request(http.MethodGet, fmt.Sprintf("connectors/%s/config", req.Name), nil, &config)
@@ -141,8 +141,8 @@ func (c Client) GetConnectorConfig(req ConnectorRequest) GetConfigResponse {
 }
 
 //GetConnectorStatus return current status of connector
-func (c Client) GetConnectorStatus(req ConnectorRequest) GetStatusResponse {
-	var sr GetStatusResponse
+func (c Client) GetConnectorStatus(req ConnectorRequest) GetConnectorStatusResponse {
+	var sr GetConnectorStatusResponse
 
 	statusCode, err := c.Request(http.MethodGet, fmt.Sprintf("connectors/%s/status", req.Name), nil, &sr)
 	if err != nil {

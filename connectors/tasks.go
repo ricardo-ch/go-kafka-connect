@@ -6,37 +6,37 @@ import (
 	"net/http"
 )
 
-//TaskRequest ...
+//TaskRequest is generic request when interacting with task endpoint
 type TaskRequest struct {
 	Connector string
 	TaskID    int
 }
 
-//GetAllTasksResponse ...
+//GetAllTasksResponse is response to get all tasks of a specific endpoint
 type GetAllTasksResponse struct {
 	Code  int
 	Tasks []TaskDetails
 }
 
-//TaskDetails ...
+//TaskDetails is detail of a specific task on a specific endpoint
 type TaskDetails struct {
 	ID     TaskID            `json:"id"`
 	Config map[string]string `json:"config"`
 }
 
-//TaskID ...
+//TaskID identify a task and its connector
 type TaskID struct {
 	Connector string `json:"connector"`
 	TaskID    int    `json:"task"`
 }
 
-//TaskStatusResponse ...
+//TaskStatusResponse is response returned by get task status endpoint
 type TaskStatusResponse struct {
 	Code   int
 	Status TaskStatus
 }
 
-//TaskStatus ...
+//TaskStatus define task status
 type TaskStatus struct {
 	ID       int    `json:"id"`
 	State    string `json:"state"`
@@ -44,7 +44,7 @@ type TaskStatus struct {
 	Trace    string `json:"trace,omitempty"`
 }
 
-//GetAllTasks ...
+//GetAllTasks return list of running task
 func (c Client) GetAllTasks(req ConnectorRequest) GetAllTasksResponse {
 	var gatr GetAllTasksResponse
 	var taskDetails []TaskDetails
@@ -59,23 +59,21 @@ func (c Client) GetAllTasks(req ConnectorRequest) GetAllTasksResponse {
 	return gatr
 }
 
-//GetTaskStatus ...
+//GetTaskStatus return current status of task
 func (c Client) GetTaskStatus(req TaskRequest) TaskStatusResponse {
 	var tsr TaskStatusResponse
-	var ts TaskStatus
 
-	statusCode, err := c.Request(http.MethodGet, fmt.Sprintf( "connectors/%s/tasks/%s/status", req.Connector, req.TaskID), nil, &ts)
+	statusCode, err := c.Request(http.MethodGet, fmt.Sprintf( "connectors/%s/tasks/%s/status", req.Connector, req.TaskID), nil, &tsr)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	tsr.Code = statusCode
-	tsr.Status = ts
 
 	return tsr
 }
 
-//RestartTask ...
+//RestartTask try to restart task
 func (c Client) RestartTask(req TaskRequest) EmptyResponse {
 	var er EmptyResponse
 
