@@ -1,14 +1,14 @@
 package connectors
 
 import (
-	"log"
 	"fmt"
+	"log"
 	"net/http"
 )
 
 //ConnectorRequest is generic request used when interacting with connector endpoint
 type ConnectorRequest struct {
-	Name string  `json:"name"`
+	Name string `json:"name"`
 }
 
 //CreateConnectorRequest is request used for creating connector
@@ -58,7 +58,7 @@ type EmptyResponse struct {
 
 //GetAll gets the list of all active connectors
 func (c Client) GetAll() GetAllConnectorsResponse {
-	var gar GetAllConnectorsResponse
+	resp := GetAllConnectorsResponse{}
 	var connectors []string
 
 	statusCode, err := c.Request(http.MethodGet, "connectors", nil, &connectors)
@@ -66,23 +66,23 @@ func (c Client) GetAll() GetAllConnectorsResponse {
 		log.Fatal(err)
 	}
 
-	gar.Code = statusCode
-	gar.Connectors = connectors
+	resp.Code = statusCode
+	resp.Connectors = connectors
 
-	return gar
+	return resp
 }
 
 //GetConnector return information on specific connector
 func (c Client) GetConnector(req ConnectorRequest) ConnectorResponse {
-	var cr ConnectorResponse
+	resp := ConnectorResponse{}
 
-	statusCode, err := c.Request(http.MethodGet, fmt.Sprintf("connectors/%s", req.Name), nil, &cr)
+	statusCode, err := c.Request(http.MethodGet, fmt.Sprintf("connectors/%s", req.Name), nil, &resp)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	cr.Code = statusCode
-	return cr
+	resp.Code = statusCode
+	return resp
 }
 
 //CreateConnector create connector using specified config and name
@@ -101,15 +101,15 @@ func (c Client) CreateConnector(req CreateConnectorRequest) ConnectorResponse {
 
 //UpdateConnector update a connector config
 func (c Client) UpdateConnector(req UpdateConnectorRequest) ConnectorResponse {
-	sr := ConnectorResponse{}
+	resp := ConnectorResponse{}
 
-	statusCode, err := c.Request(http.MethodPut, fmt.Sprintf("connectors/%s/config", req.Name), req.Config, &sr)
+	statusCode, err := c.Request(http.MethodPut, fmt.Sprintf("connectors/%s/config", req.Name), req.Config, &resp)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	sr.Code = statusCode
-	return sr
+	resp.Code = statusCode
+	return resp
 }
 
 //DeleteConnector delete a connector
@@ -127,30 +127,30 @@ func (c Client) DeleteConnector(req ConnectorRequest) EmptyResponse {
 
 //GetConnectorConfig return config of a connector
 func (c Client) GetConnectorConfig(req ConnectorRequest) GetConnectorConfigResponse {
-	var cr GetConnectorConfigResponse
+	resp := GetConnectorConfigResponse{}
 	var config map[string]string
 
-	statusCode, err := c.Request(http.MethodGet, fmt.Sprintf("connectors/%s/config", req.Name), nil, &config)
+	statusCode, err := c.Request(http.MethodGet, fmt.Sprintf("connectors/%s/config", req.Name), nil, &resp)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	cr.Code = statusCode
-	cr.Config = config
-	return cr
+	resp.Code = statusCode
+	resp.Config = config
+	return resp
 }
 
 //GetConnectorStatus return current status of connector
 func (c Client) GetConnectorStatus(req ConnectorRequest) GetConnectorStatusResponse {
-	var sr GetConnectorStatusResponse
+	resp := GetConnectorStatusResponse{}
 
-	statusCode, err := c.Request(http.MethodGet, fmt.Sprintf("connectors/%s/status", req.Name), nil, &sr)
+	statusCode, err := c.Request(http.MethodGet, fmt.Sprintf("connectors/%s/status", req.Name), nil, &resp)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	sr.Code = statusCode
-	return sr
+	resp.Code = statusCode
+	return resp
 }
 
 //RestartConnector restart connector
@@ -191,4 +191,3 @@ func (c Client) ResumeConnector(req ConnectorRequest) EmptyResponse {
 	resp.Code = statusCode
 	return resp
 }
-
