@@ -50,7 +50,7 @@ func (c Client) GetAllTasks(req ConnectorRequest) GetAllTasksResponse {
 	var gatr GetAllTasksResponse
 	var taskDetails []TaskDetails
 
-	statusCode, err := c.Request(http.MethodGet, fmt.Sprintf("/connectors/%s/tasks", req.Name), nil, &taskDetails)
+	statusCode, err := c.Request(http.MethodGet, fmt.Sprintf("connectors/%s/tasks", req.Name), nil, &taskDetails)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -64,7 +64,7 @@ func (c Client) GetAllTasks(req ConnectorRequest) GetAllTasksResponse {
 func (c Client) GetTaskStatus(req TaskRequest) TaskStatusResponse {
 	var tsr TaskStatusResponse
 
-	statusCode, err := c.Request(http.MethodGet, fmt.Sprintf("/connectors/%s/tasks/%s/status", req.Connector, strconv.Itoa(req.TaskID)), nil, &tsr)
+	statusCode, err := c.Request(http.MethodGet, fmt.Sprintf("connectors/%s/tasks/%s/status", req.Connector, strconv.Itoa(req.TaskID)), nil, &tsr)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -78,7 +78,7 @@ func (c Client) GetTaskStatus(req TaskRequest) TaskStatusResponse {
 func (c Client) RestartTask(req TaskRequest) EmptyResponse {
 	var er EmptyResponse
 
-	statusCode, err := c.Request(http.MethodGet, fmt.Sprintf("/connectors/%s/tasks/%s/restart", req.Connector, strconv.Itoa(req.TaskID)), nil, nil)
+	statusCode, err := c.Request(http.MethodGet, fmt.Sprintf("connectors/%s/tasks/%s/restart", req.Connector, strconv.Itoa(req.TaskID)), nil, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
