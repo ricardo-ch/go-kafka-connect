@@ -1,11 +1,11 @@
 package connectors
 
 import (
-	"net/http"
-	"strconv"
-	"encoding/json"
-	"net/url"
 	"bytes"
+	"encoding/json"
+	"net/http"
+	"net/url"
+	"strconv"
 )
 
 //Client represents the kafka connect access configuration
@@ -33,7 +33,7 @@ func (c Client) Request(method string, endpoint string, request interface{}, res
 		protocol = "http"
 	}
 
-	endPointUrl, err := url.Parse(protocol + "://" + c.Host + ":" + strconv.Itoa(c.Port) + endpoint)
+	endPointURL, err := url.Parse(protocol + "://" + c.Host + ":" + strconv.Itoa(c.Port) + "/" + endpoint)
 	if err != nil {
 		return 0, err
 	}
@@ -46,7 +46,7 @@ func (c Client) Request(method string, endpoint string, request interface{}, res
 		}
 	}
 
-	req, err := http.NewRequest(method, endPointUrl.String(), bytes.NewReader(buf.Bytes()))
+	req, err := http.NewRequest(method, endPointURL.String(), bytes.NewReader(buf.Bytes()))
 	if err != nil {
 		return 0, err
 	}
