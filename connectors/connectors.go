@@ -61,7 +61,7 @@ func (c Client) GetAll() GetAllConnectorsResponse {
 	resp := GetAllConnectorsResponse{}
 	var connectors []string
 
-	statusCode, err := c.Request(http.MethodGet, "connectors", nil, &connectors)
+	statusCode, err := c.Request(http.MethodGet, "/connectors", nil, &connectors)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -76,7 +76,7 @@ func (c Client) GetAll() GetAllConnectorsResponse {
 func (c Client) GetConnector(req ConnectorRequest) ConnectorResponse {
 	resp := ConnectorResponse{}
 
-	statusCode, err := c.Request(http.MethodGet, fmt.Sprintf("connectors/%s", req.Name), nil, &resp)
+	statusCode, err := c.Request(http.MethodGet, fmt.Sprintf("/connectors/%s", req.Name), nil, &resp)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -89,7 +89,7 @@ func (c Client) GetConnector(req ConnectorRequest) ConnectorResponse {
 func (c Client) CreateConnector(req CreateConnectorRequest) ConnectorResponse {
 	resp := ConnectorResponse{}
 
-	statusCode, err := c.Request(http.MethodPost, "connectors", req, &resp)
+	statusCode, err := c.Request(http.MethodPost, "/connectors", req, &resp)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -103,7 +103,7 @@ func (c Client) CreateConnector(req CreateConnectorRequest) ConnectorResponse {
 func (c Client) UpdateConnector(req UpdateConnectorRequest) ConnectorResponse {
 	resp := ConnectorResponse{}
 
-	statusCode, err := c.Request(http.MethodPut, fmt.Sprintf("connectors/%s/config", req.Name), req.Config, &resp)
+	statusCode, err := c.Request(http.MethodPut, fmt.Sprintf("/connectors/%s/config", req.Name), req.Config, &resp)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -116,7 +116,7 @@ func (c Client) UpdateConnector(req UpdateConnectorRequest) ConnectorResponse {
 func (c Client) DeleteConnector(req ConnectorRequest) EmptyResponse {
 	resp := EmptyResponse{}
 
-	statusCode, err := c.Request(http.MethodDelete, fmt.Sprintf("connectors/%s", req.Name), nil, &resp)
+	statusCode, err := c.Request(http.MethodDelete, fmt.Sprintf("/connectors/%s", req.Name), nil, &resp)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -130,7 +130,7 @@ func (c Client) GetConnectorConfig(req ConnectorRequest) GetConnectorConfigRespo
 	resp := GetConnectorConfigResponse{}
 	var config map[string]string
 
-	statusCode, err := c.Request(http.MethodGet, fmt.Sprintf("connectors/%s/config", req.Name), nil, &resp)
+	statusCode, err := c.Request(http.MethodGet, fmt.Sprintf("/connectors/%s/config", req.Name), nil, &resp)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -144,7 +144,7 @@ func (c Client) GetConnectorConfig(req ConnectorRequest) GetConnectorConfigRespo
 func (c Client) GetConnectorStatus(req ConnectorRequest) GetConnectorStatusResponse {
 	resp := GetConnectorStatusResponse{}
 
-	statusCode, err := c.Request(http.MethodGet, fmt.Sprintf("connectors/%s/status", req.Name), nil, &resp)
+	statusCode, err := c.Request(http.MethodGet, fmt.Sprintf("/connectors/%s/status", req.Name), nil, &resp)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -157,7 +157,7 @@ func (c Client) GetConnectorStatus(req ConnectorRequest) GetConnectorStatusRespo
 func (c Client) RestartConnector(req ConnectorRequest) EmptyResponse {
 	resp := EmptyResponse{}
 
-	statusCode, err := c.Request(http.MethodPost, fmt.Sprintf("connectors/%s/restart", req.Name), nil, &resp)
+	statusCode, err := c.Request(http.MethodPost, fmt.Sprintf("/connectors/%s/restart", req.Name), nil, &resp)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -170,7 +170,7 @@ func (c Client) RestartConnector(req ConnectorRequest) EmptyResponse {
 func (c Client) PauseConnector(req ConnectorRequest) EmptyResponse {
 	resp := EmptyResponse{}
 
-	statusCode, err := c.Request(http.MethodPut, fmt.Sprintf("connectors/%s/pause", req.Name), nil, &resp)
+	statusCode, err := c.Request(http.MethodPut, fmt.Sprintf("/connectors/%s/pause", req.Name), nil, &resp)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -183,7 +183,7 @@ func (c Client) PauseConnector(req ConnectorRequest) EmptyResponse {
 func (c Client) ResumeConnector(req ConnectorRequest) EmptyResponse {
 	resp := EmptyResponse{}
 
-	statusCode, err := c.Request(http.MethodPut, fmt.Sprintf("connectors/%s/resume", req.Name), nil, &resp)
+	statusCode, err := c.Request(http.MethodPut, fmt.Sprintf("/connectors/%s/resume", req.Name), nil, &resp)
 	if err != nil {
 		log.Fatal(err)
 	}
