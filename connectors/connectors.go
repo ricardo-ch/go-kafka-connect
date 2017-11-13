@@ -26,6 +26,7 @@ type UpdateConnectorRequest struct {
 type GetAllConnectorsResponse struct {
 	Code       int
 	Connectors []string
+	ErrorResponse
 }
 
 //ConnectorResponse is generic response when interacting with connector endpoint
@@ -34,12 +35,14 @@ type ConnectorResponse struct {
 	Name   string            `json:"name"`
 	Config map[string]string `json:"config"`
 	Tasks  []TaskID          `json:"tasks"`
+	ErrorResponse
 }
 
 //GetConnectorConfigResponse is response returned by GetConfig endpoint
 type GetConnectorConfigResponse struct {
 	Code   int
 	Config map[string]string
+	ErrorResponse
 }
 
 //GetConnectorStatusResponse is response returned by GetStatus endpoint
@@ -48,11 +51,13 @@ type GetConnectorStatusResponse struct {
 	Name            string            `json:"name"`
 	ConnectorStatus map[string]string `json:"connector"`
 	TasksStatus     []TaskStatus      `json:"tasks"`
+	ErrorResponse
 }
 
 //EmptyResponse is response returned by multiple endpoint when only StatusCode matter
 type EmptyResponse struct {
 	Code int
+	ErrorResponse
 }
 
 //GetAll gets the list of all active connectors
@@ -79,6 +84,9 @@ func (c Client) GetConnector(req ConnectorRequest) (ConnectorResponse, error) {
 	if err != nil {
 		return ConnectorResponse{}, err
 	}
+	if resp.ErrorCode != 0 {
+		return ConnectorResponse{}, resp.ErrorResponse
+	}
 
 	resp.Code = statusCode
 	return resp, nil
@@ -91,6 +99,9 @@ func (c Client) CreateConnector(req CreateConnectorRequest) (ConnectorResponse, 
 	statusCode, err := c.Request(http.MethodPost, "connectors", req, &resp)
 	if err != nil {
 		return ConnectorResponse{}, err
+	}
+	if resp.ErrorCode != 0 {
+		return ConnectorResponse{}, resp.ErrorResponse
 	}
 
 	resp.Code = statusCode
@@ -106,6 +117,9 @@ func (c Client) UpdateConnector(req UpdateConnectorRequest) (ConnectorResponse, 
 	if err != nil {
 		return ConnectorResponse{}, err
 	}
+	if resp.ErrorCode != 0 {
+		return ConnectorResponse{}, resp.ErrorResponse
+	}
 
 	resp.Code = statusCode
 	return resp, nil
@@ -119,6 +133,9 @@ func (c Client) DeleteConnector(req ConnectorRequest) (EmptyResponse, error) {
 	if err != nil {
 		return EmptyResponse{}, err
 	}
+	if resp.ErrorCode != 0 {
+		return EmptyResponse{}, resp.ErrorResponse
+	}
 
 	resp.Code = statusCode
 	return resp, nil
@@ -129,9 +146,12 @@ func (c Client) GetConnectorConfig(req ConnectorRequest) (GetConnectorConfigResp
 	resp := GetConnectorConfigResponse{}
 	var config map[string]string
 
-	statusCode, err := c.Request(http.MethodGet, fmt.Sprintf("connectors/%s/config", req.Name), nil, &resp)
+	statusCode, err := c.Request(http.MethodGet, fmt.Sprintf("connectors/%s/config", req.Name), nil, &config)
 	if err != nil {
 		return GetConnectorConfigResponse{}, err
+	}
+	if resp.ErrorCode != 0 {
+		return GetConnectorConfigResponse{}, resp.ErrorResponse
 	}
 
 	resp.Code = statusCode
@@ -147,6 +167,9 @@ func (c Client) GetConnectorStatus(req ConnectorRequest) (GetConnectorStatusResp
 	if err != nil {
 		return GetConnectorStatusResponse{}, err
 	}
+	if resp.ErrorCode != 0 {
+		return GetConnectorStatusResponse{}, resp.ErrorResponse
+	}
 
 	resp.Code = statusCode
 	return resp, nil
@@ -159,6 +182,9 @@ func (c Client) RestartConnector(req ConnectorRequest) (EmptyResponse, error) {
 	statusCode, err := c.Request(http.MethodPost, fmt.Sprintf("connectors/%s/restart", req.Name), nil, &resp)
 	if err != nil {
 		return EmptyResponse{}, err
+	}
+	if resp.ErrorCode != 0 {
+		return EmptyResponse{}, resp.ErrorResponse
 	}
 
 	resp.Code = statusCode
@@ -174,6 +200,9 @@ func (c Client) PauseConnector(req ConnectorRequest) (EmptyResponse, error) {
 	if err != nil {
 		return EmptyResponse{}, err
 	}
+	if resp.ErrorCode != 0 {
+		return EmptyResponse{}, resp.ErrorResponse
+	}
 
 	resp.Code = statusCode
 	return resp, nil
@@ -187,6 +216,9 @@ func (c Client) ResumeConnector(req ConnectorRequest) (EmptyResponse, error) {
 	statusCode, err := c.Request(http.MethodPut, fmt.Sprintf("connectors/%s/resume", req.Name), nil, &resp)
 	if err != nil {
 		return EmptyResponse{}, err
+	}
+	if resp.ErrorCode != 0 {
+		return EmptyResponse{}, resp.ErrorResponse
 	}
 
 	resp.Code = statusCode
