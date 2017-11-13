@@ -2,7 +2,6 @@ package connectors
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"strconv"
 )
@@ -46,44 +45,44 @@ type TaskStatus struct {
 }
 
 //GetAllTasks return list of running task
-func (c Client) GetAllTasks(req ConnectorRequest) GetAllTasksResponse {
+func (c Client) GetAllTasks(req ConnectorRequest) (GetAllTasksResponse, error) {
 	var gatr GetAllTasksResponse
 	var taskDetails []TaskDetails
 
 	statusCode, err := c.Request(http.MethodGet, fmt.Sprintf("connectors/%s/tasks", req.Name), nil, &taskDetails)
 	if err != nil {
-		log.Fatal(err)
+		return GetAllTasksResponse{}, err
 	}
 
 	gatr.Code = statusCode
 	gatr.Tasks = taskDetails
-	return gatr
+	return gatr, nil
 }
 
 //GetTaskStatus return current status of task
-func (c Client) GetTaskStatus(req TaskRequest) TaskStatusResponse {
+func (c Client) GetTaskStatus(req TaskRequest) (TaskStatusResponse, error) {
 	var tsr TaskStatusResponse
 
 	statusCode, err := c.Request(http.MethodGet, fmt.Sprintf("connectors/%s/tasks/%s/status", req.Connector, strconv.Itoa(req.TaskID)), nil, &tsr)
 	if err != nil {
-		log.Fatal(err)
+		return  TaskStatusResponse{}, err
 	}
 
 	tsr.Code = statusCode
 
-	return tsr
+	return tsr, nil
 }
 
 //RestartTask try to restart task
-func (c Client) RestartTask(req TaskRequest) EmptyResponse {
+func (c Client) RestartTask(req TaskRequest) (EmptyResponse, error) {
 	var er EmptyResponse
 
 	statusCode, err := c.Request(http.MethodGet, fmt.Sprintf("connectors/%s/tasks/%s/restart", req.Connector, strconv.Itoa(req.TaskID)), nil, nil)
 	if err != nil {
-		log.Fatal(err)
+		return EmptyResponse{}, err
 	}
 
 	er.Code = statusCode
 
-	return er
+	return er, nil
 }
