@@ -3,6 +3,7 @@ package connectors
 import (
 	"fmt"
 	"net/http"
+	"time"
 )
 
 //ConnectorRequest is generic request used when interacting with connector endpoint
@@ -84,7 +85,9 @@ func (c Client) GetConnector(req ConnectorRequest) (ConnectorResponse, error) {
 	if err != nil {
 		return ConnectorResponse{}, err
 	}
-	if resp.ErrorCode != 0 {
+
+	// because connector missing is not an error
+	if resp.ErrorCode != 0 && resp.ErrorCode != 404 {
 		return ConnectorResponse{}, resp.ErrorResponse
 	}
 
@@ -93,7 +96,7 @@ func (c Client) GetConnector(req ConnectorRequest) (ConnectorResponse, error) {
 }
 
 //CreateConnector create connector using specified config and name
-func (c Client) CreateConnector(req CreateConnectorRequest) (ConnectorResponse, error) {
+func (c Client) CreateConnector(req CreateConnectorRequest, sync bool) (ConnectorResponse, error) {
 	resp := ConnectorResponse{}
 
 	statusCode, err := c.Request(http.MethodPost, "connectors", req, &resp)
@@ -105,6 +108,16 @@ func (c Client) CreateConnector(req CreateConnectorRequest) (ConnectorResponse, 
 	}
 
 	resp.Code = statusCode
+
+	if sync {
+		TryUntil(
+			func() bool {
+				resp, err := c.GetConnector(req.ConnectorRequest)
+				return err == nil && resp.Code == 200
+			},
+			2*time.Minute,
+		)
+	}
 
 	return resp, nil
 }
@@ -126,7 +139,7 @@ func (c Client) UpdateConnector(req UpdateConnectorRequest) (ConnectorResponse, 
 }
 
 //DeleteConnector delete a connector
-func (c Client) DeleteConnector(req ConnectorRequest) (EmptyResponse, error) {
+func (c Client) DeleteConnector(req ConnectorRequest, sync bool) (EmptyResponse, error) {
 	resp := EmptyResponse{}
 
 	statusCode, err := c.Request(http.MethodDelete, fmt.Sprintf("connectors/%s", req.Name), nil, &resp)
@@ -138,6 +151,17 @@ func (c Client) DeleteConnector(req ConnectorRequest) (EmptyResponse, error) {
 	}
 
 	resp.Code = statusCode
+
+	if sync {
+		TryUntil(
+			func() bool {
+				r, e := c.GetConnector(req)
+				return  e == nil && r.Code == 404
+			},
+			2*time.Minute,
+		)
+	}
+
 	return resp, nil
 }
 
@@ -223,4 +247,27 @@ func (c Client) ResumeConnector(req ConnectorRequest) (EmptyResponse, error) {
 
 	resp.Code = statusCode
 	return resp, nil
+}
+
+func TryUntil(exec func() bool, limit time.Duration) bool {
+	timeLimit := time.After(limit)
+
+	run := true
+	defer func() { run = false }()
+	success := make(chan bool)
+	go func() {
+		for run {
+			if exec() {
+				success <- true
+				return
+			}
+		}
+	}()
+
+	select {
+	case <-timeLimit:
+		return false
+	case <-success:
+		return true
+	}
 }

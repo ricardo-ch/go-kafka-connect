@@ -1,6 +1,7 @@
 package connectors
 
 import (
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"testing"
@@ -15,35 +16,43 @@ func TestHealtz(t *testing.T) {
 }
 
 func TestCreateConnector(t *testing.T) {
-	client := NewClient("localhost", 8083 , false )
-	resp, err := client.CreateConnector(	CreateConnectorRequest{
-		ConnectorRequest: ConnectorRequest{ Name: "test-create-connector" },
-		Config: map[string]string{
-			"connector.class": "FileStreamSource",
-			"tasks.max": "1",
-			"file": testFile,
-			"topic": "connect-test",
+	client := NewClient("localhost", 8083, false)
+	resp, err := client.CreateConnector(
+		CreateConnectorRequest{
+			ConnectorRequest: ConnectorRequest{Name: "test-create-connector"},
+			Config: map[string]string{
+				"connector.class": "FileStreamSource",
+				"tasks.max":       "1",
+				"file":            testFile,
+				"topic":           "connect-test",
+			},
 		},
-	})
+		true)
 
 	assert.Nil(t, err)
 	assert.Equal(t, 201, resp.Code)
 }
 
 func TestGetConnector(t *testing.T) {
-	client := NewClient("localhost", 8083 , false )
-	client.CreateConnector(	CreateConnectorRequest{
-		ConnectorRequest: ConnectorRequest{ Name: "test-get-connector" },
-		Config: map[string]string{
-			"connector.class": "FileStreamSource",
-			"tasks.max": "1",
-			"file": testFile,
-			"topic": "connect-test",
+	client := NewClient("localhost", 8083, false)
+	_, err := client.CreateConnector(
+		CreateConnectorRequest{
+			ConnectorRequest: ConnectorRequest{Name: "test-get-connector"},
+			Config: map[string]string{
+				"connector.class": "FileStreamSource",
+				"tasks.max":       "1",
+				"file":            testFile,
+				"topic":           "connect-test",
+			},
 		},
-	})
+		true)
+	if err != nil {
+		assert.Fail(t, fmt.Sprintf("error while creaating test connector: %s", err.Error()))
+		return
+	}
 
 	resp, err := client.GetConnector(ConnectorRequest{
-		Name:"test-get-connector",
+		Name: "test-get-connector",
 	})
 
 	assert.Nil(t, err)
@@ -51,18 +60,23 @@ func TestGetConnector(t *testing.T) {
 	assert.Equal(t, "test-get-connector", resp.Name)
 }
 
-
 func TestGetAllConnectors(t *testing.T) {
-	client := NewClient("localhost", 8083 , false )
-	client.CreateConnector(	CreateConnectorRequest{
-		ConnectorRequest: ConnectorRequest{ Name: "test-get-all-connectors" },
-		Config: map[string]string{
-			"connector.class": "FileStreamSource",
-			"tasks.max": "1",
-			"file": testFile,
-			"topic": "connect-test",
+	client := NewClient("localhost", 8083, false)
+	_, err := client.CreateConnector(
+		CreateConnectorRequest{
+			ConnectorRequest: ConnectorRequest{Name: "test-get-all-connectors"},
+			Config: map[string]string{
+				"connector.class": "FileStreamSource",
+				"tasks.max":       "1",
+				"file":            testFile,
+				"topic":           "connect-test",
+			},
 		},
-	})
+		true)
+	if err != nil {
+		assert.Fail(t, fmt.Sprintf("error while creaating test connector: %s", err.Error()))
+		return
+	}
 
 	resp, err := client.GetAll()
 
@@ -72,25 +86,31 @@ func TestGetAllConnectors(t *testing.T) {
 }
 
 func TestUpdateConnector(t *testing.T) {
-	client := NewClient("localhost", 8083 , false )
-	client.CreateConnector(	CreateConnectorRequest{
-		ConnectorRequest: ConnectorRequest{ Name: "test-update-connectors" },
-		Config: map[string]string{
-			"connector.class": "FileStreamSource",
-			"tasks.max": "1",
-			"file": testFile,
-			"topic": "connect-test",
+	client := NewClient("localhost", 8083, false)
+	_, err := client.CreateConnector(
+		CreateConnectorRequest{
+			ConnectorRequest: ConnectorRequest{Name: "test-update-connectors"},
+			Config: map[string]string{
+				"connector.class": "FileStreamSource",
+				"tasks.max":       "1",
+				"file":            testFile,
+				"topic":           "connect-test",
+			},
 		},
-	})
+		true)
+	if err != nil {
+		assert.Fail(t, fmt.Sprintf("error while creaating test connector: %s", err.Error()))
+		return
+	}
 
 	resp, err := client.UpdateConnector(UpdateConnectorRequest{
-		ConnectorRequest: ConnectorRequest{Name:"test-update-connectors" },
+		ConnectorRequest: ConnectorRequest{Name: "test-update-connectors"},
 		Config: map[string]string{
 			"connector.class": "FileStreamSource",
-			"tasks.max": "1",
-			"file": testFile,
-			"topic": "connect-test",
-			"test": "success",
+			"tasks.max":       "1",
+			"file":            testFile,
+			"topic":           "connect-test",
+			"test":            "success",
 		},
 	})
 
@@ -100,18 +120,24 @@ func TestUpdateConnector(t *testing.T) {
 }
 
 func TestDeleteConnector(t *testing.T) {
-	client := NewClient("localhost", 8083 , false )
-	client.CreateConnector(	CreateConnectorRequest{
-		ConnectorRequest: ConnectorRequest{ Name: "test-delete-connectors" },
-		Config: map[string]string{
-			"connector.class": "FileStreamSource",
-			"tasks.max": "1",
-			"file": testFile,
-			"topic": "connect-test",
+	client := NewClient("localhost", 8083, false)
+	_, err := client.CreateConnector(
+		CreateConnectorRequest{
+			ConnectorRequest: ConnectorRequest{Name: "test-delete-connectors"},
+			Config: map[string]string{
+				"connector.class": "FileStreamSource",
+				"tasks.max":       "1",
+				"file":            testFile,
+				"topic":           "connect-test",
+			},
 		},
-	})
+		true)
+	if err != nil {
+		assert.Fail(t, fmt.Sprintf("error while creaating test connector: %s", err.Error()))
+		return
+	}
 
-	resp, err := client.DeleteConnector(ConnectorRequest{Name: "test-delete-connectors"})
+	resp, err := client.DeleteConnector(ConnectorRequest{Name: "test-delete-connectors"}, true)
 
 	assert.Nil(t, err)
 	assert.Equal(t, 204, resp.Code)
@@ -122,39 +148,51 @@ func TestDeleteConnector(t *testing.T) {
 }
 
 func TestGetConnectorConfig(t *testing.T) {
-	client := NewClient("localhost", 8083 , false )
+	client := NewClient("localhost", 8083, false)
 	config := map[string]string{
 		"connector.class": "FileStreamSource",
-		"tasks.max": "1",
-		"file": testFile,
-		"topic": "connect-test",
+		"tasks.max":       "1",
+		"file":            testFile,
+		"topic":           "connect-test",
 	}
 
-	client.CreateConnector(	CreateConnectorRequest{
-		ConnectorRequest: ConnectorRequest{ Name: "test-get-connector-config" },
-		Config: config,
-	})
+	_, err := client.CreateConnector(
+		CreateConnectorRequest{
+			ConnectorRequest: ConnectorRequest{Name: "test-get-connector-config"},
+			Config:           config,
+		},
+		true)
+	if err != nil {
+		assert.Fail(t, fmt.Sprintf("error while creaating test connector: %s", err.Error()))
+		return
+	}
 
 	resp, err := client.GetConnectorConfig(ConnectorRequest{Name: "test-get-connector-config"})
 
 	assert.Nil(t, err)
 	assert.Equal(t, 200, resp.Code)
 
-	config["name"]= "test-get-connector-config"
+	config["name"] = "test-get-connector-config"
 	assert.Equal(t, config, resp.Config)
 }
 
 func TestGetConnectorStatus(t *testing.T) {
-	client := NewClient("localhost", 8083 , false )
-	client.CreateConnector(	CreateConnectorRequest{
-		ConnectorRequest: ConnectorRequest{ Name: "test-get-connector-status" },
-		Config: map[string]string{
-			"connector.class": "FileStreamSource",
-			"tasks.max": "1",
-			"file": testFile,
-			"topic": "connect-test",
+	client := NewClient("localhost", 8083, false)
+	_, err := client.CreateConnector(
+		CreateConnectorRequest{
+			ConnectorRequest: ConnectorRequest{Name: "test-get-connector-status"},
+			Config: map[string]string{
+				"connector.class": "FileStreamSource",
+				"tasks.max":       "1",
+				"file":            testFile,
+				"topic":           "connect-test",
+			},
 		},
-	})
+		true)
+	if err != nil {
+		assert.Fail(t, fmt.Sprintf("error while creaating test connector: %s", err.Error()))
+		return
+	}
 
 	resp, err := client.GetConnectorStatus(ConnectorRequest{Name: "test-get-connector-status"})
 
@@ -222,4 +260,3 @@ func TestGetConnectorStatus(t *testing.T) {
 //	assert.Equal(t, 204, resp.Code)
 //}
 //
-
