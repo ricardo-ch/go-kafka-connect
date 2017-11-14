@@ -156,7 +156,7 @@ func (c Client) DeleteConnector(req ConnectorRequest, sync bool) (EmptyResponse,
 		TryUntil(
 			func() bool {
 				r, e := c.GetConnector(req)
-				return  e == nil && r.Code == 404
+				return e == nil && r.Code == 404
 			},
 			2*time.Minute,
 		)

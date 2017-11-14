@@ -9,7 +9,7 @@ import (
 
 var testFile = "/etc/kafka-connect/kafka-connect.properties"
 
-func TestHealtz(t *testing.T) {
+func TestHealthz(t *testing.T) {
 	resp, err := http.Get("http://localhost:8083")
 	assert.Nil(t, err)
 	assert.Equal(t, 200, resp.StatusCode)
@@ -210,15 +210,15 @@ func TestGetConnectorStatus(t *testing.T) {
 }
 
 func TestRestartConnector(t *testing.T) {
-	client := NewClient("localhost", 8083 , false )
+	client := NewClient("localhost", 8083, false)
 	_, err := client.CreateConnector(
 		CreateConnectorRequest{
-			ConnectorRequest: ConnectorRequest{ Name: "test-restart-connector" },
+			ConnectorRequest: ConnectorRequest{Name: "test-restart-connector"},
 			Config: map[string]string{
 				"connector.class": "FileStreamSource",
-				"tasks.max": "1",
-				"file": testFile,
-				"topic": "connect-test",
+				"tasks.max":       "1",
+				"file":            testFile,
+				"topic":           "connect-test",
 			},
 		},
 		true,
@@ -234,18 +234,16 @@ func TestRestartConnector(t *testing.T) {
 	assert.Equal(t, 204, resp.Code)
 }
 
-
-
 func TestPauseAndResumeConnector(t *testing.T) {
-	client := NewClient("localhost", 8083 , false )
+	client := NewClient("localhost", 8083, false)
 	_, err := client.CreateConnector(
 		CreateConnectorRequest{
-			ConnectorRequest: ConnectorRequest{ Name: "test-pause-and-resume-connector" },
+			ConnectorRequest: ConnectorRequest{Name: "test-pause-and-resume-connector"},
 			Config: map[string]string{
 				"connector.class": "FileStreamSource",
-				"tasks.max": "1",
-				"file": testFile,
-				"topic": "connect-test",
+				"tasks.max":       "1",
+				"file":            testFile,
+				"topic":           "connect-test",
 			},
 		},
 		true,

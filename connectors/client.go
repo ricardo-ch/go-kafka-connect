@@ -3,10 +3,10 @@ package connectors
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/url"
 	"strconv"
-	"fmt"
 )
 
 //Client represents the kafka connect access configuration
@@ -22,7 +22,7 @@ type ErrorResponse struct {
 	Message   string `json:"message,omitempty"`
 }
 
-func (err ErrorResponse) Error() string{
+func (err ErrorResponse) Error() string {
 	return fmt.Sprintf("error code: %d , message: %s", err.ErrorCode, err.Message)
 }
 
@@ -67,7 +67,7 @@ func (c Client) Request(method string, endpoint string, request interface{}, res
 		return 0, err
 	}
 
-	if result != nil && res.Body != nil && res.ContentLength>0 {
+	if result != nil && res.Body != nil && res.ContentLength > 0 {
 		err = json.NewDecoder(res.Body).Decode(result)
 		if err != nil {
 			return res.StatusCode, err

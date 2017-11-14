@@ -65,7 +65,7 @@ func (c Client) GetTaskStatus(req TaskRequest) (TaskStatusResponse, error) {
 
 	statusCode, err := c.Request(http.MethodGet, fmt.Sprintf("connectors/%s/tasks/%s/status", req.Connector, strconv.Itoa(req.TaskID)), nil, &tsr)
 	if err != nil {
-		return  TaskStatusResponse{}, err
+		return TaskStatusResponse{}, err
 	}
 
 	tsr.Code = statusCode
