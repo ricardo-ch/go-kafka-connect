@@ -4,6 +4,7 @@ Go library providing bindings for the Kafka connect API
 # Setup environment
 Required:
  - Go 1.9
+ - Docker (for testing purpose only)
 
 run `make install` to install dependencies
 
