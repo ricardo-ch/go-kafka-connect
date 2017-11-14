@@ -217,7 +217,7 @@ func (c Client) RestartConnector(req ConnectorRequest) (EmptyResponse, error) {
 
 //PauseConnector pause a running connector
 //asynchronous operation
-func (c Client) PauseConnector(req ConnectorRequest) (EmptyResponse, error) {
+func (c Client) PauseConnector(req ConnectorRequest, sync bool) (EmptyResponse, error) {
 	resp := EmptyResponse{}
 
 	statusCode, err := c.Request(http.MethodPut, fmt.Sprintf("connectors/%s/pause", req.Name), nil, &resp)
@@ -229,12 +229,22 @@ func (c Client) PauseConnector(req ConnectorRequest) (EmptyResponse, error) {
 	}
 
 	resp.Code = statusCode
+
+	if sync {
+		TryUntil(
+			func() bool {
+				resp, err := c.GetConnectorStatus(req)
+				return err == nil && resp.Code == 200 && resp.ConnectorStatus["state"] == "PAUSED"
+			},
+			2*time.Minute,
+		)
+	}
 	return resp, nil
 }
 
 //ResumeConnector resume a paused connector
 //asynchronous operation
-func (c Client) ResumeConnector(req ConnectorRequest) (EmptyResponse, error) {
+func (c Client) ResumeConnector(req ConnectorRequest, sync bool) (EmptyResponse, error) {
 	resp := EmptyResponse{}
 
 	statusCode, err := c.Request(http.MethodPut, fmt.Sprintf("connectors/%s/resume", req.Name), nil, &resp)
@@ -246,6 +256,16 @@ func (c Client) ResumeConnector(req ConnectorRequest) (EmptyResponse, error) {
 	}
 
 	resp.Code = statusCode
+
+	if sync {
+		TryUntil(
+			func() bool {
+				resp, err := c.GetConnectorStatus(req)
+				return err == nil && resp.Code == 200 && resp.ConnectorStatus["state"] == "RUNNING"
+			},
+			2*time.Minute,
+		)
+	}
 	return resp, nil
 }
 

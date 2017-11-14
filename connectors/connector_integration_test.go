@@ -27,7 +27,8 @@ func TestCreateConnector(t *testing.T) {
 				"topic":           "connect-test",
 			},
 		},
-		true)
+		true,
+	)
 
 	assert.Nil(t, err)
 	assert.Equal(t, 201, resp.Code)
@@ -45,7 +46,8 @@ func TestGetConnector(t *testing.T) {
 				"topic":           "connect-test",
 			},
 		},
-		true)
+		true,
+	)
 	if err != nil {
 		assert.Fail(t, fmt.Sprintf("error while creaating test connector: %s", err.Error()))
 		return
@@ -72,7 +74,8 @@ func TestGetAllConnectors(t *testing.T) {
 				"topic":           "connect-test",
 			},
 		},
-		true)
+		true,
+	)
 	if err != nil {
 		assert.Fail(t, fmt.Sprintf("error while creaating test connector: %s", err.Error()))
 		return
@@ -97,7 +100,8 @@ func TestUpdateConnector(t *testing.T) {
 				"topic":           "connect-test",
 			},
 		},
-		true)
+		true,
+	)
 	if err != nil {
 		assert.Fail(t, fmt.Sprintf("error while creaating test connector: %s", err.Error()))
 		return
@@ -131,7 +135,8 @@ func TestDeleteConnector(t *testing.T) {
 				"topic":           "connect-test",
 			},
 		},
-		true)
+		true,
+	)
 	if err != nil {
 		assert.Fail(t, fmt.Sprintf("error while creaating test connector: %s", err.Error()))
 		return
@@ -161,7 +166,8 @@ func TestGetConnectorConfig(t *testing.T) {
 			ConnectorRequest: ConnectorRequest{Name: "test-get-connector-config"},
 			Config:           config,
 		},
-		true)
+		true,
+	)
 	if err != nil {
 		assert.Fail(t, fmt.Sprintf("error while creaating test connector: %s", err.Error()))
 		return
@@ -188,7 +194,8 @@ func TestGetConnectorStatus(t *testing.T) {
 				"topic":           "connect-test",
 			},
 		},
-		true)
+		true,
+	)
 	if err != nil {
 		assert.Fail(t, fmt.Sprintf("error while creaating test connector: %s", err.Error()))
 		return
@@ -202,61 +209,69 @@ func TestGetConnectorStatus(t *testing.T) {
 	assert.Equal(t, "RUNNING", resp.ConnectorStatus["state"])
 }
 
-//These last 3 feature are officially asynchronous and shall not be tested as is
+func TestRestartConnector(t *testing.T) {
+	client := NewClient("localhost", 8083 , false )
+	_, err := client.CreateConnector(
+		CreateConnectorRequest{
+			ConnectorRequest: ConnectorRequest{ Name: "test-restart-connector" },
+			Config: map[string]string{
+				"connector.class": "FileStreamSource",
+				"tasks.max": "1",
+				"file": testFile,
+				"topic": "connect-test",
+			},
+		},
+		true,
+	)
+	if err != nil {
+		assert.Fail(t, fmt.Sprintf("error while creaating test connector: %s", err.Error()))
+		return
+	}
 
-//func TestRestartConnector(t *testing.T) {
-//	client := NewClient("localhost", 8083 , false )
-//	client.CreateConnector(	CreateConnectorRequest{
-//		ConnectorRequest: ConnectorRequest{ Name: "test-restart-connector" },
-//		Config: map[string]string{
-//			"connector.class": "FileStreamSource",
-//			"tasks.max": "1",
-//			"file": testFile,
-//			"topic": "connect-test",
-//		},
-//	})
-//
-//	resp, err := client.RestartConnector(ConnectorRequest{Name: "test-restart-connector"})
-//
-//	assert.Nil(t, err)
-//	assert.Equal(t, 204, resp.Code)
-//}
-//
-//
-//
-//func TestPauseConnector(t *testing.T) {
-//	client := NewClient("localhost", 8083 , false )
-//	client.CreateConnector(	CreateConnectorRequest{
-//		ConnectorRequest: ConnectorRequest{ Name: "test-pause-connector" },
-//		Config: map[string]string{
-//			"connector.class": "FileStreamSource",
-//			"tasks.max": "1",
-//			"file": testFile,
-//			"topic": "connect-test",
-//		},
-//	})
-//
-//	resp, err := client.RestartConnector(ConnectorRequest{Name: "test-pause-connector"})
-//
-//	assert.Nil(t, err)
-//	assert.Equal(t, 204, resp.Code)
-//}
-//
-//func TestResumeConnector(t *testing.T) {
-//	client := NewClient("localhost", 8083 , false )
-//	client.CreateConnector(	CreateConnectorRequest{
-//		ConnectorRequest: ConnectorRequest{ Name: "test-resume-connector" },
-//		Config: map[string]string{
-//			"connector.class": "FileStreamSource",
-//			"tasks.max": "1",
-//			"file": testFile,
-//			"topic": "connect-test",
-//		},
-//	})
-//
-//	resp, err := client.RestartConnector(ConnectorRequest{Name: "test-resume-connector"})
-//
-//	assert.Nil(t, err)
-//	assert.Equal(t, 204, resp.Code)
-//}
-//
+	resp, err := client.RestartConnector(ConnectorRequest{Name: "test-restart-connector"})
+
+	assert.Nil(t, err)
+	assert.Equal(t, 204, resp.Code)
+}
+
+
+
+func TestPauseAndResumeConnector(t *testing.T) {
+	client := NewClient("localhost", 8083 , false )
+	_, err := client.CreateConnector(
+		CreateConnectorRequest{
+			ConnectorRequest: ConnectorRequest{ Name: "test-pause-and-resume-connector" },
+			Config: map[string]string{
+				"connector.class": "FileStreamSource",
+				"tasks.max": "1",
+				"file": testFile,
+				"topic": "connect-test",
+			},
+		},
+		true,
+	)
+	if err != nil {
+		assert.Fail(t, fmt.Sprintf("error while creaating test connector: %s", err.Error()))
+		return
+	}
+
+	// First pause connector
+	respPause, err := client.PauseConnector(ConnectorRequest{Name: "test-pause-and-resume-connector"}, true)
+	assert.Nil(t, err)
+	assert.Equal(t, 202, respPause.Code)
+
+	statusResp, err := client.GetConnectorStatus(ConnectorRequest{Name: "test-pause-and-resume-connector"})
+	assert.Nil(t, err)
+	assert.Equal(t, 200, statusResp.Code)
+	assert.Equal(t, "PAUSED", statusResp.ConnectorStatus["state"])
+
+	// Then resume connector
+	respResume, err := client.ResumeConnector(ConnectorRequest{Name: "test-pause-and-resume-connector"}, true)
+	assert.Nil(t, err)
+	assert.Equal(t, 202, respResume.Code)
+
+	statusResp, err = client.GetConnectorStatus(ConnectorRequest{Name: "test-pause-and-resume-connector"})
+	assert.Nil(t, err)
+	assert.Equal(t, 200, statusResp.Code)
+	assert.Equal(t, "RUNNING", statusResp.ConnectorStatus["state"])
+}
