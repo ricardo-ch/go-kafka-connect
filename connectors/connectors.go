@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"time"
+	"github.com/pkg/errors"
 )
 
 //ConnectorRequest is generic request used when interacting with connector endpoint
@@ -110,13 +111,15 @@ func (c Client) CreateConnector(req CreateConnectorRequest, sync bool) (Connecto
 	resp.Code = statusCode
 
 	if sync {
-		TryUntil(
+		if !TryUntil(
 			func() bool {
 				resp, err := c.GetConnector(req.ConnectorRequest)
 				return err == nil && resp.Code == 200
 			},
 			2*time.Minute,
-		)
+		) {
+			return resp,errors.New("timeout on creating connector sync")
+		}
 	}
 
 	return resp, nil
@@ -153,13 +156,15 @@ func (c Client) DeleteConnector(req ConnectorRequest, sync bool) (EmptyResponse,
 	resp.Code = statusCode
 
 	if sync {
-		TryUntil(
+		if !TryUntil(
 			func() bool {
 				r, e := c.GetConnector(req)
 				return e == nil && r.Code == 404
 			},
 			2*time.Minute,
-		)
+		){
+			return resp,errors.New("timeout on deleting connector sync")
+		}
 	}
 
 	return resp, nil
@@ -231,13 +236,15 @@ func (c Client) PauseConnector(req ConnectorRequest, sync bool) (EmptyResponse, 
 	resp.Code = statusCode
 
 	if sync {
-		TryUntil(
+		if !TryUntil(
 			func() bool {
 				resp, err := c.GetConnectorStatus(req)
 				return err == nil && resp.Code == 200 && resp.ConnectorStatus["state"] == "PAUSED"
 			},
 			2*time.Minute,
-		)
+		){
+			return resp,errors.New("timeout on pausing connector sync")
+		}
 	}
 	return resp, nil
 }
@@ -258,13 +265,15 @@ func (c Client) ResumeConnector(req ConnectorRequest, sync bool) (EmptyResponse,
 	resp.Code = statusCode
 
 	if sync {
-		TryUntil(
+		if !TryUntil(
 			func() bool {
 				resp, err := c.GetConnectorStatus(req)
 				return err == nil && resp.Code == 200 && resp.ConnectorStatus["state"] == "RUNNING"
 			},
 			2*time.Minute,
-		)
+		){
+			return resp,errors.New("timeout on resuming connector sync")
+		}
 	}
 	return resp, nil
 }
