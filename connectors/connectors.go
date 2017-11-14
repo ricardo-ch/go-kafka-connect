@@ -281,6 +281,7 @@ func TryUntil(exec func() bool, limit time.Duration) bool {
 				success <- true
 				return
 			}
+			time.Sleep(1 * time.Second)
 		}
 	}()
 
