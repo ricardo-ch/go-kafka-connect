@@ -15,6 +15,7 @@
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/ricardo-ch/go-kafka-connect/lib/connectors"
@@ -48,14 +49,19 @@ func handleCmd(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	fmt.Println(resp)
+	out, err := json.MarshalIndent(resp, "", "    ")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 
+	fmt.Println(string(out))
 }
 
 func init() {
 	RootCmd.AddCommand(getCmd)
 
-	getCmd.PersistentFlags().StringVarP(&connector, "connector", "c", "beuuuargh", "connector's name")
+	getCmd.PersistentFlags().StringVarP(&connector, "connector", "c", "", "connector's name")
 
 	// Here you will define your flags and configuration settings.
 
