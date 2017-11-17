@@ -15,26 +15,29 @@
 package cmd
 
 import (
-	"github.com/spf13/cobra"
-	"github.com/ricardo-ch/go-kafka-connect/lib/connectors"
 	"encoding/json"
+	"errors"
+	"github.com/ricardo-ch/go-kafka-connect/lib/connectors"
+	"github.com/spf13/cobra"
 	"os"
 	"strings"
-	"github.com/pkg/errors"
-	"fmt"
 )
 
-var(
-	file string
+type createCmdConfig struct {
+	file         string
 	configString string
-	syncCreate bool
+	sync         bool
+}
+
+var (
+	create createCmdConfig
 )
 
 // createCmd represents the create command
 var createCmd = &cobra.Command{
 	Use:   "create",
 	Short: "A brief description of your command",
-	Long: `Create a connector using either config file or string
+	Long: `create a connector using either config file or string
 	flags:
 		--url -u : url of kafka-connect server
 		--file -f : use file to define config
@@ -44,57 +47,50 @@ var createCmd = &cobra.Command{
 }
 
 func RunECreate(cmd *cobra.Command, args []string) error {
+	config, err := getCreateCmdConfig(cmd)
+	if err != nil {
+		return err
+	}
+
+	resp, err := connectors.NewClient(url).CreateConnector(config, create.sync)
+	if err != nil {
+		return err
+	}
+
+	return printResponse(resp)
+}
+
+func getCreateCmdConfig(cmd *cobra.Command) (connectors.CreateConnectorRequest, error) {
 	config := connectors.CreateConnectorRequest{}
 
 	if cmd.Flag("file").Changed {
-		fileReader, err := os.Open(file)
+		fileReader, err := os.Open(create.file)
 		if err != nil {
-			return err
+			return config,err
 		}
 
 		err = json.NewDecoder(fileReader).Decode(&config)
 		if err != nil {
-			return err
+			return config,err
 		}
 
-	} else if cmd.Flag("string").Changed{
-		err := json.NewDecoder(strings.NewReader(configString)).Decode(&config)
+	} else if cmd.Flag("string").Changed {
+		err := json.NewDecoder(strings.NewReader(create.configString)).Decode(&config)
 		if err != nil {
-			return err
+			return config,err
 		}
 	} else {
-		return errors.New("neither file nor string was supplied")
+		return config,errors.New("neither file nor string was supplied")
 	}
-
-
-	resp, err :=  connectors.NewClient(url).CreateConnector(config, syncCreate)
-	if err != nil {
-		return err
-	}
-
-	out, err := json.MarshalIndent(resp, "", "    ")
-	if err != nil {
-		return err
-	}
-	fmt.Println(string(out))
-	return nil
+	return config, nil
 }
 
 func init() {
 	RootCmd.AddCommand(createCmd)
 
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// createCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// createCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-
-	createCmd.PersistentFlags().StringVarP(&file, "file", "f", "", "path to config file")
-	createCmd.PersistentFlags().StringVarP(&configString, "string", "s", "", "json encoded string of config")
-	createCmd.PersistentFlags().BoolVarP(&syncCreate, "sync", "n", false, "wait for asynchronous operation to be done")
+	createCmd.PersistentFlags().StringVarP(&create.file, "file", "f", "", "path to config file")
+	createCmd.MarkFlagFilename("file")
+	createCmd.PersistentFlags().StringVarP(&create.configString, "string", "s", "", "json encoded string of config")
+	createCmd.PersistentFlags().BoolVarP(&create.sync, "sync", "y", false, "wait for asynchronous operation to be done")
 
 }
