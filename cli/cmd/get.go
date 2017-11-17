@@ -16,6 +16,7 @@ package cmd
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 
 	"github.com/ricardo-ch/go-kafka-connect/lib/connectors"
@@ -23,6 +24,7 @@ import (
 )
 
 var connector string
+var status, config, tasks bool
 
 // getCmd represents the get command
 var getCmd = &cobra.Command{
@@ -38,12 +40,109 @@ to quickly create a Cobra application.`,
 }
 
 func handleCmd(cmd *cobra.Command, args []string) {
+	err := validateArgs()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	switch true {
+	case config:
+		getConfig()
+	case status:
+		getStatus()
+	case tasks:
+		getTasks()
+	default:
+		getConnector()
+	}
+}
+
+func validateArgs() error {
+	if connector == "" {
+		return errors.New("Please specify the target connector's name")
+	}
+	if (status && config) || (status && tasks) || (config && tasks) {
+		return errors.New("More than one action were provided")
+	}
+
+	return nil
+}
+
+func getConnector() {
 
 	client := connectors.NewClient(url)
 	req := connectors.ConnectorRequest{
 		Name: connector,
 	}
+
 	resp, err := client.GetConnector(req)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	out, err := json.MarshalIndent(resp, "", "    ")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Println(string(out))
+}
+
+func getConfig() {
+
+	client := connectors.NewClient(url)
+	req := connectors.ConnectorRequest{
+		Name: connector,
+	}
+
+	resp, err := client.GetConnectorConfig(req)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	out, err := json.MarshalIndent(resp, "", "    ")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Println(string(out))
+}
+
+func getStatus() {
+
+	client := connectors.NewClient(url)
+	req := connectors.ConnectorRequest{
+		Name: connector,
+	}
+
+	resp, err := client.GetConnectorStatus(req)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	out, err := json.MarshalIndent(resp, "", "    ")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	fmt.Println(string(out))
+}
+
+func getTasks() {
+
+	client := connectors.NewClient(url)
+	req := connectors.ConnectorRequest{
+		Name: connector,
+	}
+
+	resp, err := client.GetAllTasks(req)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -61,7 +160,10 @@ func handleCmd(cmd *cobra.Command, args []string) {
 func init() {
 	RootCmd.AddCommand(getCmd)
 
-	getCmd.PersistentFlags().StringVarP(&connector, "connector", "c", "", "connector's name")
+	getCmd.PersistentFlags().StringVarP(&connector, "connector", "n", "", "connector's name")
+	getCmd.PersistentFlags().BoolVarP(&status, "status", "s", false, "connector's status")
+	getCmd.PersistentFlags().BoolVarP(&config, "config", "c", false, "connector's configuration")
+	getCmd.PersistentFlags().BoolVarP(&tasks, "tasks", "t", false, "connector's tasks list")
 
 	// Here you will define your flags and configuration settings.
 
