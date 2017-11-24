@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"time"
+
 	"github.com/pkg/errors"
 )
 
@@ -118,7 +119,7 @@ func (c Client) CreateConnector(req CreateConnectorRequest, sync bool) (Connecto
 			},
 			2*time.Minute,
 		) {
-			return resp,errors.New("timeout on creating connector sync")
+			return resp, errors.New("timeout on creating connector sync")
 		}
 	}
 
@@ -162,8 +163,8 @@ func (c Client) DeleteConnector(req ConnectorRequest, sync bool) (EmptyResponse,
 				return e == nil && r.Code == 404
 			},
 			2*time.Minute,
-		){
-			return resp,errors.New("timeout on deleting connector sync")
+		) {
+			return resp, errors.New("timeout on deleting connector sync")
 		}
 	}
 
@@ -242,8 +243,8 @@ func (c Client) PauseConnector(req ConnectorRequest, sync bool) (EmptyResponse, 
 				return err == nil && resp.Code == 200 && resp.ConnectorStatus["state"] == "PAUSED"
 			},
 			2*time.Minute,
-		){
-			return resp,errors.New("timeout on pausing connector sync")
+		) {
+			return resp, errors.New("timeout on pausing connector sync")
 		}
 	}
 	return resp, nil
@@ -271,8 +272,8 @@ func (c Client) ResumeConnector(req ConnectorRequest, sync bool) (EmptyResponse,
 				return err == nil && resp.Code == 200 && resp.ConnectorStatus["state"] == "RUNNING"
 			},
 			2*time.Minute,
-		){
-			return resp,errors.New("timeout on resuming connector sync")
+		) {
+			return resp, errors.New("timeout on resuming connector sync")
 		}
 	}
 	return resp, nil

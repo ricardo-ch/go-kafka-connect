@@ -6,14 +6,11 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"strconv"
 )
 
 //Client represents the kafka connect access configuration
 type Client struct {
-	Host   string
-	Port   int
-	Secure bool
+	URL string
 }
 
 //ErrorResponse is generic error returned by kafka connect
@@ -27,23 +24,16 @@ func (err ErrorResponse) Error() string {
 }
 
 //NewClient generates a new client
-func NewClient(host string, port int, secure bool) Client {
-	return Client{Host: host, Port: port, Secure: secure}
+func NewClient(url string) Client {
+	return Client{URL: url}
 }
 
 //Request handles an HTTP Get request to the client
 // execute request and return parsed body content in result var
 // result need to be pointer to expected type
 func (c Client) Request(method string, endpoint string, request interface{}, result interface{}) (int, error) {
-	var protocol string
 
-	if c.Secure {
-		protocol = "https"
-	} else {
-		protocol = "http"
-	}
-
-	endPointURL, err := url.Parse(protocol + "://" + c.Host + ":" + strconv.Itoa(c.Port) + "/" + endpoint)
+	endPointURL, err := url.Parse(c.URL + "/" + endpoint)
 	if err != nil {
 		return 0, err
 	}
@@ -67,10 +57,14 @@ func (c Client) Request(method string, endpoint string, request interface{}, res
 		return 0, err
 	}
 
-	if result != nil && res.Body != nil && res.ContentLength > 0 {
-		err = json.NewDecoder(res.Body).Decode(result)
-		if err != nil {
-			return res.StatusCode, err
+	if result != nil && res.Body != nil {
+		b := bytes.Buffer{}
+		b.ReadFrom(res.Body)
+		if len(b.Bytes()) > 0 {
+			err = json.NewDecoder(&b).Decode(result)
+			if err != nil {
+				return res.StatusCode, err
+			}
 		}
 	}
 
