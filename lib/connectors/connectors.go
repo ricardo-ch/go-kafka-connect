@@ -302,3 +302,28 @@ func TryUntil(exec func() bool, limit time.Duration) bool {
 		return true
 	}
 }
+
+func (c Client) DeployConnector(req CreateConnectorRequest) (error){
+	existingConnector, err := c.GetConnector(ConnectorRequest{Name:req.Name} )
+	if err != nil {
+		return err
+	}
+
+	if existingConnector.Code != 404 {
+		_, err := c.PauseConnector(ConnectorRequest{Name:req.Name}, true)
+		if err != nil {
+			return err
+		}
+		_, err = c.DeleteConnector(ConnectorRequest{Name:req.Name}, true)
+		if err != nil {
+			return err
+		}
+	}
+
+	_, err = c.CreateConnector(req,true)
+	if err != nil {
+		return err
+	}
+	_, err = c.ResumeConnector(ConnectorRequest{Name:req.Name}, true)
+	return err
+}
