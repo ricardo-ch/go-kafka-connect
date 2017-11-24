@@ -15,22 +15,20 @@
 package cmd
 
 import (
-	"github.com/spf13/cobra"
 	"github.com/ricardo-ch/go-kafka-connect/lib/connectors"
+	"github.com/spf13/cobra"
 )
 
-type deleteCmdConfig struct {
-	connector string
+type pauseCmdConfig struct {
 	sync      bool
+	connector string
 }
 
-var (
-	delete deleteCmdConfig
-)
+var pause pauseCmdConfig
 
-// deleteCmd represents the delete command
-var deleteCmd = &cobra.Command{
-	Use:   "delete",
+// pauseCmd represents the pause command
+var pauseCmd = &cobra.Command{
+	Use:   "pause",
 	Short: "A brief description of your command",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command. For example:
@@ -38,25 +36,23 @@ and usage of using your command. For example:
 Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
-	RunE:RunEDelete,
+	RunE: RunEPause,
 }
 
-func RunEDelete(cmd *cobra.Command, args []string) error {
+func RunEPause(cmd *cobra.Command, args []string) error {
 	req := connectors.ConnectorRequest{
-		Name: delete.connector,
+		Name: pause.connector,
 	}
-
 	resp, err := connectors.NewClient(url).DeleteConnector(req, delete.sync)
 	if err != nil {
 		return err
 	}
-
 	return printResponse(resp)
 }
 
 func init() {
-	RootCmd.AddCommand(deleteCmd)
+	RootCmd.AddCommand(pauseCmd)
 
 	createCmd.PersistentFlags().BoolVarP(&create.sync, "sync", "y", false, "wait for asynchronous operation to be done")
-	updateCmd.PersistentFlags().StringVarP(&update.connector, "connector", "n", "", "name of connector to delete")
+	updateCmd.PersistentFlags().StringVarP(&update.connector, "connector", "n", "", "name of connector to pause")
 }
