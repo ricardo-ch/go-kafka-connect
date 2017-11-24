@@ -1,2 +1,5 @@
 .idea
 *.exe
+
+vendor
+vendor.orig

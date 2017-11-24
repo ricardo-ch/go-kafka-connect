@@ -9,16 +9,19 @@ import (
 	"testing"
 )
 
-var testFile = "/etc/kafka-connect/kafka-connect.properties"
+var (
+	testFile = "/etc/kafka-connect/kafka-connect.properties"
+	hostConnect = "http://localhost:8083"
+	)
 
 func TestHealthz(t *testing.T) {
-	resp, err := http.Get("http://localhost:8083")
+	resp, err := http.Get(hostConnect)
 	assert.Nil(t, err)
 	assert.Equal(t, 200, resp.StatusCode)
 }
 
 func TestCreateConnector(t *testing.T) {
-	client := NewClient("localhost", 8083, false)
+	client := NewClient(hostConnect)
 	resp, err := client.CreateConnector(
 		CreateConnectorRequest{
 			ConnectorRequest: ConnectorRequest{Name: "test-create-connector"},
@@ -37,7 +40,7 @@ func TestCreateConnector(t *testing.T) {
 }
 
 func TestGetConnector(t *testing.T) {
-	client := NewClient("localhost", 8083, false)
+	client := NewClient(hostConnect)
 	_, err := client.CreateConnector(
 		CreateConnectorRequest{
 			ConnectorRequest: ConnectorRequest{Name: "test-get-connector"},
@@ -65,7 +68,7 @@ func TestGetConnector(t *testing.T) {
 }
 
 func TestGetAllConnectors(t *testing.T) {
-	client := NewClient("localhost", 8083, false)
+	client := NewClient(hostConnect)
 	_, err := client.CreateConnector(
 		CreateConnectorRequest{
 			ConnectorRequest: ConnectorRequest{Name: "test-get-all-connectors"},
@@ -91,7 +94,7 @@ func TestGetAllConnectors(t *testing.T) {
 }
 
 func TestUpdateConnector(t *testing.T) {
-	client := NewClient("localhost", 8083, false)
+	client := NewClient(hostConnect)
 	_, err := client.CreateConnector(
 		CreateConnectorRequest{
 			ConnectorRequest: ConnectorRequest{Name: "test-update-connectors"},
@@ -126,7 +129,7 @@ func TestUpdateConnector(t *testing.T) {
 }
 
 func TestDeleteConnector(t *testing.T) {
-	client := NewClient("localhost", 8083, false)
+	client := NewClient(hostConnect)
 	_, err := client.CreateConnector(
 		CreateConnectorRequest{
 			ConnectorRequest: ConnectorRequest{Name: "test-delete-connectors"},
@@ -155,7 +158,7 @@ func TestDeleteConnector(t *testing.T) {
 }
 
 func TestGetConnectorConfig(t *testing.T) {
-	client := NewClient("localhost", 8083, false)
+	client := NewClient(hostConnect)
 	config := map[string]string{
 		"connector.class": "FileStreamSource",
 		"tasks.max":       "1",
@@ -185,7 +188,7 @@ func TestGetConnectorConfig(t *testing.T) {
 }
 
 func TestGetConnectorStatus(t *testing.T) {
-	client := NewClient("localhost", 8083, false)
+	client := NewClient(hostConnect)
 	_, err := client.CreateConnector(
 		CreateConnectorRequest{
 			ConnectorRequest: ConnectorRequest{Name: "test-get-connector-status"},
@@ -212,7 +215,7 @@ func TestGetConnectorStatus(t *testing.T) {
 }
 
 func TestRestartConnector(t *testing.T) {
-	client := NewClient("localhost", 8083, false)
+	client := NewClient(hostConnect)
 	_, err := client.CreateConnector(
 		CreateConnectorRequest{
 			ConnectorRequest: ConnectorRequest{Name: "test-restart-connector"},
@@ -237,7 +240,7 @@ func TestRestartConnector(t *testing.T) {
 }
 
 func TestPauseAndResumeConnector(t *testing.T) {
-	client := NewClient("localhost", 8083, false)
+	client := NewClient(hostConnect)
 	_, err := client.CreateConnector(
 		CreateConnectorRequest{
 			ConnectorRequest: ConnectorRequest{Name: "test-pause-and-resume-connector"},
