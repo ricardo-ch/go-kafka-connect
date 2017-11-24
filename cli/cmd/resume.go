@@ -37,7 +37,7 @@ func RunEResume(cmd *cobra.Command, args []string) error {
 	req := connectors.ConnectorRequest{
 		Name: connector,
 	}
-	resp, err := connectors.NewClient(url).PauseConnector(req, sync)
+	resp, err := connectors.NewClient(url).ResumeConnector(req, sync)
 	if err != nil {
 		return err
 	}
