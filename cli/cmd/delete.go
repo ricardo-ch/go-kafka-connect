@@ -15,8 +15,8 @@
 package cmd
 
 import (
-	"github.com/spf13/cobra"
 	"github.com/ricardo-ch/go-kafka-connect/lib/connectors"
+	"github.com/spf13/cobra"
 )
 
 type deleteCmdConfig struct {
@@ -38,9 +38,10 @@ and usage of using your command. For example:
 Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
-	RunE:RunEDelete,
+	RunE: RunEDelete,
 }
 
+//RunEDelete ...
 func RunEDelete(cmd *cobra.Command, args []string) error {
 	req := connectors.ConnectorRequest{
 		Name: delete.connector,

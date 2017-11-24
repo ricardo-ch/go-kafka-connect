@@ -17,10 +17,11 @@ package cmd
 import (
 	"encoding/json"
 	"errors"
-	"github.com/ricardo-ch/go-kafka-connect/lib/connectors"
-	"github.com/spf13/cobra"
 	"os"
 	"strings"
+
+	"github.com/ricardo-ch/go-kafka-connect/lib/connectors"
+	"github.com/spf13/cobra"
 )
 
 type updateCmdConfig struct {
@@ -44,6 +45,7 @@ to quickly create a Cobra application.`,
 	RunE: RunEUpdate,
 }
 
+//RunEUpdate ...
 func RunEUpdate(cmd *cobra.Command, args []string) error {
 	req := connectors.UpdateConnectorRequest{}
 

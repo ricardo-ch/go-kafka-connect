@@ -17,10 +17,11 @@ package cmd
 import (
 	"encoding/json"
 	"errors"
-	"github.com/ricardo-ch/go-kafka-connect/lib/connectors"
-	"github.com/spf13/cobra"
 	"os"
 	"strings"
+
+	"github.com/ricardo-ch/go-kafka-connect/lib/connectors"
+	"github.com/spf13/cobra"
 )
 
 type createCmdConfig struct {
@@ -46,6 +47,7 @@ var createCmd = &cobra.Command{
 	RunE: RunECreate,
 }
 
+//RunECreate ...
 func RunECreate(cmd *cobra.Command, args []string) error {
 	config, err := getCreateCmdConfig(cmd)
 	if err != nil {
@@ -66,21 +68,21 @@ func getCreateCmdConfig(cmd *cobra.Command) (connectors.CreateConnectorRequest, 
 	if cmd.Flag("file").Changed {
 		fileReader, err := os.Open(create.file)
 		if err != nil {
-			return config,err
+			return config, err
 		}
 
 		err = json.NewDecoder(fileReader).Decode(&config)
 		if err != nil {
-			return config,err
+			return config, err
 		}
 
 	} else if cmd.Flag("string").Changed {
 		err := json.NewDecoder(strings.NewReader(create.configString)).Decode(&config)
 		if err != nil {
-			return config,err
+			return config, err
 		}
 	} else {
-		return config,errors.New("neither file nor string was supplied")
+		return config, errors.New("neither file nor string was supplied")
 	}
 	return config, nil
 }

@@ -41,6 +41,7 @@ to quickly create a Cobra application.`,
 	RunE: RunEResume,
 }
 
+//RunEResume ...
 func RunEResume(cmd *cobra.Command, args []string) error {
 	req := connectors.ConnectorRequest{
 		Name: pause.connector,

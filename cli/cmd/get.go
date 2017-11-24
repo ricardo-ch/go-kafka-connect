@@ -15,9 +15,7 @@
 package cmd
 
 import (
-	"encoding/json"
 	"errors"
-	"fmt"
 
 	"github.com/ricardo-ch/go-kafka-connect/lib/connectors"
 	"github.com/spf13/cobra"
@@ -36,26 +34,26 @@ and usage of using your command. For example:
 Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
-	Run: handleCmd,
+	RunE: handleCmd,
 }
 
-func handleCmd(cmd *cobra.Command, args []string) {
+func handleCmd(cmd *cobra.Command, args []string) error {
 	err := validateArgs()
 	if err != nil {
-		fmt.Println(err)
-		return
+		return err
 	}
 
 	switch true {
 	case config:
-		getConfig()
+		return getConfig()
 	case status:
-		getStatus()
+		return getStatus()
 	case tasks:
-		getTasks()
+		return getTasks()
 	default:
-		getConnector()
+		return getConnector()
 	}
+
 }
 
 func validateArgs() error {
@@ -69,7 +67,7 @@ func validateArgs() error {
 	return nil
 }
 
-func getConnector() {
+func getConnector() error {
 
 	client := connectors.NewClient(url)
 	req := connectors.ConnectorRequest{
@@ -78,20 +76,13 @@ func getConnector() {
 
 	resp, err := client.GetConnector(req)
 	if err != nil {
-		fmt.Println(err)
-		return
+		return err
 	}
 
-	out, err := json.MarshalIndent(resp, "", "    ")
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	fmt.Println(string(out))
+	return printResponse(resp)
 }
 
-func getConfig() {
+func getConfig() error {
 
 	client := connectors.NewClient(url)
 	req := connectors.ConnectorRequest{
@@ -100,42 +91,28 @@ func getConfig() {
 
 	resp, err := client.GetConnectorConfig(req)
 	if err != nil {
-		fmt.Println(err)
-		return
+		return err
 	}
 
-	out, err := json.MarshalIndent(resp, "", "    ")
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	fmt.Println(string(out))
+	return printResponse(resp)
 }
 
-func getStatus() {
+func getStatus() error {
 
 	client := connectors.NewClient(url)
 	req := connectors.ConnectorRequest{
 		Name: connector,
 	}
 
-	resp, err := client.GetConnectorStatus(req)
+	resp, err := client.GetConnectorConfig(req)
 	if err != nil {
-		fmt.Println(err)
-		return
+		return err
 	}
 
-	out, err := json.MarshalIndent(resp, "", "    ")
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	fmt.Println(string(out))
+	return printResponse(resp)
 }
 
-func getTasks() {
+func getTasks() error {
 
 	client := connectors.NewClient(url)
 	req := connectors.ConnectorRequest{
@@ -144,17 +121,10 @@ func getTasks() {
 
 	resp, err := client.GetAllTasks(req)
 	if err != nil {
-		fmt.Println(err)
-		return
+		return err
 	}
 
-	out, err := json.MarshalIndent(resp, "", "    ")
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	fmt.Println(string(out))
+	return printResponse(resp)
 }
 
 func init() {
