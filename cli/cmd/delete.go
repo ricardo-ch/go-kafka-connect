@@ -19,15 +19,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-type deleteCmdConfig struct {
-	connector string
-	sync      bool
-}
-
-var (
-	delete deleteCmdConfig
-)
-
 // deleteCmd represents the delete command
 var deleteCmd = &cobra.Command{
 	Use:   "delete",
@@ -44,10 +35,10 @@ to quickly create a Cobra application.`,
 //RunEDelete ...
 func RunEDelete(cmd *cobra.Command, args []string) error {
 	req := connectors.ConnectorRequest{
-		Name: delete.connector,
+		Name: connector,
 	}
 
-	resp, err := connectors.NewClient(url).DeleteConnector(req, delete.sync)
+	resp, err := connectors.NewClient(url).DeleteConnector(req, sync)
 	if err != nil {
 		return err
 	}
@@ -58,6 +49,6 @@ func RunEDelete(cmd *cobra.Command, args []string) error {
 func init() {
 	RootCmd.AddCommand(deleteCmd)
 
-	createCmd.PersistentFlags().BoolVarP(&delete.sync, "sync", "y", false, "wait for asynchronous operation to be done")
-	updateCmd.PersistentFlags().StringVarP(&delete.connector, "connector", "n", "", "name of connector to delete")
+	deleteCmd.PersistentFlags().BoolVarP(&sync, "sync", "y", false, "wait for asynchronous operation to be done")
+	deleteCmd.PersistentFlags().StringVarP(&connector, "connector", "n", "", "name of connector to delete")
 }

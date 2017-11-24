@@ -24,7 +24,16 @@ import (
 )
 
 var cfgFile string
-var url string
+var (
+	url          string
+	connector    string
+	file         string
+	configString string
+	sync         bool
+	status       bool
+	config       bool
+	tasks        bool
+)
 
 // RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{

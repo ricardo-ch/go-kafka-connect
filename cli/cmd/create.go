@@ -24,16 +24,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-type createCmdConfig struct {
-	file         string
-	configString string
-	sync         bool
-}
-
-var (
-	create createCmdConfig
-)
-
 // createCmd represents the create command
 var createCmd = &cobra.Command{
 	Use:   "create",
@@ -54,7 +44,7 @@ func RunECreate(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	resp, err := connectors.NewClient(url).CreateConnector(config, create.sync)
+	resp, err := connectors.NewClient(url).CreateConnector(config, sync)
 	if err != nil {
 		return err
 	}
@@ -66,7 +56,7 @@ func getCreateCmdConfig(cmd *cobra.Command) (connectors.CreateConnectorRequest, 
 	config := connectors.CreateConnectorRequest{}
 
 	if cmd.Flag("file").Changed {
-		fileReader, err := os.Open(create.file)
+		fileReader, err := os.Open(file)
 		if err != nil {
 			return config, err
 		}
@@ -77,7 +67,7 @@ func getCreateCmdConfig(cmd *cobra.Command) (connectors.CreateConnectorRequest, 
 		}
 
 	} else if cmd.Flag("string").Changed {
-		err := json.NewDecoder(strings.NewReader(create.configString)).Decode(&config)
+		err := json.NewDecoder(strings.NewReader(configString)).Decode(&config)
 		if err != nil {
 			return config, err
 		}
@@ -90,9 +80,9 @@ func getCreateCmdConfig(cmd *cobra.Command) (connectors.CreateConnectorRequest, 
 func init() {
 	RootCmd.AddCommand(createCmd)
 
-	createCmd.PersistentFlags().StringVarP(&create.file, "file", "f", "", "path to config file")
+	createCmd.PersistentFlags().StringVarP(&file, "file", "f", "", "path to config file")
 	createCmd.MarkFlagFilename("file")
-	createCmd.PersistentFlags().StringVarP(&create.configString, "string", "s", "", "json encoded string of config")
-	createCmd.PersistentFlags().BoolVarP(&create.sync, "sync", "y", false, "wait for asynchronous operation to be done")
+	createCmd.PersistentFlags().StringVarP(&configString, "string", "s", "", "json encoded string of config")
+	createCmd.PersistentFlags().BoolVarP(&sync, "sync", "y", false, "wait for asynchronous operation to be done")
 
 }

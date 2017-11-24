@@ -19,13 +19,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-type pauseCmdConfig struct {
-	sync      bool
-	connector string
-}
-
-var pause pauseCmdConfig
-
 // pauseCmd represents the pause command
 var pauseCmd = &cobra.Command{
 	Use:   "pause",
@@ -42,9 +35,9 @@ to quickly create a Cobra application.`,
 //RunEPause ...
 func RunEPause(cmd *cobra.Command, args []string) error {
 	req := connectors.ConnectorRequest{
-		Name: pause.connector,
+		Name: connector,
 	}
-	resp, err := connectors.NewClient(url).DeleteConnector(req, delete.sync)
+	resp, err := connectors.NewClient(url).DeleteConnector(req, sync)
 	if err != nil {
 		return err
 	}
@@ -54,6 +47,6 @@ func RunEPause(cmd *cobra.Command, args []string) error {
 func init() {
 	RootCmd.AddCommand(pauseCmd)
 
-	createCmd.PersistentFlags().BoolVarP(&pause.sync, "sync", "y", false, "wait for asynchronous operation to be done")
-	updateCmd.PersistentFlags().StringVarP(&pause.connector, "connector", "n", "", "name of connector to pause")
+	pauseCmd.PersistentFlags().BoolVarP(&sync, "sync", "y", false, "wait for asynchronous operation to be done")
+	pauseCmd.PersistentFlags().StringVarP(&connector, "connector", "n", "", "name of connector to pause")
 }

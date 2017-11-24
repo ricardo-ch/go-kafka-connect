@@ -19,15 +19,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-type resumeCmdConfig struct {
-	connector string
-	sync      bool
-}
-
-var (
-	resume resumeCmdConfig
-)
-
 // resumeCmd represents the resume command
 var resumeCmd = &cobra.Command{
 	Use:   "resume",
@@ -44,9 +35,9 @@ to quickly create a Cobra application.`,
 //RunEResume ...
 func RunEResume(cmd *cobra.Command, args []string) error {
 	req := connectors.ConnectorRequest{
-		Name: pause.connector,
+		Name: connector,
 	}
-	resp, err := connectors.NewClient(url).PauseConnector(req, delete.sync)
+	resp, err := connectors.NewClient(url).PauseConnector(req, sync)
 	if err != nil {
 		return err
 	}
@@ -56,6 +47,6 @@ func RunEResume(cmd *cobra.Command, args []string) error {
 func init() {
 	RootCmd.AddCommand(resumeCmd)
 
-	createCmd.PersistentFlags().BoolVarP(&resume.sync, "sync", "y", false, "wait for asynchronous operation to be done")
-	updateCmd.PersistentFlags().StringVarP(&resume.connector, "connector", "n", "", "name of connector to resume")
+	resumeCmd.PersistentFlags().BoolVarP(&sync, "sync", "y", false, "wait for asynchronous operation to be done")
+	resumeCmd.PersistentFlags().StringVarP(&connector, "connector", "n", "", "name of connector to resume")
 }
