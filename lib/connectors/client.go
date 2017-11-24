@@ -57,10 +57,14 @@ func (c Client) Request(method string, endpoint string, request interface{}, res
 		return 0, err
 	}
 
-	if result != nil && res.Body != nil && res.ContentLength > 0 {
-		err = json.NewDecoder(res.Body).Decode(result)
-		if err != nil {
-			return res.StatusCode, err
+	if result != nil && res.Body != nil {
+		b := bytes.Buffer{}
+		b.ReadFrom(res.Body)
+		if len(b.Bytes()) > 0 {
+			err = json.NewDecoder(&b).Decode(result)
+			if err != nil {
+				return res.StatusCode, err
+			}
 		}
 	}
 

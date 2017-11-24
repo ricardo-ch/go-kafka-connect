@@ -101,7 +101,7 @@ func getStatus() error {
 		Name: connector,
 	}
 
-	resp, err := client.GetConnectorConfig(req)
+	resp, err := client.GetConnectorStatus(req)
 	if err != nil {
 		return err
 	}
