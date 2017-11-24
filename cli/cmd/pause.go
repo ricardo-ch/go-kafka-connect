@@ -53,6 +53,6 @@ func RunEPause(cmd *cobra.Command, args []string) error {
 func init() {
 	RootCmd.AddCommand(pauseCmd)
 
-	createCmd.PersistentFlags().BoolVarP(&create.sync, "sync", "y", false, "wait for asynchronous operation to be done")
-	updateCmd.PersistentFlags().StringVarP(&update.connector, "connector", "n", "", "name of connector to pause")
+	createCmd.PersistentFlags().BoolVarP(&pause.sync, "sync", "y", false, "wait for asynchronous operation to be done")
+	updateCmd.PersistentFlags().StringVarP(&pause.connector, "connector", "n", "", "name of connector to pause")
 }

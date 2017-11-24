@@ -57,6 +57,6 @@ func RunEDelete(cmd *cobra.Command, args []string) error {
 func init() {
 	RootCmd.AddCommand(deleteCmd)
 
-	createCmd.PersistentFlags().BoolVarP(&create.sync, "sync", "y", false, "wait for asynchronous operation to be done")
-	updateCmd.PersistentFlags().StringVarP(&update.connector, "connector", "n", "", "name of connector to delete")
+	createCmd.PersistentFlags().BoolVarP(&delete.sync, "sync", "y", false, "wait for asynchronous operation to be done")
+	updateCmd.PersistentFlags().StringVarP(&delete.connector, "connector", "n", "", "name of connector to delete")
 }
