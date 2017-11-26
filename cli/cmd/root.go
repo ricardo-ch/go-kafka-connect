@@ -25,6 +25,7 @@ import (
 
 var cfgFile string
 var (
+	verbose      bool
 	url          string
 	connector    string
 	file         string
@@ -67,10 +68,7 @@ func init() {
 	// will be global for your application.
 	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.cli.yaml)")
 	RootCmd.PersistentFlags().StringVarP(&url, "url", "u", "http://localhost:8083", "kafka connect URL")
-
-	// Cobra also supports local flags, which will only run
-	// when this action is called directly.
-	RootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	RootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "use verbose mode")
 }
 
 // initConfig reads in config file and ENV variables if set.
