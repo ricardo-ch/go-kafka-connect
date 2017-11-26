@@ -24,13 +24,15 @@ import (
 // getCmd represents the get command
 var getCmd = &cobra.Command{
 	Use:   "get",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "Retrieve information from kafka-connect",
+	Long: `Get reads from the kafka-connect REST API.
+	It can get the list of all deployed connectors, or details about a single one.
+	flags:
+		--url -u: url of the kafka-connect server
+		--connector -n: name of the target connector
+		--status -s: get the connector's status (requires -n)
+		--config -c: get the connector's config (requires -n)
+		--tasks -t: get the connector's tasks list (requires -n)`,
 	RunE: handleCmd,
 }
 
@@ -127,18 +129,8 @@ func getTasks() error {
 func init() {
 	RootCmd.AddCommand(getCmd)
 
-	getCmd.PersistentFlags().StringVarP(&connector, "connector", "n", "", "connector's name")
-	getCmd.PersistentFlags().BoolVarP(&status, "status", "s", false, "connector's status")
-	getCmd.PersistentFlags().BoolVarP(&config, "config", "c", false, "connector's configuration")
-	getCmd.PersistentFlags().BoolVarP(&tasks, "tasks", "t", false, "connector's tasks list")
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// getCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// getCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	getCmd.PersistentFlags().StringVarP(&connector, "connector", "n", "", "name of the target's connector")
+	getCmd.PersistentFlags().BoolVarP(&status, "status", "s", false, "get the connector's status")
+	getCmd.PersistentFlags().BoolVarP(&config, "config", "c", false, "get the connector's config")
+	getCmd.PersistentFlags().BoolVarP(&tasks, "tasks", "t", false, "get the connector's tasks list")
 }

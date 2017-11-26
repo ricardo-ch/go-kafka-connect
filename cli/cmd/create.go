@@ -27,12 +27,13 @@ import (
 // createCmd represents the create command
 var createCmd = &cobra.Command{
 	Use:   "create",
-	Short: "A brief description of your command",
-	Long: `create a connector using either config file or string
+	Short: "Create a new connector",
+	Long: `Create a connector using either a config file or a literal string
 	flags:
-		--url -u : url of kafka-connect server
-		--file -f : use file to define config
-		--string -s : use string to define config
+		--url -u: url of the kafka-connect server
+		--file -f: path to the config file
+		--string -s: JSON configuration string
+		--sync -y: execute synchronously
 	`,
 	RunE: RunECreate,
 }
@@ -80,9 +81,9 @@ func getCreateCmdConfig(cmd *cobra.Command) (connectors.CreateConnectorRequest, 
 func init() {
 	RootCmd.AddCommand(createCmd)
 
-	createCmd.PersistentFlags().StringVarP(&file, "file", "f", "", "path to config file")
+	createCmd.PersistentFlags().StringVarP(&file, "file", "f", "", "path to the config file")
 	createCmd.MarkFlagFilename("file")
-	createCmd.PersistentFlags().StringVarP(&configString, "string", "s", "", "json encoded string of config")
-	createCmd.PersistentFlags().BoolVarP(&sync, "sync", "y", false, "wait for asynchronous operation to be done")
+	createCmd.PersistentFlags().StringVarP(&configString, "string", "s", "", "JSON configuration string")
+	createCmd.PersistentFlags().BoolVarP(&sync, "sync", "y", false, "execute synchronously")
 
 }

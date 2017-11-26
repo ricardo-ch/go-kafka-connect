@@ -22,13 +22,12 @@ import (
 // resumeCmd represents the resume command
 var resumeCmd = &cobra.Command{
 	Use:   "resume",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "Resume a connector",
+	Long: `Resume a paused connector.
+	flags:
+		--url -u: url of the kafka-connect server
+		--connector -n: name of the target connector
+		--sync -y: execute synchronously`,
 	RunE: RunEResume,
 }
 
@@ -47,6 +46,6 @@ func RunEResume(cmd *cobra.Command, args []string) error {
 func init() {
 	RootCmd.AddCommand(resumeCmd)
 
-	resumeCmd.PersistentFlags().BoolVarP(&sync, "sync", "y", false, "wait for asynchronous operation to be done")
-	resumeCmd.PersistentFlags().StringVarP(&connector, "connector", "n", "", "name of connector to resume")
+	resumeCmd.PersistentFlags().BoolVarP(&sync, "sync", "y", false, "execute synchronously")
+	resumeCmd.PersistentFlags().StringVarP(&connector, "connector", "n", "", "name of the target connector")
 }
