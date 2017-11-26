@@ -57,7 +57,7 @@ func RunEUpdate(cmd *cobra.Command, args []string) error {
 	}
 
 	req.Name = update.connector
-	resp, err := connectors.NewClient(url).UpdateConnector(req)
+	resp, err := getClient().UpdateConnector(req)
 	if err != nil {
 		return err
 	}

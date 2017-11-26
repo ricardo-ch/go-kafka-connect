@@ -4,14 +4,18 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"go.uber.org/zap"
 	"net/http"
 	"net/url"
 )
 
 //Client represents the kafka connect access configuration
 type Client struct {
-	URL string
+	URL    string
+	logger *zap.Logger
 }
+
+type ClientOption func(*Client)
 
 //ErrorResponse is generic error returned by kafka connect
 type ErrorResponse struct {
@@ -24,14 +28,33 @@ func (err ErrorResponse) Error() string {
 }
 
 //NewClient generates a new client
-func NewClient(url string) Client {
-	return Client{URL: url}
+func NewClient(url string, opts ...ClientOption) Client {
+	//setup basic logger to avoid nil problem
+	config := zap.NewProductionConfig()
+	config.Level.SetLevel(zap.WarnLevel)
+	logger, _ := config.Build()
+
+	//apply client options
+	client := Client{URL: url, logger: logger}
+	for _, opt := range opts {
+		opt(&client)
+	}
+	return client
+}
+
+func SetLogger(logger *zap.Logger) ClientOption {
+	return func(client *Client) {
+		client.logger = logger
+	}
 }
 
 //Request handles an HTTP Get request to the client
 // execute request and return parsed body content in result var
 // result need to be pointer to expected type
 func (c Client) Request(method string, endpoint string, request interface{}, result interface{}) (int, error) {
+	if request != nil {
+		c.logger.Debug("request sent", zap.Any("request_sent", request))
+	}
 
 	endPointURL, err := url.Parse(c.URL + "/" + endpoint)
 	if err != nil {

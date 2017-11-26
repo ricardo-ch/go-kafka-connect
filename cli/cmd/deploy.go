@@ -15,7 +15,6 @@
 package cmd
 
 import (
-	"github.com/ricardo-ch/go-kafka-connect/lib/connectors"
 	"github.com/spf13/cobra"
 )
 
@@ -38,7 +37,7 @@ func RunEDeploy(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	return connectors.NewClient(url).DeployConnector(config)
+	return getClient().DeployConnector(config)
 }
 
 func init() {
