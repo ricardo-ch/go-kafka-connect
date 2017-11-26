@@ -35,13 +35,14 @@ var update updateCmdConfig
 // updateCmd represents the update command
 var updateCmd = &cobra.Command{
 	Use:   "update",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "Updater a connector",
+	Long: `Update a connector's configuration
+	flags:
+		--url -u: url of the kafka-connect server
+		--connector -n: name of the target connector
+		--file -f: path to the config file
+		--string -s: literal configuration string
+		--sync -y: execute synchronously`,
 	RunE: RunEUpdate,
 }
 
@@ -92,9 +93,9 @@ func getUpdateCmdConfig(cmd *cobra.Command) (map[string]string, error) {
 func init() {
 	RootCmd.AddCommand(updateCmd)
 
-	updateCmd.PersistentFlags().StringVarP(&update.file, "file", "f", "", "path to config file")
+	updateCmd.PersistentFlags().StringVarP(&update.file, "file", "f", "", "path to the config file")
 	updateCmd.MarkFlagFilename("file")
-	updateCmd.PersistentFlags().StringVarP(&update.configString, "string", "s", "", "json encoded string of config")
-	updateCmd.PersistentFlags().StringVarP(&update.connector, "connector", "n", "", "name of connector to update")
+	updateCmd.PersistentFlags().StringVarP(&update.configString, "string", "s", "", "JSON configuration string")
+	updateCmd.PersistentFlags().StringVarP(&update.connector, "connector", "n", "", "name of the target connector")
 	updateCmd.MarkFlagRequired("connector")
 }
