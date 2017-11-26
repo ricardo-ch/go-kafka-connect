@@ -53,7 +53,7 @@ func SetLogger(logger *zap.Logger) ClientOption {
 // result need to be pointer to expected type
 func (c Client) Request(method string, endpoint string, request interface{}, result interface{}) (int, error) {
 	if request != nil {
-		c.logger.Debug("debug", zap.Any("request", request) )
+		c.logger.Debug("request sent", zap.Any("request_sent", request))
 	}
 
 	endPointURL, err := url.Parse(c.URL + "/" + endpoint)

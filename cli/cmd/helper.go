@@ -3,8 +3,8 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
-	"go.uber.org/zap"
 	"github.com/ricardo-ch/go-kafka-connect/lib/connectors"
+	"go.uber.org/zap"
 )
 
 func printResponse(response interface{}) error {
@@ -16,8 +16,10 @@ func printResponse(response interface{}) error {
 	return nil
 }
 
-func getLogger(verbose bool) *zap.Logger{
+func getLogger(verbose bool) *zap.Logger {
 	config := zap.NewProductionConfig()
+	config.DisableCaller = true
+	config.DisableStacktrace = true
 	if verbose {
 		config.Level.SetLevel(zap.DebugLevel)
 	}
@@ -29,6 +31,6 @@ func getLogger(verbose bool) *zap.Logger{
 	return logger
 }
 
-func getClient() connectors.Client{
+func getClient() connectors.Client {
 	return connectors.NewClient(url, connectors.SetLogger(getLogger(verbose)))
 }
