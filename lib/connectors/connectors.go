@@ -127,7 +127,7 @@ func (c Client) CreateConnector(req CreateConnectorRequest, sync bool) (Connecto
 }
 
 //UpdateConnector update a connector config
-func (c Client) UpdateConnector(req UpdateConnectorRequest) (ConnectorResponse, error) {
+func (c Client) UpdateConnector(req UpdateConnectorRequest, sync bool) (ConnectorResponse, error) {
 	resp := ConnectorResponse{}
 
 	statusCode, err := c.Request(http.MethodPut, fmt.Sprintf("connectors/%s/config", req.Name), req.Config, &resp)
@@ -139,6 +139,19 @@ func (c Client) UpdateConnector(req UpdateConnectorRequest) (ConnectorResponse, 
 	}
 
 	resp.Code = statusCode
+
+	if sync {
+		if !TryUntil(
+			func() bool {
+				uptodate, err := c.IsUpToDate(req.Name, req.Config)
+				return err == nil && uptodate
+			},
+			2*time.Minute,
+		) {
+			return resp, errors.New("timeout on creating connector sync")
+		}
+	}
+
 	return resp, nil
 }
 

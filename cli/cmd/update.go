@@ -57,7 +57,7 @@ func RunEUpdate(cmd *cobra.Command, args []string) error {
 	}
 
 	req.Name = update.connector
-	resp, err := connectors.NewClient(url).UpdateConnector(req)
+	resp, err := connectors.NewClient(url).UpdateConnector(req, sync)
 	if err != nil {
 		return err
 	}
@@ -98,4 +98,5 @@ func init() {
 	updateCmd.PersistentFlags().StringVarP(&update.configString, "string", "s", "", "JSON configuration string")
 	updateCmd.PersistentFlags().StringVarP(&update.connector, "connector", "n", "", "name of the target connector")
 	updateCmd.MarkFlagRequired("connector")
+	createCmd.PersistentFlags().BoolVarP(&sync, "sync", "y", false, "execute synchronously")
 }
