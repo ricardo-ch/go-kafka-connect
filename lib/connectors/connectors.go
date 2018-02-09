@@ -19,12 +19,6 @@ type CreateConnectorRequest struct {
 	Config map[string]string `json:"config"`
 }
 
-//UpdateConnectorRequest is request used for updating connector
-type UpdateConnectorRequest struct {
-	ConnectorRequest
-	Config map[string]string `json:"config"`
-}
-
 //GetAllConnectorsResponse is request used to get list of available connectors
 type GetAllConnectorsResponse struct {
 	Code       int
@@ -127,7 +121,7 @@ func (c Client) CreateConnector(req CreateConnectorRequest, sync bool) (Connecto
 }
 
 //UpdateConnector update a connector config
-func (c Client) UpdateConnector(req UpdateConnectorRequest, sync bool) (ConnectorResponse, error) {
+func (c Client) UpdateConnector(req CreateConnectorRequest, sync bool) (ConnectorResponse, error) {
 	resp := ConnectorResponse{}
 
 	statusCode, err := c.Request(http.MethodPut, fmt.Sprintf("connectors/%s/config", req.Name), req.Config, &resp)
@@ -341,27 +335,37 @@ func TryUntil(exec func() bool, limit time.Duration) bool {
 	}
 }
 
-func (c Client) DeployConnector(req CreateConnectorRequest) error {
+func (c Client) DeployConnector(req CreateConnectorRequest) (err error) {
 	existingConnector, err := c.GetConnector(ConnectorRequest{Name: req.Name})
 	if err != nil {
 		return err
 	}
 
 	if existingConnector.Code != 404 {
-		_, err := c.PauseConnector(ConnectorRequest{Name: req.Name}, true)
+		var uptodate bool
+		uptodate, err = c.IsUpToDate(req.Name, req.Config)
 		if err != nil {
 			return err
 		}
-		_, err = c.DeleteConnector(ConnectorRequest{Name: req.Name}, true)
+		// Connector is already up to date, stop there and return ok
+		if uptodate {
+			return nil
+		}
+
+		_, err = c.PauseConnector(ConnectorRequest{Name: req.Name}, true)
 		if err != nil {
 			return err
 		}
+
+		defer func() {
+			_, err = c.ResumeConnector(ConnectorRequest{Name: req.Name}, true)
+		}()
 	}
 
-	_, err = c.CreateConnector(req, true)
+	_, err = c.UpdateConnector(req, true)
 	if err != nil {
 		return err
 	}
-	_, err = c.ResumeConnector(ConnectorRequest{Name: req.Name}, true)
+
 	return err
 }

@@ -48,7 +48,7 @@ var updateCmd = &cobra.Command{
 
 //RunEUpdate ...
 func RunEUpdate(cmd *cobra.Command, args []string) error {
-	req := connectors.UpdateConnectorRequest{}
+	req := connectors.CreateConnectorRequest{}
 
 	var err error
 	req.Config, err = getUpdateCmdConfig(cmd)
