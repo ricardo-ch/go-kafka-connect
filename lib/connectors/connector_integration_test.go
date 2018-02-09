@@ -92,18 +92,21 @@ func TestGetAllConnectors(t *testing.T) {
 	assert.Equal(t, 200, resp.Code)
 	assert.Contains(t, resp.Connectors, "test-get-all-connectors")
 }
-
 func TestUpdateConnector(t *testing.T) {
+	name := "test-update-connectors"
+	config := map[string]string{
+		"connector.class": "FileStreamSource",
+		"tasks.max":       "1",
+		"file":            testFile,
+		"topic":           "connect-test",
+		"test":            "success",
+	}
+
 	client := NewClient(hostConnect)
 	_, err := client.CreateConnector(
 		CreateConnectorRequest{
-			ConnectorRequest: ConnectorRequest{Name: "test-update-connectors"},
-			Config: map[string]string{
-				"connector.class": "FileStreamSource",
-				"tasks.max":       "1",
-				"file":            testFile,
-				"topic":           "connect-test",
-			},
+			ConnectorRequest: ConnectorRequest{Name: name},
+			Config:           config,
 		},
 		true,
 	)
@@ -112,20 +115,46 @@ func TestUpdateConnector(t *testing.T) {
 		return
 	}
 
-	resp, err := client.UpdateConnector(UpdateConnectorRequest{
-		ConnectorRequest: ConnectorRequest{Name: "test-update-connectors"},
-		Config: map[string]string{
-			"connector.class": "FileStreamSource",
-			"tasks.max":       "1",
-			"file":            testFile,
-			"topic":           "connect-test",
-			"test":            "success",
+	config["test"] = "success"
+	resp, err := client.UpdateConnector(
+		UpdateConnectorRequest{
+			ConnectorRequest: ConnectorRequest{Name: name},
+			Config:           config,
 		},
-	})
+		true,
+	)
 
 	assert.Nil(t, err)
 	assert.Equal(t, 200, resp.Code)
 	assert.Equal(t, "success", resp.Config["test"])
+}
+
+func TestUpdateConnector_NoCreate(t *testing.T) {
+	name := "test-update-connectors-nocreate"
+	config := map[string]string{
+		"connector.class": "FileStreamSource",
+		"tasks.max":       "1",
+		"file":            testFile,
+		"topic":           "connect-test",
+		"test":            "success",
+	}
+
+	client := NewClient(hostConnect)
+	resp, err := client.UpdateConnector(
+		UpdateConnectorRequest{
+			ConnectorRequest: ConnectorRequest{Name: name},
+			Config:           config,
+		},
+		true,
+	)
+
+	assert.Nil(t, err)
+	assert.Equal(t, "success", resp.Config["test"])
+
+	// use IsUpToDate to check sync worked (force get actual config for server rather than what was returned on update call)
+	isuptodate, err := client.IsUpToDate(name, config)
+	assert.Nil(t, err)
+	assert.True(t, isuptodate)
 }
 
 func TestDeleteConnector(t *testing.T) {
