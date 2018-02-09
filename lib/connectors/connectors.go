@@ -279,6 +279,31 @@ func (c Client) ResumeConnector(req ConnectorRequest, sync bool) (EmptyResponse,
 	return resp, nil
 }
 
+func (c Client) IsUpToDate(connector string, config map[string]string) (bool, error) {
+	config["name"] = connector
+
+	configResp, err := c.GetConnectorConfig(ConnectorRequest{Name: connector})
+	if err != nil {
+		return false, err
+	}
+	if configResp.Code == 404 {
+		return false, nil
+	}
+	if configResp.Code >= 400 {
+		return false, errors.New(fmt.Sprintf("status code: %d", configResp.Code))
+	}
+
+	if len(configResp.Config) != len(config) {
+		return false, nil
+	}
+	for key, value := range configResp.Config {
+		if config[key] != value {
+			return false, nil
+		}
+	}
+	return true, nil
+}
+
 func TryUntil(exec func() bool, limit time.Duration) bool {
 	timeLimit := time.After(limit)
 
@@ -303,27 +328,27 @@ func TryUntil(exec func() bool, limit time.Duration) bool {
 	}
 }
 
-func (c Client) DeployConnector(req CreateConnectorRequest) (error){
-	existingConnector, err := c.GetConnector(ConnectorRequest{Name:req.Name} )
+func (c Client) DeployConnector(req CreateConnectorRequest) error {
+	existingConnector, err := c.GetConnector(ConnectorRequest{Name: req.Name})
 	if err != nil {
 		return err
 	}
 
 	if existingConnector.Code != 404 {
-		_, err := c.PauseConnector(ConnectorRequest{Name:req.Name}, true)
+		_, err := c.PauseConnector(ConnectorRequest{Name: req.Name}, true)
 		if err != nil {
 			return err
 		}
-		_, err = c.DeleteConnector(ConnectorRequest{Name:req.Name}, true)
+		_, err = c.DeleteConnector(ConnectorRequest{Name: req.Name}, true)
 		if err != nil {
 			return err
 		}
 	}
 
-	_, err = c.CreateConnector(req,true)
+	_, err = c.CreateConnector(req, true)
 	if err != nil {
 		return err
 	}
-	_, err = c.ResumeConnector(ConnectorRequest{Name:req.Name}, true)
+	_, err = c.ResumeConnector(ConnectorRequest{Name: req.Name}, true)
 	return err
 }
