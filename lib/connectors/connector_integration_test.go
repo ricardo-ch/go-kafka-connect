@@ -117,7 +117,7 @@ func TestUpdateConnector(t *testing.T) {
 
 	config["test"] = "success"
 	resp, err := client.UpdateConnector(
-		UpdateConnectorRequest{
+		CreateConnectorRequest{
 			ConnectorRequest: ConnectorRequest{Name: name},
 			Config:           config,
 		},
@@ -141,7 +141,7 @@ func TestUpdateConnector_NoCreate(t *testing.T) {
 
 	client := NewClient(hostConnect)
 	resp, err := client.UpdateConnector(
-		UpdateConnectorRequest{
+		CreateConnectorRequest{
 			ConnectorRequest: ConnectorRequest{Name: name},
 			Config:           config,
 		},
@@ -338,4 +338,29 @@ func TestPauseAndResumeConnector(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, 200, statusResp.Code)
 	assert.Equal(t, "RUNNING", statusResp.ConnectorStatus["state"])
+}
+
+func TestDeployConnector(t *testing.T) {
+	name := "test-deploy-connectors"
+	config := map[string]string{
+		"connector.class": "FileStreamSource",
+		"file":            testFile,
+		"topic":           "connect-test",
+		"test":            "success",
+	}
+
+	client := NewClient(hostConnect)
+	err := client.DeployConnector(
+		CreateConnectorRequest{
+			ConnectorRequest: ConnectorRequest{Name: name},
+			Config:           config,
+		},
+	)
+
+	assert.Nil(t, err)
+
+	// use IsUpToDate to check sync worked (force get actual config for server rather than what was returned on update call)
+	isuptodate, err := client.IsUpToDate(name, config)
+	assert.Nil(t, err)
+	assert.True(t, isuptodate)
 }
