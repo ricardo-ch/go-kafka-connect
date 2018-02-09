@@ -98,5 +98,5 @@ func init() {
 	updateCmd.PersistentFlags().StringVarP(&update.configString, "string", "s", "", "JSON configuration string")
 	updateCmd.PersistentFlags().StringVarP(&update.connector, "connector", "n", "", "name of the target connector")
 	updateCmd.MarkFlagRequired("connector")
-	createCmd.PersistentFlags().BoolVarP(&sync, "sync", "y", false, "execute synchronously")
+	updateCmd.PersistentFlags().BoolVarP(&sync, "sync", "y", false, "execute synchronously")
 }
