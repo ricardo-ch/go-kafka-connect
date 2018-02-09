@@ -10,9 +10,9 @@ import (
 )
 
 var (
-	testFile = "/etc/kafka-connect/kafka-connect.properties"
+	testFile    = "/etc/kafka-connect/kafka-connect.properties"
 	hostConnect = "http://localhost:8083"
-	)
+)
 
 func TestHealthz(t *testing.T) {
 	resp, err := http.Get(hostConnect)
@@ -185,6 +185,38 @@ func TestGetConnectorConfig(t *testing.T) {
 
 	config["name"] = "test-get-connector-config"
 	assert.Equal(t, config, resp.Config)
+}
+
+func TestIsUpToDate(t *testing.T) {
+	client := NewClient(hostConnect)
+	config := map[string]string{
+		"connector.class": "FileStreamSource",
+		"tasks.max":       "1",
+		"file":            testFile,
+		"topic":           "connect-test",
+	}
+
+	_, err := client.CreateConnector(
+		CreateConnectorRequest{
+			ConnectorRequest: ConnectorRequest{Name: "test-uptodate-connector-config"},
+			Config:           config,
+		},
+		true,
+	)
+	if err != nil {
+		assert.Fail(t, fmt.Sprintf("error while creaating test connector: %s", err.Error()))
+		return
+	}
+
+	uptodate, err := client.IsUpToDate("test-uptodate-connector-config", config)
+	assert.Nil(t, err)
+	assert.True(t, uptodate)
+
+	config["newparameter"] = "test"
+	uptodate, err = client.IsUpToDate("test-uptodate-connector-config", config)
+	assert.Nil(t, err)
+	assert.False(t, uptodate)
+
 }
 
 func TestGetConnectorStatus(t *testing.T) {
