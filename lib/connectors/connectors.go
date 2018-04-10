@@ -286,6 +286,8 @@ func (c Client) ResumeConnector(req ConnectorRequest, sync bool) (EmptyResponse,
 	return resp, nil
 }
 
+//IsUpToDate checks if the given configuration is different from the deployed one.
+//Returns true if they are the same
 func (c Client) IsUpToDate(connector string, config map[string]string) (bool, error) {
 	config["name"] = connector
 
@@ -311,6 +313,7 @@ func (c Client) IsUpToDate(connector string, config map[string]string) (bool, er
 	return true, nil
 }
 
+//TryUntil repeats the request
 func TryUntil(exec func() bool, limit time.Duration) bool {
 	timeLimit := time.After(limit)
 
@@ -335,6 +338,8 @@ func TryUntil(exec func() bool, limit time.Duration) bool {
 	}
 }
 
+//DeployConnector checks if the configuration changed before deploying.
+//It does nothing if it is the same
 func (c Client) DeployConnector(req CreateConnectorRequest) (err error) {
 	existingConnector, err := c.GetConnector(ConnectorRequest{Name: req.Name})
 	if err != nil {
