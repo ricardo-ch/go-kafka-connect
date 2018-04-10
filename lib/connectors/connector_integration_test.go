@@ -4,9 +4,10 @@ package connectors
 
 import (
 	"fmt"
-	"github.com/stretchr/testify/assert"
 	"net/http"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 var (
@@ -315,7 +316,7 @@ func TestPauseAndResumeConnector(t *testing.T) {
 		true,
 	)
 	if err != nil {
-		assert.Fail(t, fmt.Sprintf("error while creaating test connector: %s", err.Error()))
+		assert.Fail(t, fmt.Sprintf("error while creating test connector: %s", err.Error()))
 		return
 	}
 
@@ -338,6 +339,31 @@ func TestPauseAndResumeConnector(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, 200, statusResp.Code)
 	assert.Equal(t, "RUNNING", statusResp.ConnectorStatus["state"])
+}
+
+func TestRestartTask(t *testing.T) {
+	client := NewClient(hostConnect)
+	_, err := client.CreateConnector(
+		CreateConnectorRequest{
+			ConnectorRequest: ConnectorRequest{Name: "test-restart-connector"},
+			Config: map[string]string{
+				"connector.class": "FileStreamSource",
+				"tasks.max":       "1",
+				"file":            testFile,
+				"topic":           "connect-test",
+			},
+		},
+		true,
+	)
+	if err != nil {
+		assert.Fail(t, fmt.Sprintf("error while creating test connector: %s", err.Error()))
+		return
+	}
+
+	resp, err := client.RestartTask(TaskRequest{Connector: "test-restart-connector", TaskID: 0})
+
+	assert.Nil(t, err)
+	assert.Equal(t, 204, resp.Code)
 }
 
 func TestDeployConnector(t *testing.T) {
