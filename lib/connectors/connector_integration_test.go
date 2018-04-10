@@ -345,7 +345,7 @@ func TestRestartTask(t *testing.T) {
 	client := NewClient(hostConnect)
 	_, err := client.CreateConnector(
 		CreateConnectorRequest{
-			ConnectorRequest: ConnectorRequest{Name: "test-restart-connector"},
+			ConnectorRequest: ConnectorRequest{Name: "test-restart-task"},
 			Config: map[string]string{
 				"connector.class": "FileStreamSource",
 				"tasks.max":       "1",
@@ -360,7 +360,7 @@ func TestRestartTask(t *testing.T) {
 		return
 	}
 
-	resp, err := client.RestartTask(TaskRequest{Connector: "test-restart-connector", TaskID: 0})
+	resp, err := client.RestartTask(TaskRequest{Connector: "test-restart-task", TaskID: 0})
 
 	assert.Nil(t, err)
 	assert.Equal(t, 204, resp.Code)
