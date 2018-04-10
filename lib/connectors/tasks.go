@@ -77,7 +77,7 @@ func (c Client) GetTaskStatus(req TaskRequest) (TaskStatusResponse, error) {
 func (c Client) RestartTask(req TaskRequest) (EmptyResponse, error) {
 	var er EmptyResponse
 
-	statusCode, err := c.Request(http.MethodGet, fmt.Sprintf("connectors/%s/tasks/%s/restart", req.Connector, strconv.Itoa(req.TaskID)), nil, nil)
+	statusCode, err := c.Request(http.MethodPost, fmt.Sprintf("connectors/%s/tasks/%s/restart", req.Connector, strconv.Itoa(req.TaskID)), nil, nil)
 	if err != nil {
 		return EmptyResponse{}, err
 	}
