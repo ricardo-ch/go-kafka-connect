@@ -10,7 +10,8 @@ import (
 
 //Client represents the kafka connect access configuration
 type Client struct {
-	URL string
+	URL    string
+	client *http.Client
 }
 
 //ErrorResponse is generic error returned by kafka connect
@@ -25,7 +26,13 @@ func (err ErrorResponse) Error() string {
 
 //NewClient generates a new client
 func NewClient(url string) Client {
-	return Client{URL: url}
+	return Client{URL: url, client: http.DefaultClient}
+}
+
+// WithHTTPClient overrides default http client
+func (c Client) WithHTTPClient(client *http.Client) Client {
+	c.client = client
+	return c
 }
 
 //Request handles an HTTP Get request to the client
@@ -52,7 +59,7 @@ func (c Client) Request(method string, endpoint string, request interface{}, res
 		return 0, err
 	}
 
-	res, err := http.DefaultClient.Do(req)
+	res, err := c.client.Do(req)
 	if err != nil {
 		return 0, err
 	}

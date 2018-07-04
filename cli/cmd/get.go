@@ -15,7 +15,9 @@
 package cmd
 
 import (
+	"crypto/tls"
 	"errors"
+	"net/http"
 
 	"github.com/ricardo-ch/go-kafka-connect/lib/connectors"
 	"github.com/spf13/cobra"
@@ -69,6 +71,13 @@ func validateArgs() error {
 func getConnector() error {
 
 	client := connectors.NewClient(url)
+	if insecureSkipVerify {
+		tr := &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		}
+		client = client.WithHTTPClient(&http.Client{Transport: tr})
+	}
+
 	req := connectors.ConnectorRequest{
 		Name: connector,
 	}

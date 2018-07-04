@@ -15,6 +15,9 @@
 package cmd
 
 import (
+	"crypto/tls"
+	"net/http"
+
 	"github.com/ricardo-ch/go-kafka-connect/lib/connectors"
 	"github.com/spf13/cobra"
 )
@@ -36,7 +39,15 @@ func RunEResume(cmd *cobra.Command, args []string) error {
 	req := connectors.ConnectorRequest{
 		Name: connector,
 	}
-	resp, err := connectors.NewClient(url).ResumeConnector(req, sync)
+
+	client := connectors.NewClient(url)
+	if insecureSkipVerify {
+		tr := &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		}
+		client = client.WithHTTPClient(&http.Client{Transport: tr})
+	}
+	resp, err := client.ResumeConnector(req, sync)
 	if err != nil {
 		return err
 	}

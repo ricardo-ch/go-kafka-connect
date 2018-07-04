@@ -299,7 +299,7 @@ func (c Client) IsUpToDate(connector string, config map[string]string) (bool, er
 		return false, nil
 	}
 	if configResp.Code >= 400 {
-		return false, errors.New(fmt.Sprintf("status code: %d", configResp.Code))
+		return false, fmt.Errorf("status code: %d", configResp.Code)
 	}
 
 	if len(configResp.Config) != len(config) {
