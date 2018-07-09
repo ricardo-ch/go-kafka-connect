@@ -25,14 +25,15 @@ import (
 
 var cfgFile string
 var (
-	url          string
-	connector    string
-	file         string
-	configString string
-	sync         bool
-	status       bool
-	config       bool
-	tasks        bool
+	url                string
+	insecureSkipVerify bool
+	connector          string
+	file               string
+	configString       string
+	sync               bool
+	status             bool
+	config             bool
+	tasks              bool
 )
 
 // RootCmd represents the base command when called without any subcommands
@@ -67,6 +68,7 @@ func init() {
 	// will be global for your application.
 	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.cli.yaml)")
 	RootCmd.PersistentFlags().StringVarP(&url, "url", "u", "http://localhost:8083", "kafka connect URL")
+	RootCmd.PersistentFlags().BoolVarP(&insecureSkipVerify, "insecure-skip-verify", "", false, "ssl insecure skip verify")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.

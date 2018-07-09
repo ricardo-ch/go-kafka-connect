@@ -15,6 +15,9 @@
 package cmd
 
 import (
+	"crypto/tls"
+	"net/http"
+
 	"github.com/ricardo-ch/go-kafka-connect/lib/connectors"
 	"github.com/spf13/cobra"
 )
@@ -37,7 +40,15 @@ func RunEDelete(cmd *cobra.Command, args []string) error {
 		Name: connector,
 	}
 
-	resp, err := connectors.NewClient(url).DeleteConnector(req, sync)
+	client := connectors.NewClient(url)
+	if insecureSkipVerify {
+		tr := &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		}
+		client = client.WithHTTPClient(&http.Client{Transport: tr})
+	}
+
+	resp, err := client.DeleteConnector(req, sync)
 	if err != nil {
 		return err
 	}

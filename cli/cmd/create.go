@@ -15,8 +15,10 @@
 package cmd
 
 import (
+	"crypto/tls"
 	"encoding/json"
 	"errors"
+	"net/http"
 	"os"
 	"strings"
 
@@ -45,7 +47,15 @@ func RunECreate(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	resp, err := connectors.NewClient(url).CreateConnector(config, sync)
+	client := connectors.NewClient(url)
+	if insecureSkipVerify {
+		tr := &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		}
+		client = client.WithHTTPClient(&http.Client{Transport: tr})
+	}
+
+	resp, err := client.CreateConnector(config, sync)
 	if err != nil {
 		return err
 	}
