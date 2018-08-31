@@ -65,8 +65,8 @@ func RunEUpdate(cmd *cobra.Command, args []string) error {
 	return printResponse(resp)
 }
 
-func getUpdateCmdConfig(cmd *cobra.Command) (map[string]string, error) {
-	config := map[string]string{}
+func getUpdateCmdConfig(cmd *cobra.Command) (map[string]interface{}, error) {
+	config := map[string]interface{}{}
 
 	if cmd.Flag("file").Changed {
 		fileReader, err := os.Open(update.file)

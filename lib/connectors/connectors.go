@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
+	"strconv"
 )
 
 //ConnectorRequest is generic request used when interacting with connector endpoint
@@ -13,48 +14,44 @@ type ConnectorRequest struct {
 	Name string `json:"name"`
 }
 
-//CreateConnectorRequest is request used for creating connector
-type CreateConnectorRequest struct {
-	ConnectorRequest
-	Config map[string]string `json:"config"`
-}
-
-//GetAllConnectorsResponse is request used to get list of available connectors
-type GetAllConnectorsResponse struct {
-	Code       int
-	Connectors []string
-	ErrorResponse
-}
-
-//ConnectorResponse is generic response when interacting with connector endpoint
-type ConnectorResponse struct {
-	Code   int
-	Name   string            `json:"name"`
-	Config map[string]string `json:"config"`
-	Tasks  []TaskID          `json:"tasks"`
-	ErrorResponse
-}
-
-//GetConnectorConfigResponse is response returned by GetConfig endpoint
-type GetConnectorConfigResponse struct {
-	Code   int
-	Config map[string]string
-	ErrorResponse
-}
-
-//GetConnectorStatusResponse is response returned by GetStatus endpoint
-type GetConnectorStatusResponse struct {
-	Code            int
-	Name            string            `json:"name"`
-	ConnectorStatus map[string]string `json:"connector"`
-	TasksStatus     []TaskStatus      `json:"tasks"`
-	ErrorResponse
-}
-
 //EmptyResponse is response returned by multiple endpoint when only StatusCode matter
 type EmptyResponse struct {
 	Code int
 	ErrorResponse
+}
+
+//CreateConnectorRequest is request used for creating connector
+type CreateConnectorRequest struct {
+	ConnectorRequest
+	Config map[string]interface{} `json:"config"`
+}
+
+//GetAllConnectorsResponse is request used to get list of available connectors
+type GetAllConnectorsResponse struct {
+	EmptyResponse
+	Connectors []string
+}
+
+//ConnectorResponse is generic response when interacting with connector endpoint
+type ConnectorResponse struct {
+	EmptyResponse
+	Name   string                 `json:"name"`
+	Config map[string]interface{} `json:"config"`
+	Tasks  []TaskID               `json:"tasks"`
+}
+
+//GetConnectorConfigResponse is response returned by GetConfig endpoint
+type GetConnectorConfigResponse struct {
+	EmptyResponse
+	Config map[string]interface{}
+}
+
+//GetConnectorStatusResponse is response returned by GetStatus endpoint
+type GetConnectorStatusResponse struct {
+	EmptyResponse
+	Name            string            `json:"name"`
+	ConnectorStatus map[string]string `json:"connector"`
+	TasksStatus     []TaskStatus      `json:"tasks"`
 }
 
 //GetAll gets the list of all active connectors
@@ -181,7 +178,7 @@ func (c Client) DeleteConnector(req ConnectorRequest, sync bool) (EmptyResponse,
 //GetConnectorConfig return config of a connector
 func (c Client) GetConnectorConfig(req ConnectorRequest) (GetConnectorConfigResponse, error) {
 	resp := GetConnectorConfigResponse{}
-	var config map[string]string
+	var config map[string]interface{}
 
 	statusCode, err := c.Request(http.MethodGet, fmt.Sprintf("connectors/%s/config", req.Name), nil, &config)
 	if err != nil {
@@ -288,7 +285,7 @@ func (c Client) ResumeConnector(req ConnectorRequest, sync bool) (EmptyResponse,
 
 //IsUpToDate checks if the given configuration is different from the deployed one.
 //Returns true if they are the same
-func (c Client) IsUpToDate(connector string, config map[string]string) (bool, error) {
+func (c Client) IsUpToDate(connector string, config map[string]interface{}) (bool, error) {
 	config["name"] = connector
 
 	configResp, err := c.GetConnectorConfig(ConnectorRequest{Name: connector})
@@ -306,11 +303,23 @@ func (c Client) IsUpToDate(connector string, config map[string]string) (bool, er
 		return false, nil
 	}
 	for key, value := range configResp.Config {
-		if config[key] != value {
+		if convertConfigValueToString(config[key]) != convertConfigValueToString(value) {
 			return false, nil
 		}
 	}
 	return true, nil
+}
+
+// Because trying to compare the same field on 2 different config may return false negative if one is encoded as a string and not the other
+func convertConfigValueToString(value interface{}) string {
+	switch v := value.(type) {
+	case string:
+		return v
+	case int:
+		return strconv.Itoa(v)
+	default:
+		return ""
+	}
 }
 
 //TryUntil repeats the request

@@ -1,0 +1,10 @@
+{
+  "name": "test-connector",
+  "config": {
+    "connector.class": "FileStreamSource",
+    "file": "/etc/kafka-connect/kafka-connect.properties",
+    "tasks.max": 1,
+    "name": "test-get-connector",
+    "topic": "connect-test"
+  }
+}

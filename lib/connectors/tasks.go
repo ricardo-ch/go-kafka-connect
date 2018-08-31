@@ -20,8 +20,8 @@ type GetAllTasksResponse struct {
 
 //TaskDetails is detail of a specific task on a specific endpoint
 type TaskDetails struct {
-	ID     TaskID            `json:"id"`
-	Config map[string]string `json:"config"`
+	ID     TaskID                 `json:"id"`
+	Config map[string]interface{} `json:"config"`
 }
 
 //TaskID identify a task and its connector
