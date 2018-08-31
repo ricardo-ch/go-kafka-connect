@@ -32,6 +32,6 @@ run `make install` to install dependencies
 
 # Testing
 For now, only integration test are available.
-run `docker-compose up` then wait patiently until it boots and run `make test-integration`
+run `make test-integration`
 
 Right now, integration tests only run locally
