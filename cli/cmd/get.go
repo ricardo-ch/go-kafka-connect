@@ -68,7 +68,7 @@ func validateArgs() error {
 
 func getConnector() error {
 
-	client := connectors.NewClient(url, verbose)
+	client := getClient()
 	req := connectors.ConnectorRequest{
 		Name: connector,
 	}
@@ -83,7 +83,7 @@ func getConnector() error {
 
 func getConfig() error {
 
-	client := connectors.NewClient(url, verbose)
+	client := getClient()
 	req := connectors.ConnectorRequest{
 		Name: connector,
 	}
@@ -98,7 +98,7 @@ func getConfig() error {
 
 func getStatus() error {
 
-	client := connectors.NewClient(url, verbose)
+	client := getClient()
 	req := connectors.ConnectorRequest{
 		Name: connector,
 	}
@@ -113,7 +113,7 @@ func getStatus() error {
 
 func getTasks() error {
 
-	client := connectors.NewClient(url, verbose)
+	client := getClient()
 	req := connectors.ConnectorRequest{
 		Name: connector,
 	}

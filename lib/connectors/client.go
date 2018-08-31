@@ -1,6 +1,7 @@
 package connectors
 
 import (
+	"crypto/tls"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -24,7 +25,7 @@ func (err ErrorResponse) Error() string {
 }
 
 //NewClient generates a new client
-func NewClient(url string, debug bool) *Client {
+func NewClient(url string) *Client {
 	restClient := resty.New().
 		OnAfterResponse(func(c *resty.Client, res *resty.Response) error {
 			// The default error handling given by `SetRESTMode` is a bit weak. This is the override
@@ -43,8 +44,15 @@ func NewClient(url string, debug bool) *Client {
 		SetHostURL(url).
 		SetHeader("Accept", "application/json").
 		SetRetryCount(3).
-		SetTimeout(5 * time.Second).
-		SetDebug(debug)
+		SetTimeout(5 * time.Second)
 
 	return &Client{restClient: restClient}
+}
+
+func (c *Client) WithInsecureSSL() *Client {
+	return &Client{restClient: c.restClient.SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})}
+}
+
+func (c *Client) WithDebug() *Client {
+	return &Client{restClient: c.restClient.SetDebug(true)}
 }
