@@ -34,6 +34,7 @@ var (
 	config       bool
 	tasks        bool
 	verbose      bool
+	SSLInsecure  bool
 )
 
 // RootCmd represents the base command when called without any subcommands
@@ -69,11 +70,8 @@ func init() {
 	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.cli.yaml)")
 	RootCmd.PersistentFlags().StringVarP(&url, "url", "u", "http://localhost:8083", "kafka connect URL")
 
-	// Cobra also supports local flags, which will only run
-	// when this action is called directly.
-	RootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-
-	RootCmd.Flags().BoolVarP(&verbose, "verbose", "v", false, `/!\ very verbose`)
+	RootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, `/!\ very verbose`)
+	RootCmd.PersistentFlags().BoolVarP(&SSLInsecure, "insecure-skip-verify", "i", false, `skip SSL/TLS verification`)
 }
 
 // initConfig reads in config file and ENV variables if set.
