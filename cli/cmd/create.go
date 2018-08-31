@@ -45,7 +45,7 @@ func RunECreate(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	resp, err := connectors.NewClient(url).CreateConnector(config, sync)
+	resp, err := connectors.NewClient(url, verbose).CreateConnector(config, sync)
 	if err != nil {
 		return err
 	}

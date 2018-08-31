@@ -38,7 +38,7 @@ func RunEDeploy(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	return connectors.NewClient(url).DeployConnector(config)
+	return connectors.NewClient(url, verbose).DeployConnector(config)
 }
 
 func init() {

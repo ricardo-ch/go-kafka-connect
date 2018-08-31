@@ -10,6 +10,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+const debug = true
+
 var (
 	testFile    = "/etc/kafka-connect/kafka-connect.properties"
 	hostConnect = "http://localhost:8083"
@@ -22,7 +24,7 @@ func TestHealthz(t *testing.T) {
 }
 
 func TestCreateConnector(t *testing.T) {
-	client := NewClient(hostConnect)
+	client := NewClient(hostConnect, debug)
 	resp, err := client.CreateConnector(
 		CreateConnectorRequest{
 			ConnectorRequest: ConnectorRequest{Name: "test-create-connector"},
@@ -41,7 +43,7 @@ func TestCreateConnector(t *testing.T) {
 }
 
 func TestGetConnector(t *testing.T) {
-	client := NewClient(hostConnect)
+	client := NewClient(hostConnect, debug)
 	_, err := client.CreateConnector(
 		CreateConnectorRequest{
 			ConnectorRequest: ConnectorRequest{Name: "test-get-connector"},
@@ -69,7 +71,7 @@ func TestGetConnector(t *testing.T) {
 }
 
 func TestGetAllConnectors(t *testing.T) {
-	client := NewClient(hostConnect)
+	client := NewClient(hostConnect, debug)
 	_, err := client.CreateConnector(
 		CreateConnectorRequest{
 			ConnectorRequest: ConnectorRequest{Name: "test-get-all-connectors"},
@@ -93,6 +95,7 @@ func TestGetAllConnectors(t *testing.T) {
 	assert.Equal(t, 200, resp.Code)
 	assert.Contains(t, resp.Connectors, "test-get-all-connectors")
 }
+
 func TestUpdateConnector(t *testing.T) {
 	name := "test-update-connectors"
 	config := map[string]interface{}{
@@ -103,7 +106,7 @@ func TestUpdateConnector(t *testing.T) {
 		"test":            "success",
 	}
 
-	client := NewClient(hostConnect)
+	client := NewClient(hostConnect, debug)
 	_, err := client.CreateConnector(
 		CreateConnectorRequest{
 			ConnectorRequest: ConnectorRequest{Name: name},
@@ -140,7 +143,7 @@ func TestUpdateConnector_NoCreate(t *testing.T) {
 		"test":            "success",
 	}
 
-	client := NewClient(hostConnect)
+	client := NewClient(hostConnect, debug)
 	resp, err := client.UpdateConnector(
 		CreateConnectorRequest{
 			ConnectorRequest: ConnectorRequest{Name: name},
@@ -153,13 +156,13 @@ func TestUpdateConnector_NoCreate(t *testing.T) {
 	assert.Equal(t, "success", resp.Config["test"])
 
 	// use IsUpToDate to check sync worked (force get actual config for server rather than what was returned on update call)
-	isuptodate, err := client.IsUpToDate(name, config)
+	isUpToDate, err := client.IsUpToDate(name, config)
 	assert.Nil(t, err)
-	assert.True(t, isuptodate)
+	assert.True(t, isUpToDate)
 }
 
 func TestDeleteConnector(t *testing.T) {
-	client := NewClient(hostConnect)
+	client := NewClient(hostConnect, debug)
 	_, err := client.CreateConnector(
 		CreateConnectorRequest{
 			ConnectorRequest: ConnectorRequest{Name: "test-delete-connectors"},
@@ -188,7 +191,7 @@ func TestDeleteConnector(t *testing.T) {
 }
 
 func TestGetConnectorConfig(t *testing.T) {
-	client := NewClient(hostConnect)
+	client := NewClient(hostConnect, debug)
 	config := map[string]interface{}{
 		"connector.class": "FileStreamSource",
 		"tasks.max":       "1",
@@ -218,7 +221,7 @@ func TestGetConnectorConfig(t *testing.T) {
 }
 
 func TestIsUpToDate(t *testing.T) {
-	client := NewClient(hostConnect)
+	client := NewClient(hostConnect, debug)
 	config := map[string]interface{}{
 		"connector.class": "FileStreamSource",
 		"tasks.max":       "1",
@@ -255,7 +258,7 @@ func TestIsUpToDate(t *testing.T) {
 }
 
 func TestGetConnectorStatus(t *testing.T) {
-	client := NewClient(hostConnect)
+	client := NewClient(hostConnect, debug)
 	_, err := client.CreateConnector(
 		CreateConnectorRequest{
 			ConnectorRequest: ConnectorRequest{Name: "test-get-connector-status"},
@@ -282,7 +285,7 @@ func TestGetConnectorStatus(t *testing.T) {
 }
 
 func TestRestartConnector(t *testing.T) {
-	client := NewClient(hostConnect)
+	client := NewClient(hostConnect, debug)
 	_, err := client.CreateConnector(
 		CreateConnectorRequest{
 			ConnectorRequest: ConnectorRequest{Name: "test-restart-connector"},
@@ -307,7 +310,7 @@ func TestRestartConnector(t *testing.T) {
 }
 
 func TestPauseAndResumeConnector(t *testing.T) {
-	client := NewClient(hostConnect)
+	client := NewClient(hostConnect, debug)
 	_, err := client.CreateConnector(
 		CreateConnectorRequest{
 			ConnectorRequest: ConnectorRequest{Name: "test-pause-and-resume-connector"},
@@ -347,7 +350,7 @@ func TestPauseAndResumeConnector(t *testing.T) {
 }
 
 func TestRestartTask(t *testing.T) {
-	client := NewClient(hostConnect)
+	client := NewClient(hostConnect, debug)
 	_, err := client.CreateConnector(
 		CreateConnectorRequest{
 			ConnectorRequest: ConnectorRequest{Name: "test-restart-task"},
@@ -380,7 +383,7 @@ func TestDeployConnector(t *testing.T) {
 		"test":            "success",
 	}
 
-	client := NewClient(hostConnect)
+	client := NewClient(hostConnect, debug)
 	err := client.DeployConnector(
 		CreateConnectorRequest{
 			ConnectorRequest: ConnectorRequest{Name: name},
@@ -391,7 +394,7 @@ func TestDeployConnector(t *testing.T) {
 	assert.Nil(t, err)
 
 	// use IsUpToDate to check sync worked (force get actual config for server rather than what was returned on update call)
-	isuptodate, err := client.IsUpToDate(name, config)
+	isUpToDate, err := client.IsUpToDate(name, config)
 	assert.Nil(t, err)
-	assert.True(t, isuptodate)
+	assert.True(t, isUpToDate)
 }

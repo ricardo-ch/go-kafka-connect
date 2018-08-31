@@ -36,7 +36,7 @@ func RunEPause(cmd *cobra.Command, args []string) error {
 	req := connectors.ConnectorRequest{
 		Name: connector,
 	}
-	resp, err := connectors.NewClient(url).PauseConnector(req, sync)
+	resp, err := connectors.NewClient(url, verbose).PauseConnector(req, sync)
 	if err != nil {
 		return err
 	}
