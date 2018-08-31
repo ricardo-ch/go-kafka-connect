@@ -37,7 +37,7 @@ func RunEDelete(cmd *cobra.Command, args []string) error {
 		Name: connector,
 	}
 
-	resp, err := connectors.NewClient(url).DeleteConnector(req, sync)
+	resp, err := connectors.NewClient(url, verbose).DeleteConnector(req, sync)
 	if err != nil {
 		return err
 	}

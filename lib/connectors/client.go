@@ -1,16 +1,16 @@
 package connectors
 
 import (
-	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
-	"net/http"
-	"net/url"
+	"gopkg.in/resty.v1"
+	"time"
 )
 
 //Client represents the kafka connect access configuration
 type Client struct {
-	URL string
+	restClient *resty.Client
 }
 
 //ErrorResponse is generic error returned by kafka connect
@@ -24,49 +24,27 @@ func (err ErrorResponse) Error() string {
 }
 
 //NewClient generates a new client
-func NewClient(url string) Client {
-	return Client{URL: url}
-}
+func NewClient(url string, debug bool) *Client {
+	restClient := resty.New().
+		OnAfterResponse(func(c *resty.Client, res *resty.Response) error {
+			// The default error handling given by `SetRESTMode` is a bit weak. This is the override
 
-//Request handles an HTTP Get request to the client
-// execute request and return parsed body content in result var
-// result need to be pointer to expected type
-func (c Client) Request(method string, endpoint string, request interface{}, result interface{}) (int, error) {
-
-	endPointURL, err := url.Parse(c.URL + "/" + endpoint)
-	if err != nil {
-		return 0, err
-	}
-
-	buf := bytes.Buffer{}
-	if request != nil {
-		err = json.NewEncoder(&buf).Encode(request)
-		if err != nil {
-			return 0, err
-		}
-	}
-
-	req, err := http.NewRequest(method, endPointURL.String(), bytes.NewReader(buf.Bytes()))
-	req.Header.Add("Content-Type", "application/json")
-	if err != nil {
-		return 0, err
-	}
-
-	res, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return 0, err
-	}
-
-	if result != nil && res.Body != nil {
-		b := bytes.Buffer{}
-		b.ReadFrom(res.Body)
-		if len(b.Bytes()) > 0 {
-			err = json.NewDecoder(&b).Decode(result)
-			if err != nil {
-				return res.StatusCode, err
+			if res.StatusCode() >= 400 && res.StatusCode() != 404 {
+				restErr := ErrorResponse{}
+				decodeErr := json.Unmarshal(res.Body(), &restErr)
+				if decodeErr != nil {
+					return restErr
+				}
+				return errors.New(fmt.Sprintf("Error while decoding body while error: %v", res.Body()))
 			}
-		}
-	}
+			return nil
+		}).
+		SetRESTMode().
+		SetHostURL(url).
+		SetHeader("Accept", "application/json").
+		SetRetryCount(3).
+		SetTimeout(5 * time.Second).
+		SetDebug(debug)
 
-	return res.StatusCode, nil
+	return &Client{restClient: restClient}
 }

@@ -1,12 +1,10 @@
 package connectors
 
 import (
+	"errors"
 	"fmt"
-	"net/http"
-	"time"
-
-	"github.com/pkg/errors"
 	"strconv"
+	"time"
 )
 
 //ConnectorRequest is generic request used when interacting with connector endpoint
@@ -55,52 +53,53 @@ type GetConnectorStatusResponse struct {
 }
 
 //GetAll gets the list of all active connectors
-func (c Client) GetAll() (GetAllConnectorsResponse, error) {
-	resp := GetAllConnectorsResponse{}
+func (c *Client) GetAll() (GetAllConnectorsResponse, error) {
+	result := GetAllConnectorsResponse{}
 	var connectors []string
 
-	statusCode, err := c.Request(http.MethodGet, "connectors", nil, &connectors)
+	resp, err := c.restClient.NewRequest().
+		SetResult(&connectors).
+		Get("connectors")
+
 	if err != nil {
 		return GetAllConnectorsResponse{}, err
 	}
 
-	resp.Code = statusCode
-	resp.Connectors = connectors
+	result.Code = resp.StatusCode()
+	result.Connectors = connectors
 
-	return resp, nil
+	return result, nil
 }
 
 //GetConnector return information on specific connector
 func (c Client) GetConnector(req ConnectorRequest) (ConnectorResponse, error) {
-	resp := ConnectorResponse{}
+	result := ConnectorResponse{}
 
-	statusCode, err := c.Request(http.MethodGet, fmt.Sprintf("connectors/%s", req.Name), nil, &resp)
+	resp, err := c.restClient.NewRequest().
+		SetResult(&result).
+		SetPathParams(map[string]string{"name": req.Name}).
+		Get("connectors/{name}")
 	if err != nil {
 		return ConnectorResponse{}, err
 	}
 
-	// because connector missing is not an error
-	if resp.ErrorCode != 0 && resp.ErrorCode != 404 {
-		return ConnectorResponse{}, resp.ErrorResponse
-	}
-
-	resp.Code = statusCode
-	return resp, nil
+	result.Code = resp.StatusCode()
+	return result, nil
 }
 
 //CreateConnector create connector using specified config and name
-func (c Client) CreateConnector(req CreateConnectorRequest, sync bool) (ConnectorResponse, error) {
-	resp := ConnectorResponse{}
+func (c *Client) CreateConnector(req CreateConnectorRequest, sync bool) (ConnectorResponse, error) {
+	result := ConnectorResponse{}
 
-	statusCode, err := c.Request(http.MethodPost, "connectors", req, &resp)
+	resp, err := c.restClient.NewRequest().
+		SetBody(req).
+		SetResult(&result).
+		Post("connectors")
 	if err != nil {
 		return ConnectorResponse{}, err
 	}
-	if resp.ErrorCode != 0 {
-		return ConnectorResponse{}, resp.ErrorResponse
-	}
 
-	resp.Code = statusCode
+	result.Code = resp.StatusCode()
 
 	if sync {
 		if !TryUntil(
@@ -110,55 +109,56 @@ func (c Client) CreateConnector(req CreateConnectorRequest, sync bool) (Connecto
 			},
 			2*time.Minute,
 		) {
-			return resp, errors.New("timeout on creating connector sync")
+			return result, errors.New("timeout on creating connector sync")
 		}
 	}
 
-	return resp, nil
+	return result, nil
 }
 
 //UpdateConnector update a connector config
 func (c Client) UpdateConnector(req CreateConnectorRequest, sync bool) (ConnectorResponse, error) {
-	resp := ConnectorResponse{}
+	result := ConnectorResponse{}
 
-	statusCode, err := c.Request(http.MethodPut, fmt.Sprintf("connectors/%s/config", req.Name), req.Config, &resp)
+	resp, err := c.restClient.NewRequest().
+		SetPathParams(map[string]string{"name": req.Name}).
+		SetBody(req.Config).
+		SetResult(&result).
+		Put("connectors/{name}/config")
 	if err != nil {
 		return ConnectorResponse{}, err
 	}
-	if resp.ErrorCode != 0 {
-		return ConnectorResponse{}, resp.ErrorResponse
-	}
 
-	resp.Code = statusCode
+	result.Code = resp.StatusCode()
 
 	if sync {
 		if !TryUntil(
 			func() bool {
-				uptodate, err := c.IsUpToDate(req.Name, req.Config)
-				return err == nil && uptodate
+				upToDate, err := c.IsUpToDate(req.Name, req.Config)
+				return err == nil && upToDate
 			},
 			2*time.Minute,
 		) {
-			return resp, errors.New("timeout on creating connector sync")
+			return result, errors.New("timeout on creating connector sync")
 		}
 	}
 
-	return resp, nil
+	return result, nil
 }
 
 //DeleteConnector delete a connector
 func (c Client) DeleteConnector(req ConnectorRequest, sync bool) (EmptyResponse, error) {
-	resp := EmptyResponse{}
+	result := EmptyResponse{}
 
-	statusCode, err := c.Request(http.MethodDelete, fmt.Sprintf("connectors/%s", req.Name), nil, &resp)
+	resp, err := c.restClient.NewRequest().
+		SetResult(&result).
+		SetPathParams(map[string]string{"name": req.Name}).
+		Delete("connectors/{name}")
 	if err != nil {
 		return EmptyResponse{}, err
 	}
-	if resp.ErrorCode != 0 {
-		return EmptyResponse{}, resp.ErrorResponse
-	}
 
-	resp.Code = statusCode
+	result.Code = resp.StatusCode()
 
 	if sync {
 		if !TryUntil(
@@ -168,77 +168,77 @@ func (c Client) DeleteConnector(req ConnectorRequest, sync bool) (EmptyResponse,
 			},
 			2*time.Minute,
 		) {
-			return resp, errors.New("timeout on deleting connector sync")
+			return result, errors.New("timeout on deleting connector sync")
 		}
 	}
 
-	return resp, nil
+	return result, nil
 }
 
-//GetConnectorConfig return config of a connector
+////GetConnectorConfig return config of a connector
 func (c Client) GetConnectorConfig(req ConnectorRequest) (GetConnectorConfigResponse, error) {
-	resp := GetConnectorConfigResponse{}
+	result := GetConnectorConfigResponse{}
 	var config map[string]interface{}
 
-	statusCode, err := c.Request(http.MethodGet, fmt.Sprintf("connectors/%s/config", req.Name), nil, &config)
+	resp, err := c.restClient.NewRequest().
+		SetResult(&config).
+		SetPathParams(map[string]string{"name": req.Name}).
+		Get("connectors/{name}/config")
 	if err != nil {
 		return GetConnectorConfigResponse{}, err
 	}
-	if resp.ErrorCode != 0 {
-		return GetConnectorConfigResponse{}, resp.ErrorResponse
-	}
 
-	resp.Code = statusCode
-	resp.Config = config
-	return resp, nil
+	result.Code = resp.StatusCode()
+	result.Config = config
+	return result, nil
 }
 
 //GetConnectorStatus return current status of connector
 func (c Client) GetConnectorStatus(req ConnectorRequest) (GetConnectorStatusResponse, error) {
-	resp := GetConnectorStatusResponse{}
+	result := GetConnectorStatusResponse{}
 
-	statusCode, err := c.Request(http.MethodGet, fmt.Sprintf("connectors/%s/status", req.Name), nil, &resp)
+	resp, err := c.restClient.NewRequest().
+		SetResult(&result).
+		SetPathParams(map[string]string{"name": req.Name}).
+		Get("connectors/{name}/status")
 	if err != nil {
 		return GetConnectorStatusResponse{}, err
 	}
-	if resp.ErrorCode != 0 {
-		return GetConnectorStatusResponse{}, resp.ErrorResponse
-	}
 
-	resp.Code = statusCode
-	return resp, nil
+	result.Code = resp.StatusCode()
+	return result, nil
 }
 
 //RestartConnector restart connector
 func (c Client) RestartConnector(req ConnectorRequest) (EmptyResponse, error) {
-	resp := EmptyResponse{}
+	result := EmptyResponse{}
 
-	statusCode, err := c.Request(http.MethodPost, fmt.Sprintf("connectors/%s/restart", req.Name), nil, &resp)
+	resp, err := c.restClient.NewRequest().
+		SetResult(&result).
+		SetPathParams(map[string]string{"name": req.Name}).
+		Post("connectors/{name}/restart")
 	if err != nil {
 		return EmptyResponse{}, err
 	}
-	if resp.ErrorCode != 0 {
-		return EmptyResponse{}, resp.ErrorResponse
-	}
 
-	resp.Code = statusCode
-	return resp, nil
+	result.Code = resp.StatusCode()
+	return result, nil
 }
 
 //PauseConnector pause a running connector
 //asynchronous operation
 func (c Client) PauseConnector(req ConnectorRequest, sync bool) (EmptyResponse, error) {
-	resp := EmptyResponse{}
+	result := EmptyResponse{}
 
-	statusCode, err := c.Request(http.MethodPut, fmt.Sprintf("connectors/%s/pause", req.Name), nil, &resp)
+	resp, err := c.restClient.NewRequest().
+		SetResult(&result).
+		SetPathParams(map[string]string{"name": req.Name}).
+		Put("connectors/{name}/pause")
 	if err != nil {
 		return EmptyResponse{}, err
 	}
-	if resp.ErrorCode != 0 {
-		return EmptyResponse{}, resp.ErrorResponse
-	}
 
-	resp.Code = statusCode
+	result.Code = resp.StatusCode()
 
 	if sync {
 		if !TryUntil(
@@ -248,26 +248,26 @@ func (c Client) PauseConnector(req ConnectorRequest, sync bool) (EmptyResponse, 
 			},
 			2*time.Minute,
 		) {
-			return resp, errors.New("timeout on pausing connector sync")
+			return result, errors.New("timeout on pausing connector sync")
 		}
 	}
-	return resp, nil
+	return result, nil
 }
 
 //ResumeConnector resume a paused connector
 //asynchronous operation
 func (c Client) ResumeConnector(req ConnectorRequest, sync bool) (EmptyResponse, error) {
-	resp := EmptyResponse{}
+	result := EmptyResponse{}
 
-	statusCode, err := c.Request(http.MethodPut, fmt.Sprintf("connectors/%s/resume", req.Name), nil, &resp)
+	resp, err := c.restClient.NewRequest().
+		SetResult(&result).
+		SetPathParams(map[string]string{"name": req.Name}).
+		Put("connectors/{name}/resume")
 	if err != nil {
 		return EmptyResponse{}, err
 	}
-	if resp.ErrorCode != 0 {
-		return EmptyResponse{}, resp.ErrorResponse
-	}
 
-	resp.Code = statusCode
+	result.Code = resp.StatusCode()
 
 	if sync {
 		if !TryUntil(
@@ -277,10 +277,10 @@ func (c Client) ResumeConnector(req ConnectorRequest, sync bool) (EmptyResponse,
 			},
 			2*time.Minute,
 		) {
-			return resp, errors.New("timeout on resuming connector sync")
+			return result, errors.New("timeout on resuming connector sync")
 		}
 	}
-	return resp, nil
+	return result, nil
 }
 
 //IsUpToDate checks if the given configuration is different from the deployed one.
@@ -356,13 +356,13 @@ func (c Client) DeployConnector(req CreateConnectorRequest) (err error) {
 	}
 
 	if existingConnector.Code != 404 {
-		var uptodate bool
-		uptodate, err = c.IsUpToDate(req.Name, req.Config)
+		var upToDate bool
+		upToDate, err = c.IsUpToDate(req.Name, req.Config)
 		if err != nil {
 			return err
 		}
 		// Connector is already up to date, stop there and return ok
-		if uptodate {
+		if upToDate {
 			return nil
 		}
 

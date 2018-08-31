@@ -1,8 +1,6 @@
 package connectors
 
 import (
-	"fmt"
-	"net/http"
 	"strconv"
 )
 
@@ -46,43 +44,50 @@ type TaskStatus struct {
 
 //GetAllTasks return list of running task
 func (c Client) GetAllTasks(req ConnectorRequest) (GetAllTasksResponse, error) {
-	var gatr GetAllTasksResponse
-	var taskDetails []TaskDetails
+	var result GetAllTasksResponse
 
-	statusCode, err := c.Request(http.MethodGet, fmt.Sprintf("connectors/%s/tasks", req.Name), nil, &taskDetails)
+	resp, err := c.restClient.NewRequest().
+		SetResult(&result.Tasks).
+		SetPathParams(map[string]string{"name": req.Name}).
+		Get("connectors/{name}/tasks")
 	if err != nil {
 		return GetAllTasksResponse{}, err
 	}
 
-	gatr.Code = statusCode
-	gatr.Tasks = taskDetails
-	return gatr, nil
+	result.Code = resp.StatusCode()
+	return result, nil
 }
 
 //GetTaskStatus return current status of task
 func (c Client) GetTaskStatus(req TaskRequest) (TaskStatusResponse, error) {
-	var tsr TaskStatusResponse
+	var result TaskStatusResponse
 
-	statusCode, err := c.Request(http.MethodGet, fmt.Sprintf("connectors/%s/tasks/%s/status", req.Connector, strconv.Itoa(req.TaskID)), nil, &tsr)
+	resp, err := c.restClient.NewRequest().
+		SetResult(&result).
+		SetPathParams(map[string]string{"name": req.Connector, "task_id": strconv.Itoa(req.TaskID)}).
+		Get("connectors/{name}/tasks/{task_id}/status")
 	if err != nil {
 		return TaskStatusResponse{}, err
 	}
 
-	tsr.Code = statusCode
+	result.Code = resp.StatusCode()
 
-	return tsr, nil
+	return result, nil
 }
 
 //RestartTask try to restart task
 func (c Client) RestartTask(req TaskRequest) (EmptyResponse, error) {
-	var er EmptyResponse
+	var result EmptyResponse
 
-	statusCode, err := c.Request(http.MethodPost, fmt.Sprintf("connectors/%s/tasks/%s/restart", req.Connector, strconv.Itoa(req.TaskID)), nil, nil)
+	resp, err := c.restClient.NewRequest().
+		SetResult(&result).
+		SetPathParams(map[string]string{"name": req.Connector, "task_id": strconv.Itoa(req.TaskID)}).
+		Post("connectors/{name}/tasks/{task_id}/restart")
 	if err != nil {
 		return EmptyResponse{}, err
 	}
 
-	er.Code = statusCode
+	result.Code = resp.StatusCode()
 
-	return er, nil
+	return result, nil
 }
