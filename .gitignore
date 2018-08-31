@@ -2,5 +2,8 @@
 .vscode
 *.exe
 
+./kccli
+cli/bin
+
 vendor
 vendor.orig
