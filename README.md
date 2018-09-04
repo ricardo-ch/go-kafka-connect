@@ -36,11 +36,22 @@ enjoy!
 
 
 # Example of command
+
+- Get help
+
+```bash
+./kccli --help
+```
+
 - Deploy a connector which config is stored in a json:
-`./kccli deploy -u http://kafka-connect.local -f my-connector-config.json`
+
+```bash
+./kccli deploy -u http://kafka-connect.local -f my-connector-config.json
+```
 
 - Deploy a bunch of connector in parallel and wait for the end:
-```
+
+```bash
 jobs=''
 
 ./kccli deploy -u http://kafka-connect.local -f my-connector-config.json & jobs="$jobs $!"
@@ -52,6 +63,12 @@ for job in $jobs; do
   if [ $? != '0' ]; then $status=1; fi
 done
 if [ $status != 0 ]; then exit $status; fi
+```
+
+- Get connector status
+
+```bash
+./kccli -u http://kafka-connect.local get --status -n my-connector
 ```
 
 
