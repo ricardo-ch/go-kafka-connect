@@ -28,7 +28,6 @@ func TestCreateConnector(t *testing.T) {
 			ConnectorRequest: ConnectorRequest{Name: "test-create-connector"},
 			Config: map[string]interface{}{
 				"connector.class": "FileStreamSource",
-				"tasks.max":       "1",
 				"file":            testFile,
 				"topic":           "connect-test",
 			},
@@ -47,7 +46,6 @@ func TestGetConnector(t *testing.T) {
 			ConnectorRequest: ConnectorRequest{Name: "test-get-connector"},
 			Config: map[string]interface{}{
 				"connector.class": "FileStreamSource",
-				"tasks.max":       "1",
 				"file":            testFile,
 				"topic":           "connect-test",
 			},
@@ -75,7 +73,6 @@ func TestGetAllConnectors(t *testing.T) {
 			ConnectorRequest: ConnectorRequest{Name: "test-get-all-connectors"},
 			Config: map[string]interface{}{
 				"connector.class": "FileStreamSource",
-				"tasks.max":       "1",
 				"file":            testFile,
 				"topic":           "connect-test",
 			},
@@ -166,7 +163,6 @@ func TestDeleteConnector(t *testing.T) {
 			ConnectorRequest: ConnectorRequest{Name: "test-delete-connectors"},
 			Config: map[string]interface{}{
 				"connector.class": "FileStreamSource",
-				"tasks.max":       "1",
 				"file":            testFile,
 				"topic":           "connect-test",
 			},
@@ -262,7 +258,6 @@ func TestGetConnectorStatus(t *testing.T) {
 			ConnectorRequest: ConnectorRequest{Name: "test-get-connector-status"},
 			Config: map[string]interface{}{
 				"connector.class": "FileStreamSource",
-				"tasks.max":       "1",
 				"file":            testFile,
 				"topic":           "connect-test",
 			},
@@ -289,7 +284,6 @@ func TestRestartConnector(t *testing.T) {
 			ConnectorRequest: ConnectorRequest{Name: "test-restart-connector"},
 			Config: map[string]interface{}{
 				"connector.class": "FileStreamSource",
-				"tasks.max":       "1",
 				"file":            testFile,
 				"topic":           "connect-test",
 			},
@@ -314,7 +308,6 @@ func TestPauseAndResumeConnector(t *testing.T) {
 			ConnectorRequest: ConnectorRequest{Name: "test-pause-and-resume-connector"},
 			Config: map[string]interface{}{
 				"connector.class": "FileStreamSource",
-				"tasks.max":       "1",
 				"file":            testFile,
 				"topic":           "connect-test",
 			},
@@ -354,7 +347,6 @@ func TestRestartTask(t *testing.T) {
 			ConnectorRequest: ConnectorRequest{Name: "test-restart-task"},
 			Config: map[string]interface{}{
 				"connector.class": "FileStreamSource",
-				"tasks.max":       "1",
 				"file":            testFile,
 				"topic":           "connect-test",
 			},
