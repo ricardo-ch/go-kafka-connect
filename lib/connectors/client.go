@@ -36,7 +36,7 @@ func NewClient(url string) *Client {
 				if decodeErr != nil {
 					return restErr
 				}
-				return errors.New(fmt.Sprintf("Error while decoding body while error: %v", res.Body()))
+				return errors.New(fmt.Sprintf("Error while decoding body while error: %v", res.String()))
 			}
 			return nil
 		}).
