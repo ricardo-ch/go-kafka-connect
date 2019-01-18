@@ -28,12 +28,12 @@ func (err ErrorResponse) Error() string {
 func NewClient(url string) *Client {
 	restClient := resty.New().
 		OnAfterResponse(func(c *resty.Client, res *resty.Response) error {
-			// The default error handling given by `SetRESTMode` is a bit weak. This is the override
+			// The default error handling given by `RESTMode` is a bit weak. This is the override
 
-			if res.StatusCode() >= 400 && res.StatusCode() != 404 {
+			if res.Error() == nil && res.StatusCode() >= 400 && res.StatusCode() != 404 {
 				restErr := ErrorResponse{}
 				decodeErr := json.Unmarshal(res.Body(), &restErr)
-				if decodeErr != nil {
+				if decodeErr == nil {
 					return restErr
 				}
 				return errors.New(fmt.Sprintf("Error while decoding body while error: %v", res.String()))
