@@ -3,8 +3,8 @@ package connectors
 import (
 	"crypto/tls"
 	"encoding/json"
-	"errors"
 	"fmt"
+	"github.com/pkg/errors"
 	"gopkg.in/resty.v1"
 	"time"
 )
@@ -36,7 +36,7 @@ func NewClient(url string) *Client {
 				if decodeErr == nil {
 					return restErr
 				}
-				return errors.New(fmt.Sprintf("Error while decoding body while error: %v", res.String()))
+				return errors.Errorf("Error while decoding body while error: %v", res.String())
 			}
 			return nil
 		}).
