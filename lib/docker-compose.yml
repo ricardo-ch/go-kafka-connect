@@ -17,3 +17,5 @@ services:
       - DEBUG=1
       - SUPERVISORWEB=0
       - CONNECTORS=file
+
+# you will find config in '/var/run/{SERVICE_NAME}' folder inside container
