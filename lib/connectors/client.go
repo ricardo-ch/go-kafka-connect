@@ -40,7 +40,6 @@ func NewClient(url string) *Client {
 			}
 			return nil
 		}).
-		SetRESTMode().
 		SetHostURL(url).
 		SetHeader("Accept", "application/json").
 		SetRetryCount(3).
