@@ -39,6 +39,23 @@ func TestCreateConnector(t *testing.T) {
 	assert.Equal(t, 201, resp.Code)
 }
 
+func TestErrorCode(t *testing.T) {
+	client := NewClient(hostConnect)
+	_, err := client.CreateConnector(
+		CreateConnectorRequest{
+			ConnectorRequest: ConnectorRequest{Name: "not-a-valid-connector"},
+			Config: map[string]interface{}{
+				"connector.class": "not a valid connector class",
+				"file":            testFile,
+				"topic":           "connect-test",
+			},
+		},
+		true,
+	)
+
+	assert.Error(t, err)
+}
+
 func TestGetConnector(t *testing.T) {
 	client := NewClient(hostConnect)
 	_, err := client.CreateConnector(
