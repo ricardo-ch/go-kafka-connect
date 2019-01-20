@@ -29,7 +29,10 @@ func NewClient(url string) *Client {
 		SetHostURL(url).
 		SetHeader("Accept", "application/json").
 		SetRetryCount(3).
-		SetTimeout(5 * time.Second)
+		SetTimeout(5 * time.Second).
+		AddRetryCondition(func(resp *resty.Response) (bool, error) {
+			return resp.StatusCode() == 409, nil
+		})
 
 	return &Client{restClient: restClient}
 }

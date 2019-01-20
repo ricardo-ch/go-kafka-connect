@@ -72,7 +72,7 @@ func (c Client) GetTaskStatus(req TaskRequest) (TaskStatusResponse, error) {
 	if err != nil {
 		return TaskStatusResponse{}, err
 	}
-	if resp.Error() != nil && resp.StatusCode() != 404 && resp.StatusCode() != 409 {
+	if resp.Error() != nil && resp.StatusCode() != 404 {
 		return TaskStatusResponse{}, resp.Error().(*ErrorResponse)
 	}
 
@@ -92,7 +92,7 @@ func (c Client) RestartTask(req TaskRequest) (EmptyResponse, error) {
 	if err != nil {
 		return EmptyResponse{}, err
 	}
-	if resp.Error() != nil && resp.StatusCode() != 409 {
+	if resp.Error() != nil {
 		return EmptyResponse{}, resp.Error().(*ErrorResponse)
 	}
 

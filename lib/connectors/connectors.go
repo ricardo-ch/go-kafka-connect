@@ -85,7 +85,7 @@ func (c Client) GetConnector(req ConnectorRequest) (ConnectorResponse, error) {
 	if err != nil {
 		return ConnectorResponse{}, err
 	}
-	if resp.Error() != nil && resp.StatusCode() != 404 && resp.StatusCode() != 409 {
+	if resp.Error() != nil && resp.StatusCode() != 404 {
 		return ConnectorResponse{}, resp.Error().(*ErrorResponse)
 	}
 
@@ -137,7 +137,7 @@ func (c Client) UpdateConnector(req CreateConnectorRequest, sync bool) (Connecto
 	if err != nil {
 		return ConnectorResponse{}, err
 	}
-	if resp.Error() != nil && resp.StatusCode() != 409 {
+	if resp.Error() != nil {
 		return ConnectorResponse{}, resp.Error().(*ErrorResponse)
 	}
 
@@ -169,7 +169,7 @@ func (c Client) DeleteConnector(req ConnectorRequest, sync bool) (EmptyResponse,
 	if err != nil {
 		return EmptyResponse{}, err
 	}
-	if resp.Error() != nil && resp.StatusCode() != 409 {
+	if resp.Error() != nil {
 		return EmptyResponse{}, resp.Error().(*ErrorResponse)
 	}
 
@@ -202,7 +202,7 @@ func (c Client) GetConnectorConfig(req ConnectorRequest) (GetConnectorConfigResp
 	if err != nil {
 		return GetConnectorConfigResponse{}, err
 	}
-	if resp.Error() != nil && resp.StatusCode() != 404 && resp.StatusCode() != 409 {
+	if resp.Error() != nil && resp.StatusCode() != 404 {
 		return GetConnectorConfigResponse{}, resp.Error().(*ErrorResponse)
 	}
 
@@ -222,7 +222,7 @@ func (c Client) GetConnectorStatus(req ConnectorRequest) (GetConnectorStatusResp
 	if err != nil {
 		return GetConnectorStatusResponse{}, err
 	}
-	if resp.Error() != nil && resp.StatusCode() != 404 && resp.StatusCode() != 409 {
+	if resp.Error() != nil && resp.StatusCode() != 404 {
 		return GetConnectorStatusResponse{}, resp.Error().(*ErrorResponse)
 	}
 
@@ -241,7 +241,7 @@ func (c Client) RestartConnector(req ConnectorRequest) (EmptyResponse, error) {
 	if err != nil {
 		return EmptyResponse{}, err
 	}
-	if resp.Error() != nil && resp.StatusCode() != 409 {
+	if resp.Error() != nil {
 		return EmptyResponse{}, resp.Error().(*ErrorResponse)
 	}
 
@@ -261,7 +261,7 @@ func (c Client) PauseConnector(req ConnectorRequest, sync bool) (EmptyResponse, 
 	if err != nil {
 		return EmptyResponse{}, err
 	}
-	if resp.Error() != nil && resp.StatusCode() != 409 {
+	if resp.Error() != nil {
 		return EmptyResponse{}, resp.Error().(*ErrorResponse)
 	}
 
@@ -293,7 +293,7 @@ func (c Client) ResumeConnector(req ConnectorRequest, sync bool) (EmptyResponse,
 	if err != nil {
 		return EmptyResponse{}, err
 	}
-	if resp.Error() != nil && resp.StatusCode() != 409 {
+	if resp.Error() != nil {
 		return EmptyResponse{}, resp.Error().(*ErrorResponse)
 	}
 
