@@ -85,7 +85,7 @@ func (c Client) GetConnector(req ConnectorRequest) (ConnectorResponse, error) {
 	if err != nil {
 		return ConnectorResponse{}, err
 	}
-	if resp.Error() != nil && resp.StatusCode() != 404 {
+	if resp.Error() != nil && resp.StatusCode() != 404 && resp.StatusCode() != 409 {
 		return ConnectorResponse{}, resp.Error().(*ErrorResponse)
 	}
 
@@ -202,7 +202,7 @@ func (c Client) GetConnectorConfig(req ConnectorRequest) (GetConnectorConfigResp
 	if err != nil {
 		return GetConnectorConfigResponse{}, err
 	}
-	if resp.Error() != nil && resp.StatusCode() != 404 {
+	if resp.Error() != nil && resp.StatusCode() != 404 && resp.StatusCode() != 409 {
 		return GetConnectorConfigResponse{}, resp.Error().(*ErrorResponse)
 	}
 
@@ -222,7 +222,7 @@ func (c Client) GetConnectorStatus(req ConnectorRequest) (GetConnectorStatusResp
 	if err != nil {
 		return GetConnectorStatusResponse{}, err
 	}
-	if resp.Error() != nil && resp.StatusCode() != 404 {
+	if resp.Error() != nil && resp.StatusCode() != 404 && resp.StatusCode() != 409 {
 		return GetConnectorStatusResponse{}, resp.Error().(*ErrorResponse)
 	}
 
@@ -352,7 +352,8 @@ func convertConfigValueToString(value interface{}) string {
 	}
 }
 
-//TryUntil repeats the request
+// TryUntil repeats exec until it return true or timeout is reached
+// TryUntil itself return true if `exec` has return true (success), false if timeout (failure)
 func TryUntil(exec func() bool, limit time.Duration) bool {
 	timeLimit := time.After(limit)
 

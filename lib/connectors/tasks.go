@@ -72,7 +72,7 @@ func (c Client) GetTaskStatus(req TaskRequest) (TaskStatusResponse, error) {
 	if err != nil {
 		return TaskStatusResponse{}, err
 	}
-	if resp.Error() != nil && resp.StatusCode() != 404 {
+	if resp.Error() != nil && resp.StatusCode() != 404 && resp.StatusCode() != 409 {
 		return TaskStatusResponse{}, resp.Error().(*ErrorResponse)
 	}
 
