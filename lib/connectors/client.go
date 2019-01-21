@@ -2,8 +2,6 @@ package connectors
 
 import (
 	"crypto/tls"
-	"encoding/json"
-	"errors"
 	"fmt"
 	"gopkg.in/resty.v1"
 	"time"
@@ -27,24 +25,14 @@ func (err ErrorResponse) Error() string {
 //NewClient generates a new client
 func NewClient(url string) *Client {
 	restClient := resty.New().
-		OnAfterResponse(func(c *resty.Client, res *resty.Response) error {
-			// The default error handling given by `SetRESTMode` is a bit weak. This is the override
-
-			if res.StatusCode() >= 400 && res.StatusCode() != 404 {
-				restErr := ErrorResponse{}
-				decodeErr := json.Unmarshal(res.Body(), &restErr)
-				if decodeErr != nil {
-					return restErr
-				}
-				return errors.New(fmt.Sprintf("Error while decoding body while error: %v", res.Body()))
-			}
-			return nil
-		}).
-		SetRESTMode().
+		SetError(ErrorResponse{}).
 		SetHostURL(url).
 		SetHeader("Accept", "application/json").
 		SetRetryCount(3).
-		SetTimeout(5 * time.Second)
+		SetTimeout(5 * time.Second).
+		AddRetryCondition(func(resp *resty.Response) (bool, error) {
+			return resp.StatusCode() == 409, nil
+		})
 
 	return &Client{restClient: restClient}
 }

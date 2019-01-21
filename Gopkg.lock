@@ -2,52 +2,75 @@
 
 
 [[projects]]
+  digest = "1:a2c1d0e43bd3baaa071d1b9ed72c27d78169b2b269f71c105ac4ba34b1be4a39"
   name = "github.com/davecgh/go-spew"
   packages = ["spew"]
+  pruneopts = "UT"
   revision = "346938d642f2ec3594ed81d874461961cd0faa76"
   version = "v1.1.0"
 
 [[projects]]
+  digest = "1:870d441fe217b8e689d7949fef6e43efbc787e50f200cb1e70dbca9204a1d6be"
   name = "github.com/inconshreveable/mousetrap"
   packages = ["."]
+  pruneopts = "UT"
   revision = "76626ae9c91c4f2a10f34cad8ce83ea42c93bb75"
   version = "v1.0"
 
 [[projects]]
+  digest = "1:cf31692c14422fa27c83a05292eb5cbe0fb2775972e8f1f8446a71549bd8980b"
+  name = "github.com/pkg/errors"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "ba968bfe8b2f7e042a574c888954fccecfa385b4"
+  version = "v0.8.1"
+
+[[projects]]
+  digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
   name = "github.com/pmezard/go-difflib"
   packages = ["difflib"]
+  pruneopts = "UT"
   revision = "792786c7400a136282c1664665ae0a8db921c6c2"
   version = "v1.0.0"
 
 [[projects]]
+  digest = "1:7ffc0983035bc7e297da3688d9fe19d60a420e9c38bef23f845c53788ed6a05e"
   name = "github.com/spf13/cobra"
   packages = ["."]
+  pruneopts = "UT"
   revision = "7b2c5ac9fc04fc5efafb60700713d4fa609b777b"
   version = "v0.0.1"
 
 [[projects]]
+  digest = "1:1b21a2b4058a779f290c7341cd93267492e0ecea6c8b54f64a4a5fd7ff131034"
   name = "github.com/spf13/pflag"
   packages = ["."]
+  pruneopts = "UT"
   revision = "e57e3eeb33f795204c1ca35f56c44f83227c6e66"
   version = "v1.0.0"
 
 [[projects]]
+  digest = "1:25f2747b063c0a656195ef85413cef8c9f2bbe128deab7d39563a6ca1e536070"
   name = "github.com/stretchr/testify"
   packages = ["assert"]
+  pruneopts = "UT"
   revision = "69483b4bd14f5845b5a1e55bca19e954e827f1d0"
   version = "v1.1.4"
 
 [[projects]]
   branch = "master"
+  digest = "1:a412caf33b5d3c7938c28e1e745c10664bd180277b73ab3b34c0c467886f9969"
   name = "golang.org/x/net"
   packages = [
     "idna",
-    "publicsuffix"
+    "publicsuffix",
   ]
+  pruneopts = "UT"
   revision = "8a410e7b638dca158bf9e766925842f6651ff828"
 
 [[projects]]
   branch = "master"
+  digest = "1:d42da4dfab111ddef8bfe03540cfaa9060137ae2ed995c7dfdaf03bb5cff54a7"
   name = "golang.org/x/text"
   packages = [
     "collate",
@@ -63,19 +86,27 @@
     "unicode/bidi",
     "unicode/cldr",
     "unicode/norm",
-    "unicode/rangetable"
+    "unicode/rangetable",
   ]
+  pruneopts = "UT"
   revision = "88f656faf3f37f690df1a32515b479415e1a6769"
 
 [[projects]]
+  digest = "1:ce431d26276fb2227ae64ad2f7d980e8da9126c93979d9c83f413c36215e7031"
   name = "gopkg.in/resty.v1"
   packages = ["."]
-  revision = "d4920dcf5b7689548a6db640278a9b35a5b48ec6"
-  version = "v1.9.1"
+  pruneopts = "UT"
+  revision = "03c09fa32a21b7b27b8dbb3877826c1ab3d2daa2"
+  version = "v1.11.0"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "fa561d577c2c2abaad1a0302f527405fe8f3fbea06637fd9f4ca19603cfb7d71"
+  input-imports = [
+    "github.com/pkg/errors",
+    "github.com/spf13/cobra",
+    "github.com/stretchr/testify/assert",
+    "gopkg.in/resty.v1",
+  ]
   solver-name = "gps-cdcl"
   solver-version = 1

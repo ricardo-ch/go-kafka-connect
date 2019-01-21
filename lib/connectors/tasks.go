@@ -53,6 +53,9 @@ func (c Client) GetAllTasks(req ConnectorRequest) (GetAllTasksResponse, error) {
 	if err != nil {
 		return GetAllTasksResponse{}, err
 	}
+	if resp.Error() != nil {
+		return GetAllTasksResponse{}, resp.Error().(*ErrorResponse)
+	}
 
 	result.Code = resp.StatusCode()
 	return result, nil
@@ -68,6 +71,9 @@ func (c Client) GetTaskStatus(req TaskRequest) (TaskStatusResponse, error) {
 		Get("connectors/{name}/tasks/{task_id}/status")
 	if err != nil {
 		return TaskStatusResponse{}, err
+	}
+	if resp.Error() != nil && resp.StatusCode() != 404 {
+		return TaskStatusResponse{}, resp.Error().(*ErrorResponse)
 	}
 
 	result.Code = resp.StatusCode()
@@ -85,6 +91,9 @@ func (c Client) RestartTask(req TaskRequest) (EmptyResponse, error) {
 		Post("connectors/{name}/tasks/{task_id}/restart")
 	if err != nil {
 		return EmptyResponse{}, err
+	}
+	if resp.Error() != nil {
+		return EmptyResponse{}, resp.Error().(*ErrorResponse)
 	}
 
 	result.Code = resp.StatusCode()

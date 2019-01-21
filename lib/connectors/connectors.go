@@ -64,6 +64,9 @@ func (c *Client) GetAll() (GetAllConnectorsResponse, error) {
 	if err != nil {
 		return GetAllConnectorsResponse{}, err
 	}
+	if resp.Error() != nil {
+		return GetAllConnectorsResponse{}, resp.Error().(*ErrorResponse)
+	}
 
 	result.Code = resp.StatusCode()
 	result.Connectors = connectors
@@ -82,6 +85,9 @@ func (c Client) GetConnector(req ConnectorRequest) (ConnectorResponse, error) {
 	if err != nil {
 		return ConnectorResponse{}, err
 	}
+	if resp.Error() != nil && resp.StatusCode() != 404 {
+		return ConnectorResponse{}, resp.Error().(*ErrorResponse)
+	}
 
 	result.Code = resp.StatusCode()
 	return result, nil
@@ -97,6 +103,9 @@ func (c *Client) CreateConnector(req CreateConnectorRequest, sync bool) (Connect
 		Post("connectors")
 	if err != nil {
 		return ConnectorResponse{}, err
+	}
+	if resp.Error() != nil {
+		return ConnectorResponse{}, resp.Error().(*ErrorResponse)
 	}
 
 	result.Code = resp.StatusCode()
@@ -128,6 +137,9 @@ func (c Client) UpdateConnector(req CreateConnectorRequest, sync bool) (Connecto
 	if err != nil {
 		return ConnectorResponse{}, err
 	}
+	if resp.Error() != nil {
+		return ConnectorResponse{}, resp.Error().(*ErrorResponse)
+	}
 
 	result.Code = resp.StatusCode()
 
@@ -156,6 +168,9 @@ func (c Client) DeleteConnector(req ConnectorRequest, sync bool) (EmptyResponse,
 		Delete("connectors/{name}")
 	if err != nil {
 		return EmptyResponse{}, err
+	}
+	if resp.Error() != nil {
+		return EmptyResponse{}, resp.Error().(*ErrorResponse)
 	}
 
 	result.Code = resp.StatusCode()
@@ -187,6 +202,9 @@ func (c Client) GetConnectorConfig(req ConnectorRequest) (GetConnectorConfigResp
 	if err != nil {
 		return GetConnectorConfigResponse{}, err
 	}
+	if resp.Error() != nil && resp.StatusCode() != 404 {
+		return GetConnectorConfigResponse{}, resp.Error().(*ErrorResponse)
+	}
 
 	result.Code = resp.StatusCode()
 	result.Config = config
@@ -204,6 +222,9 @@ func (c Client) GetConnectorStatus(req ConnectorRequest) (GetConnectorStatusResp
 	if err != nil {
 		return GetConnectorStatusResponse{}, err
 	}
+	if resp.Error() != nil && resp.StatusCode() != 404 {
+		return GetConnectorStatusResponse{}, resp.Error().(*ErrorResponse)
+	}
 
 	result.Code = resp.StatusCode()
 	return result, nil
@@ -219,6 +240,9 @@ func (c Client) RestartConnector(req ConnectorRequest) (EmptyResponse, error) {
 		Post("connectors/{name}/restart")
 	if err != nil {
 		return EmptyResponse{}, err
+	}
+	if resp.Error() != nil {
+		return EmptyResponse{}, resp.Error().(*ErrorResponse)
 	}
 
 	result.Code = resp.StatusCode()
@@ -236,6 +260,9 @@ func (c Client) PauseConnector(req ConnectorRequest, sync bool) (EmptyResponse, 
 		Put("connectors/{name}/pause")
 	if err != nil {
 		return EmptyResponse{}, err
+	}
+	if resp.Error() != nil {
+		return EmptyResponse{}, resp.Error().(*ErrorResponse)
 	}
 
 	result.Code = resp.StatusCode()
@@ -265,6 +292,9 @@ func (c Client) ResumeConnector(req ConnectorRequest, sync bool) (EmptyResponse,
 		Put("connectors/{name}/resume")
 	if err != nil {
 		return EmptyResponse{}, err
+	}
+	if resp.Error() != nil {
+		return EmptyResponse{}, resp.Error().(*ErrorResponse)
 	}
 
 	result.Code = resp.StatusCode()
@@ -322,7 +352,8 @@ func convertConfigValueToString(value interface{}) string {
 	}
 }
 
-//TryUntil repeats the request
+// TryUntil repeats exec until it return true or timeout is reached
+// TryUntil itself return true if `exec` has return true (success), false if timeout (failure)
 func TryUntil(exec func() bool, limit time.Duration) bool {
 	timeLimit := time.After(limit)
 
