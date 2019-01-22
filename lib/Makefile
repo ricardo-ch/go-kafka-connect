@@ -19,3 +19,11 @@ rundep:
 		sleep 2; \
 	done
 	@echo "up and running"
+
+MOCKERY_PATH :=  $(shell  [ -z "$${GOBIN}" ] && echo $${GOPATH}/bin/mockery ||  echo $${GOBIN}/mockery; )
+
+.PHONY: update-mocks
+update-mocks:
+	go get github.com/vektra/mockery/...
+	mockery -inpkg -case "underscore" -recursive -all -note "NOTE: run 'make update-mocks' from this project top folder to update this file and generate new ones."
+
