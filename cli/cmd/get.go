@@ -57,10 +57,10 @@ func handleCmd(cmd *cobra.Command, args []string) error {
 
 func validateArgs() error {
 	if connector == "" {
-		return errors.New("Please specify the target connector's name")
+		return errors.New("please specify the target connector's name")
 	}
 	if (status && config) || (status && tasks) || (config && tasks) {
-		return errors.New("More than one action were provided")
+		return errors.New("more than one action were provided")
 	}
 
 	return nil
