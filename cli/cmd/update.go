@@ -61,7 +61,7 @@ func RunEUpdate(cmd *cobra.Command, args []string) error {
 func getUpdateCmdConfig(cmd *cobra.Command) (map[string]interface{}, error) {
 	config := map[string]interface{}{}
 
-	if cmd.Flag("input").Changed {
+	if cmd.Flag("path").Changed {
 		fileReader, err := os.Open(update.file)
 		if err != nil {
 			return config, err
@@ -86,8 +86,8 @@ func getUpdateCmdConfig(cmd *cobra.Command) (map[string]interface{}, error) {
 func init() {
 	RootCmd.AddCommand(updateCmd)
 
-	updateCmd.PersistentFlags().StringVarP(&update.file, "input", "i", "", "path to the config file")
-	updateCmd.MarkFlagFilename("input")
+	updateCmd.PersistentFlags().StringVarP(&update.file, "path", "p", "", "path to the config file")
+	updateCmd.MarkFlagFilename("path")
 	updateCmd.PersistentFlags().StringVarP(&update.configString, "string", "s", "", "JSON configuration string")
 	updateCmd.PersistentFlags().StringVarP(&update.connector, "connector", "n", "", "name of the target connector")
 	updateCmd.MarkFlagRequired("connector")

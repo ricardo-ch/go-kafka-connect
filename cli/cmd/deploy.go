@@ -39,7 +39,7 @@ func RunEDeploy(cmd *cobra.Command, args []string) error {
 func init() {
 	RootCmd.AddCommand(deployCmd)
 
-	deployCmd.PersistentFlags().StringVarP(&input, "input", "i", "", "path to the config file or folder")
-	deployCmd.MarkFlagFilename("input")
+	deployCmd.PersistentFlags().StringVarP(&filePath, "path", "p", "", "path to the config file or folder")
+	deployCmd.MarkFlagFilename("path")
 	deployCmd.PersistentFlags().StringVarP(&configString, "string", "s", "", "JSON configuration string")
 }

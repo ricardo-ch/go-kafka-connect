@@ -56,18 +56,18 @@ func RunECreate(cmd *cobra.Command, args []string) error {
 func getCreateCmdConfig(cmd *cobra.Command) ([]connectors.CreateConnectorRequest, error) {
 	var configs []connectors.CreateConnectorRequest
 
-	if cmd.Flag("input").Changed {
-		fileInfo, err := os.Stat(input)
+	if cmd.Flag("path").Changed {
+		fileInfo, err := os.Stat(filePath)
 		if err != nil {
-			return nil, errors.Wrapf(err, "error while trying to find input or folder: %v", input)
+			return nil, errors.Wrapf(err, "error while trying to find input or folder: %v", filePath)
 		}
 		if fileInfo.IsDir() {
-			configs, err = getConfigFromFolder(input)
+			configs, err = getConfigFromFolder(filePath)
 			if err != nil {
 				return nil, err
 			}
 		} else {
-			config, err := getConfigFromFile(input)
+			config, err := getConfigFromFile(filePath)
 			if err != nil {
 				return nil, err
 			}
@@ -82,7 +82,7 @@ func getCreateCmdConfig(cmd *cobra.Command) ([]connectors.CreateConnectorRequest
 		}
 		configs = append(configs, config)
 	} else {
-		return nil, errors.New("neither input nor string was supplied")
+		return nil, errors.New("neither path nor string was supplied")
 	}
 	return configs, nil
 }
@@ -95,12 +95,12 @@ func getConfigFromFolder(folderPath string) ([]connectors.CreateConnectorRequest
 	}
 	for _, fileInfo := range configFiles {
 		if fileInfo.IsDir() {
-			log.Printf("found unexpected subfolder in folder: %s. This command will not search through it.", input)
+			log.Printf("found unexpected subfolder in folder: %s. This command will not search through it.", filePath)
 			continue
 		}
 		config, err := getConfigFromFile(path.Join(folderPath, fileInfo.Name()))
 		if err != nil {
-			log.Printf("found unexpected not config file in folder: %s", input)
+			log.Printf("found unexpected not config file in folder: %s", filePath)
 		} else {
 			configs = append(configs, config)
 		}
@@ -122,8 +122,8 @@ func getConfigFromFile(filePath string) (connectors.CreateConnectorRequest, erro
 func init() {
 	RootCmd.AddCommand(createCmd)
 
-	createCmd.PersistentFlags().StringVarP(&input, "input", "i", "", "path to the config file")
-	createCmd.MarkFlagFilename("input")
+	createCmd.PersistentFlags().StringVarP(&filePath, "path", "p", "", "path to the config file")
+	createCmd.MarkFlagFilename("path")
 	createCmd.PersistentFlags().StringVarP(&configString, "string", "s", "", "JSON configuration string")
 	createCmd.PersistentFlags().BoolVarP(&sync, "sync", "y", false, "execute synchronously")
 
