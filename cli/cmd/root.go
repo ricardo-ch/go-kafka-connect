@@ -24,7 +24,7 @@ import (
 var (
 	url          string
 	connector    string
-	file         string
+	input        string
 	configString string
 	sync         bool
 	status       bool
