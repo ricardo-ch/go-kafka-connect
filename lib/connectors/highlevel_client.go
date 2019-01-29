@@ -2,7 +2,6 @@ package connectors
 
 import (
 	"fmt"
-	"strconv"
 	"sync"
 	"time"
 
@@ -224,14 +223,7 @@ func (c *highLevelClient) IsUpToDate(connector string, config map[string]interfa
 
 // Because trying to compare the same field on 2 different config may return false negative if one is encoded as a string and not the other
 func convertConfigValueToString(value interface{}) string {
-	switch v := value.(type) {
-	case string:
-		return v
-	case int:
-		return strconv.Itoa(v)
-	default:
-		return ""
-	}
+	return fmt.Sprintf("%v", value)
 }
 
 // tryUntil repeats exec until it return true or timeout is reached
