@@ -23,12 +23,7 @@ import (
 var pauseCmd = &cobra.Command{
 	Use:   "pause",
 	Short: "Pause a connector",
-	Long: `Suspend a connector without deleting it.
-	flags:
-		--url -u: url of the kafka-connect server
-		--connector -n: name of the target connector
-		--sync -y: execute synchronously`,
-	RunE: RunEPause,
+	RunE:  RunEPause,
 }
 
 //RunEPause ...

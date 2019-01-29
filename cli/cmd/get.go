@@ -26,13 +26,7 @@ var getCmd = &cobra.Command{
 	Use:   "get",
 	Short: "Retrieve information from kafka-connect",
 	Long: `Get reads from the kafka-connect REST API.
-	It can get the list of all deployed connectors, or details about a single one.
-	flags:
-		--url -u: url of the kafka-connect server
-		--connector -n: name of the target connector
-		--status -s: get the connector's status (requires -n)
-		--config -c: get the connector's config (requires -n)
-		--tasks -t: get the connector's tasks list (requires -n)`,
+	It can get the list of all deployed connectors, or details about a single one.`,
 	RunE: handleCmd,
 }
 

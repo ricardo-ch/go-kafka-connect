@@ -23,12 +23,7 @@ import (
 var deleteCmd = &cobra.Command{
 	Use:   "delete",
 	Short: "Delete an existing connector",
-	Long: `Delete an existing connector
-	flags:
-		--url -u: url of the kafka-connect server
-		--connector -n: name of the target connector
-		--sync -y: execute synchronously`,
-	RunE: RunEDelete,
+	RunE:  RunEDelete,
 }
 
 //RunEDelete ...

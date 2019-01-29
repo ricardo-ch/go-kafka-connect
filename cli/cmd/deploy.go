@@ -22,12 +22,8 @@ import (
 var deployCmd = &cobra.Command{
 	Use:   "deploy",
 	Short: "Deploy a new connector",
-	Long: `Deploy a new connector or replace the old version if it already exists.
-	This command is executes all its steps synchronously.
-	flags:
-		--url -u: url of the kafka-connect server
-		--file -f: path to the config file or folder containing config files
-		--string -s: literal configuration string`,
+	Long: `Deploy a new connector or replace the old version if it alrerady exists.
+	This command is executes all its steps synchronously.`,
 	RunE: RunEDeploy,
 }
 

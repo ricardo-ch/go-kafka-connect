@@ -23,12 +23,7 @@ import (
 var resumeCmd = &cobra.Command{
 	Use:   "resume",
 	Short: "Resume a connector",
-	Long: `Resume a paused connector.
-	flags:
-		--url -u: url of the kafka-connect server
-		--connector -n: name of the target connector
-		--sync -y: execute synchronously`,
-	RunE: RunEResume,
+	RunE:  RunEResume,
 }
 
 //RunEResume ...

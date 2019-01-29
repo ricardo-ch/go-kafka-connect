@@ -36,14 +36,7 @@ var update updateCmdConfig
 var updateCmd = &cobra.Command{
 	Use:   "update",
 	Short: "Updater a connector",
-	Long: `Update a connector's configuration
-	flags:
-		--url -u: url of the kafka-connect server
-		--connector -n: name of the target connector
-		--file -f: path to the config file
-		--string -s: literal configuration string
-		--sync -y: execute synchronously`,
-	RunE: RunEUpdate,
+	RunE:  RunEUpdate,
 }
 
 //RunEUpdate ...

@@ -31,14 +31,7 @@ import (
 var createCmd = &cobra.Command{
 	Use:   "create",
 	Short: "Create a new connector",
-	Long: `Create a connector using either a config file or a literal string
-	flags:
-		--url -u: url of the kafka-connect server
-		--file -f: path to the config file
-		--string -s: JSON configuration string
-		--sync -y: execute synchronously
-	`,
-	RunE: RunECreate,
+	RunE:  RunECreate,
 }
 
 //RunECreate ...
