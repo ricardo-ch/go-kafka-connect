@@ -32,6 +32,7 @@ var (
 	tasks        bool
 	verbose      bool
 	SSLInsecure  bool
+	parallel     int
 )
 
 var RootCmd = &cobra.Command{

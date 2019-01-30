@@ -32,6 +32,7 @@ type HighLevelClient interface {
 	DeployMultipleConnector(connectors []CreateConnectorRequest) (err error)
 	SetInsecureSSL()
 	SetDebug()
+	SetParallelism(value int)
 }
 
 type highLevelClient struct {
@@ -42,6 +43,12 @@ type highLevelClient struct {
 //NewClient generates a new client
 func NewClient(url string) HighLevelClient {
 	return &highLevelClient{client: newBaseClient(url), maxParallelRequest: 3}
+}
+
+//Set the limit of parallel call to kafka-connect server
+//Default to 3
+func (c *highLevelClient) SetParallelism(value int) {
+	c.maxParallelRequest = value
 }
 
 func (c *highLevelClient) SetInsecureSSL() {

@@ -33,7 +33,10 @@ func RunEDeploy(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	return getClient().DeployMultipleConnector(configs)
+	client := getClient()
+	client.SetParallelism(parallel)
+
+	return client.DeployMultipleConnector(configs)
 }
 
 func init() {
@@ -42,4 +45,5 @@ func init() {
 	deployCmd.PersistentFlags().StringVarP(&filePath, "path", "p", "", "path to the config file or folder")
 	deployCmd.MarkFlagFilename("path")
 	deployCmd.PersistentFlags().StringVarP(&configString, "string", "s", "", "JSON configuration string")
+	deployCmd.PersistentFlags().IntVarP(&parallel, "parallel", "r", 3, "limit of parallel call to kafka-connect")
 }
