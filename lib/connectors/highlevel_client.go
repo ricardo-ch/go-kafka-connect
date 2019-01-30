@@ -309,7 +309,7 @@ func (c *highLevelClient) DeployMultipleConnector(connectors []CreateConnectorRe
 			if newErr != nil {
 				errSync.Lock()
 				defer errSync.Unlock()
-				err = multierror.Append(err, newErr)
+				err = multierror.Append(err, errors.Wrapf(newErr, "error while deploying: %v", req.Name))
 			}
 		}(connector)
 	}
