@@ -3,6 +3,7 @@ package connectors
 import (
 	"crypto/tls"
 	"fmt"
+	"github.com/pkg/errors"
 	"gopkg.in/resty.v1"
 	"strconv"
 	"time"
@@ -127,7 +128,7 @@ func (c *baseClient) GetAll() (GetAllConnectorsResponse, error) {
 		return GetAllConnectorsResponse{}, err
 	}
 	if resp.Error() != nil {
-		return GetAllConnectorsResponse{}, resp.Error().(*ErrorResponse)
+		return GetAllConnectorsResponse{}, errors.Wrapf(resp.Error().(*ErrorResponse), "Get all connector")
 	}
 
 	result.Code = resp.StatusCode()
@@ -148,7 +149,7 @@ func (c *baseClient) GetConnector(req ConnectorRequest) (ConnectorResponse, erro
 		return ConnectorResponse{}, err
 	}
 	if resp.Error() != nil && resp.StatusCode() != 404 {
-		return ConnectorResponse{}, resp.Error().(*ErrorResponse)
+		return ConnectorResponse{}, errors.Wrapf(resp.Error().(*ErrorResponse), "Get connector")
 	}
 
 	result.Code = resp.StatusCode()
@@ -167,7 +168,7 @@ func (c *baseClient) CreateConnector(req CreateConnectorRequest) (ConnectorRespo
 		return ConnectorResponse{}, err
 	}
 	if resp.Error() != nil {
-		return ConnectorResponse{}, resp.Error().(*ErrorResponse)
+		return ConnectorResponse{}, errors.Wrapf(resp.Error().(*ErrorResponse), "Create connector")
 	}
 
 	result.Code = resp.StatusCode()
@@ -188,7 +189,7 @@ func (c *baseClient) UpdateConnector(req CreateConnectorRequest) (ConnectorRespo
 		return ConnectorResponse{}, err
 	}
 	if resp.Error() != nil {
-		return ConnectorResponse{}, resp.Error().(*ErrorResponse)
+		return ConnectorResponse{}, errors.Wrapf(resp.Error().(*ErrorResponse), "Update connector")
 	}
 
 	result.Code = resp.StatusCode()
@@ -208,7 +209,7 @@ func (c *baseClient) DeleteConnector(req ConnectorRequest) (EmptyResponse, error
 		return EmptyResponse{}, err
 	}
 	if resp.Error() != nil {
-		return EmptyResponse{}, resp.Error().(*ErrorResponse)
+		return EmptyResponse{}, errors.Wrapf(resp.Error().(*ErrorResponse), "Delete connector")
 	}
 
 	result.Code = resp.StatusCode()
@@ -229,7 +230,7 @@ func (c *baseClient) GetConnectorConfig(req ConnectorRequest) (GetConnectorConfi
 		return GetConnectorConfigResponse{}, err
 	}
 	if resp.Error() != nil && resp.StatusCode() != 404 {
-		return GetConnectorConfigResponse{}, resp.Error().(*ErrorResponse)
+		return GetConnectorConfigResponse{}, errors.Wrapf(resp.Error().(*ErrorResponse), "Get connector config")
 	}
 
 	result.Code = resp.StatusCode()
@@ -249,7 +250,7 @@ func (c *baseClient) GetConnectorStatus(req ConnectorRequest) (GetConnectorStatu
 		return GetConnectorStatusResponse{}, err
 	}
 	if resp.Error() != nil && resp.StatusCode() != 404 {
-		return GetConnectorStatusResponse{}, resp.Error().(*ErrorResponse)
+		return GetConnectorStatusResponse{}, errors.Wrapf(resp.Error().(*ErrorResponse), "Get connector status")
 	}
 
 	result.Code = resp.StatusCode()
@@ -268,7 +269,7 @@ func (c *baseClient) RestartConnector(req ConnectorRequest) (EmptyResponse, erro
 		return EmptyResponse{}, err
 	}
 	if resp.Error() != nil {
-		return EmptyResponse{}, resp.Error().(*ErrorResponse)
+		return EmptyResponse{}, errors.Wrapf(resp.Error().(*ErrorResponse), "Restart connector")
 	}
 
 	result.Code = resp.StatusCode()
@@ -288,7 +289,7 @@ func (c *baseClient) PauseConnector(req ConnectorRequest) (EmptyResponse, error)
 		return EmptyResponse{}, err
 	}
 	if resp.Error() != nil {
-		return EmptyResponse{}, resp.Error().(*ErrorResponse)
+		return EmptyResponse{}, errors.Wrapf(resp.Error().(*ErrorResponse), "Pause connector")
 	}
 
 	result.Code = resp.StatusCode()
@@ -309,7 +310,7 @@ func (c *baseClient) ResumeConnector(req ConnectorRequest) (EmptyResponse, error
 		return EmptyResponse{}, err
 	}
 	if resp.Error() != nil {
-		return EmptyResponse{}, resp.Error().(*ErrorResponse)
+		return EmptyResponse{}, errors.Wrapf(resp.Error().(*ErrorResponse), "Resume connector")
 	}
 
 	result.Code = resp.StatusCode()
@@ -369,7 +370,7 @@ func (c *baseClient) GetAllTasks(req ConnectorRequest) (GetAllTasksResponse, err
 		return GetAllTasksResponse{}, err
 	}
 	if resp.Error() != nil {
-		return GetAllTasksResponse{}, resp.Error().(*ErrorResponse)
+		return GetAllTasksResponse{}, errors.Wrapf(resp.Error().(*ErrorResponse), "Get all tasks")
 	}
 
 	result.Code = resp.StatusCode()
@@ -388,7 +389,7 @@ func (c *baseClient) GetTaskStatus(req TaskRequest) (TaskStatusResponse, error) 
 		return TaskStatusResponse{}, err
 	}
 	if resp.Error() != nil && resp.StatusCode() != 404 {
-		return TaskStatusResponse{}, resp.Error().(*ErrorResponse)
+		return TaskStatusResponse{}, errors.Wrapf(resp.Error().(*ErrorResponse), "Get task status")
 	}
 
 	result.Code = resp.StatusCode()
@@ -408,7 +409,7 @@ func (c *baseClient) RestartTask(req TaskRequest) (EmptyResponse, error) {
 		return EmptyResponse{}, err
 	}
 	if resp.Error() != nil {
-		return EmptyResponse{}, resp.Error().(*ErrorResponse)
+		return EmptyResponse{}, errors.Wrapf(resp.Error().(*ErrorResponse), "Restart task")
 	}
 
 	result.Code = resp.StatusCode()
