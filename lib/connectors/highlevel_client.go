@@ -302,7 +302,7 @@ func (c *highLevelClient) DeployMultipleConnector(connectors []CreateConnectorRe
 			if newErr != nil {
 				errSync.Lock()
 				defer errSync.Unlock()
-				multierror.Append(err, newErr)
+				err = multierror.Append(err, newErr)
 			}
 		}(connector)
 	}
