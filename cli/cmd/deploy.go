@@ -23,27 +23,23 @@ var deployCmd = &cobra.Command{
 	Use:   "deploy",
 	Short: "Deploy a new connector",
 	Long: `Deploy a new connector or replace the old version if it alrerady exists.
-	This command is executes all its steps synchronously.
-	flags:
-		--url -u: url of the kafka-connect server
-		--file -f: path to the config file
-		--string -s: literal configuration string`,
+	This command is executes all its steps synchronously.`,
 	RunE: RunEDeploy,
 }
 
 func RunEDeploy(cmd *cobra.Command, args []string) error {
-	config, err := getCreateCmdConfig(cmd)
+	configs, err := getCreateCmdConfig(cmd)
 	if err != nil {
 		return err
 	}
 
-	return getClient().DeployConnector(config)
+	return getClient().DeployMultipleConnector(configs)
 }
 
 func init() {
 	RootCmd.AddCommand(deployCmd)
 
-	deployCmd.PersistentFlags().StringVarP(&file, "file", "f", "", "path to the config file")
-	deployCmd.MarkFlagFilename("file")
+	deployCmd.PersistentFlags().StringVarP(&filePath, "path", "p", "", "path to the config file or folder")
+	deployCmd.MarkFlagFilename("path")
 	deployCmd.PersistentFlags().StringVarP(&configString, "string", "s", "", "JSON configuration string")
 }

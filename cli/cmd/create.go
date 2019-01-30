@@ -16,8 +16,11 @@ package cmd
 
 import (
 	"encoding/json"
-	"errors"
+	"github.com/pkg/errors"
+	"io/ioutil"
+	"log"
 	"os"
+	"path"
 	"strings"
 
 	"github.com/ricardo-ch/go-kafka-connect/lib/connectors"
@@ -28,61 +31,99 @@ import (
 var createCmd = &cobra.Command{
 	Use:   "create",
 	Short: "Create a new connector",
-	Long: `Create a connector using either a config file or a literal string
-	flags:
-		--url -u: url of the kafka-connect server
-		--file -f: path to the config file
-		--string -s: JSON configuration string
-		--sync -y: execute synchronously
-	`,
-	RunE: RunECreate,
+	RunE:  RunECreate,
 }
 
 //RunECreate ...
 func RunECreate(cmd *cobra.Command, args []string) error {
-	config, err := getCreateCmdConfig(cmd)
+	configs, err := getCreateCmdConfig(cmd)
 	if err != nil {
 		return err
 	}
 
-	resp, err := getClient().CreateConnector(config, sync)
-	if err != nil {
-		return err
+	//TODO was not expecting I would have to update CreateConnector when adding multiple file deployment feature
+	// will have to add properly later
+	for _, config := range configs {
+		resp, err := getClient().CreateConnector(config, sync)
+		printResponse(resp)
+		if err != nil {
+			return err
+		}
 	}
-
-	return printResponse(resp)
+	return nil
 }
 
-func getCreateCmdConfig(cmd *cobra.Command) (connectors.CreateConnectorRequest, error) {
-	config := connectors.CreateConnectorRequest{}
+func getCreateCmdConfig(cmd *cobra.Command) ([]connectors.CreateConnectorRequest, error) {
+	var configs []connectors.CreateConnectorRequest
 
-	if cmd.Flag("file").Changed {
-		fileReader, err := os.Open(file)
+	if cmd.Flag("path").Changed {
+		fileInfo, err := os.Stat(filePath)
 		if err != nil {
-			return config, err
+			return nil, errors.Wrapf(err, "error while trying to find input or folder: %v", filePath)
 		}
-
-		err = json.NewDecoder(fileReader).Decode(&config)
-		if err != nil {
-			return config, err
+		if fileInfo.IsDir() {
+			configs, err = getConfigFromFolder(filePath)
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			config, err := getConfigFromFile(filePath)
+			if err != nil {
+				return nil, err
+			}
+			configs = append(configs, config)
 		}
 
 	} else if cmd.Flag("string").Changed {
+		config := connectors.CreateConnectorRequest{}
 		err := json.NewDecoder(strings.NewReader(configString)).Decode(&config)
 		if err != nil {
-			return config, err
+			return nil, err
 		}
+		configs = append(configs, config)
 	} else {
-		return config, errors.New("neither file nor string was supplied")
+		return nil, errors.New("neither path nor string was supplied")
 	}
-	return config, nil
+	return configs, nil
+}
+
+func getConfigFromFolder(folderPath string) ([]connectors.CreateConnectorRequest, error) {
+	configs := []connectors.CreateConnectorRequest{}
+	configFiles, err := ioutil.ReadDir(folderPath)
+	if err != nil {
+		return configs, err
+	}
+	for _, fileInfo := range configFiles {
+		if fileInfo.IsDir() {
+			log.Printf("found unexpected subfolder in folder: %s. This command will not search through it.", filePath)
+			continue
+		}
+		config, err := getConfigFromFile(path.Join(folderPath, fileInfo.Name()))
+		if err != nil {
+			log.Printf("found unexpected not config file in folder: %s", filePath)
+		} else {
+			configs = append(configs, config)
+		}
+	}
+	return configs, nil
+}
+
+func getConfigFromFile(filePath string) (connectors.CreateConnectorRequest, error) {
+	config := connectors.CreateConnectorRequest{}
+	fileReader, err := os.Open(filePath)
+	if err != nil {
+		return config, err
+	}
+
+	err = json.NewDecoder(fileReader).Decode(&config)
+	return config, err
 }
 
 func init() {
 	RootCmd.AddCommand(createCmd)
 
-	createCmd.PersistentFlags().StringVarP(&file, "file", "f", "", "path to the config file")
-	createCmd.MarkFlagFilename("file")
+	createCmd.PersistentFlags().StringVarP(&filePath, "path", "p", "", "path to the config file")
+	createCmd.MarkFlagFilename("path")
 	createCmd.PersistentFlags().StringVarP(&configString, "string", "s", "", "JSON configuration string")
 	createCmd.PersistentFlags().BoolVarP(&sync, "sync", "y", false, "execute synchronously")
 

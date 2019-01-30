@@ -26,13 +26,7 @@ var getCmd = &cobra.Command{
 	Use:   "get",
 	Short: "Retrieve information from kafka-connect",
 	Long: `Get reads from the kafka-connect REST API.
-	It can get the list of all deployed connectors, or details about a single one.
-	flags:
-		--url -u: url of the kafka-connect server
-		--connector -n: name of the target connector
-		--status -s: get the connector's status (requires -n)
-		--config -c: get the connector's config (requires -n)
-		--tasks -t: get the connector's tasks list (requires -n)`,
+	It can get the list of all deployed connectors, or details about a single one.`,
 	RunE: handleCmd,
 }
 
@@ -57,10 +51,10 @@ func handleCmd(cmd *cobra.Command, args []string) error {
 
 func validateArgs() error {
 	if connector == "" {
-		return errors.New("Please specify the target connector's name")
+		return errors.New("please specify the target connector's name")
 	}
 	if (status && config) || (status && tasks) || (config && tasks) {
-		return errors.New("More than one action were provided")
+		return errors.New("more than one action were provided")
 	}
 
 	return nil

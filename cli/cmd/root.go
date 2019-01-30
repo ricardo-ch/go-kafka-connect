@@ -24,7 +24,7 @@ import (
 var (
 	url          string
 	connector    string
-	file         string
+	filePath     string
 	configString string
 	sync         bool
 	status       bool
@@ -32,7 +32,6 @@ var (
 	tasks        bool
 	verbose      bool
 	SSLInsecure  bool
-	output       string
 )
 
 var RootCmd = &cobra.Command{

@@ -405,3 +405,57 @@ func TestDeployConnector(t *testing.T) {
 	assert.Nil(t, err)
 	assert.True(t, isUpToDate)
 }
+
+func TestDeployMultipleConnectors(t *testing.T) {
+	config := map[string]interface{}{
+		"connector.class": "FileStreamSource",
+		"file":            testFile,
+		"topic":           "connect-test",
+	}
+
+	req := []CreateConnectorRequest{
+		{
+			ConnectorRequest: ConnectorRequest{Name: "test-deploy-multiple-connectors-1"},
+			Config:           config,
+		},
+		{
+			ConnectorRequest: ConnectorRequest{Name: "test-deploy-multiple-connectors-2"},
+			Config:           config,
+		},
+		{
+			ConnectorRequest: ConnectorRequest{Name: "test-deploy-multiple-connectors-3"},
+			Config:           config,
+		},
+		{
+			ConnectorRequest: ConnectorRequest{Name: "test-deploy-multiple-connectors-4"},
+			Config:           config,
+		},
+	}
+
+	client := NewClient(hostConnect)
+	err := client.DeployMultipleConnector(req)
+
+	assert.Nil(t, err)
+
+	// use IsUpToDate to check sync worked (force get actual config for server rather than what was returned on update call)
+	{
+		isUpToDate, err := client.IsUpToDate("test-deploy-multiple-connectors-1", config)
+		assert.Nil(t, err)
+		assert.True(t, isUpToDate)
+	}
+	{
+		isUpToDate, err := client.IsUpToDate("test-deploy-multiple-connectors-2", config)
+		assert.Nil(t, err)
+		assert.True(t, isUpToDate)
+	}
+	{
+		isUpToDate, err := client.IsUpToDate("test-deploy-multiple-connectors-3", config)
+		assert.Nil(t, err)
+		assert.True(t, isUpToDate)
+	}
+	{
+		isUpToDate, err := client.IsUpToDate("test-deploy-multiple-connectors-4", config)
+		assert.Nil(t, err)
+		assert.True(t, isUpToDate)
+	}
+}

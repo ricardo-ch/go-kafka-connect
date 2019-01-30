@@ -36,14 +36,7 @@ var update updateCmdConfig
 var updateCmd = &cobra.Command{
 	Use:   "update",
 	Short: "Updater a connector",
-	Long: `Update a connector's configuration
-	flags:
-		--url -u: url of the kafka-connect server
-		--connector -n: name of the target connector
-		--file -f: path to the config file
-		--string -s: literal configuration string
-		--sync -y: execute synchronously`,
-	RunE: RunEUpdate,
+	RunE:  RunEUpdate,
 }
 
 //RunEUpdate ...
@@ -68,7 +61,7 @@ func RunEUpdate(cmd *cobra.Command, args []string) error {
 func getUpdateCmdConfig(cmd *cobra.Command) (map[string]interface{}, error) {
 	config := map[string]interface{}{}
 
-	if cmd.Flag("file").Changed {
+	if cmd.Flag("path").Changed {
 		fileReader, err := os.Open(update.file)
 		if err != nil {
 			return config, err
@@ -85,7 +78,7 @@ func getUpdateCmdConfig(cmd *cobra.Command) (map[string]interface{}, error) {
 			return config, err
 		}
 	} else {
-		return config, errors.New("neither file nor string was supplied")
+		return config, errors.New("neither input nor string was supplied")
 	}
 	return config, nil
 }
@@ -93,8 +86,8 @@ func getUpdateCmdConfig(cmd *cobra.Command) (map[string]interface{}, error) {
 func init() {
 	RootCmd.AddCommand(updateCmd)
 
-	updateCmd.PersistentFlags().StringVarP(&update.file, "file", "f", "", "path to the config file")
-	updateCmd.MarkFlagFilename("file")
+	updateCmd.PersistentFlags().StringVarP(&update.file, "path", "p", "", "path to the config file")
+	updateCmd.MarkFlagFilename("path")
 	updateCmd.PersistentFlags().StringVarP(&update.configString, "string", "s", "", "JSON configuration string")
 	updateCmd.PersistentFlags().StringVarP(&update.connector, "connector", "n", "", "name of the target connector")
 	updateCmd.MarkFlagRequired("connector")

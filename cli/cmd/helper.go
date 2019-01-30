@@ -15,13 +15,13 @@ func printResponse(response interface{}) error {
 	return nil
 }
 
-func getClient() *connectors.Client {
+func getClient() connectors.HighLevelClient {
 	client := connectors.NewClient(url)
 	if verbose {
-		client = client.WithDebug()
+		client.SetDebug()
 	}
 	if SSLInsecure {
-		client = client.WithInsecureSSL()
+		client.SetInsecureSSL()
 	}
 	return client
 }
