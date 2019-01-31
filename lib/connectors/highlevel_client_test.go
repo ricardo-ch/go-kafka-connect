@@ -3,6 +3,7 @@
 package connectors
 
 import (
+	"github.com/pkg/errors"
 	"reflect"
 	"sync"
 	"testing"
@@ -189,4 +190,24 @@ func Test_DeployMultipleConnector_Ok(t *testing.T) {
 
 	assert.Equal(t, map[string]interface{}{"test1": true, "test2": true, "test3": true, "test4": true, "test5": true}, received)
 	assert.NoError(t, err)
+}
+
+func Test_DeployMultipleConnector_Error(t *testing.T) {
+	client := &highLevelClient{client: &MockBaseClient{}, maxParallelRequest: 2}
+
+	// Don't want to mock every baseClient call, so I am going the lazy way.
+	patch := monkey.PatchInstanceMethod(reflect.TypeOf(client), "DeployConnector", func(_ *highLevelClient, req CreateConnectorRequest) (err error) {
+		return errors.New("random error")
+	})
+	defer patch.Restore()
+
+	err := client.DeployMultipleConnector([]CreateConnectorRequest{
+		{ConnectorRequest: ConnectorRequest{Name: "test1"}},
+		{ConnectorRequest: ConnectorRequest{Name: "test2"}},
+		{ConnectorRequest: ConnectorRequest{Name: "test3"}},
+		{ConnectorRequest: ConnectorRequest{Name: "test4"}},
+		{ConnectorRequest: ConnectorRequest{Name: "test5"}},
+	})
+
+	assert.Error(t, err)
 }
