@@ -23,5 +23,8 @@ func getClient() connectors.HighLevelClient {
 	if SSLInsecure {
 		client.SetInsecureSSL()
 	}
+	if len(SSLClientCertificate) + len(SSLClientPrivateKey) > 0 {
+		client.SetClientCertificates(SSLClientCertificate, SSLClientPrivateKey)
+	}
 	return client
 }

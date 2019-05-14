@@ -273,6 +273,11 @@ func (_m *MockBaseClient) SetInsecureSSL() {
 	_m.Called()
 }
 
+// SetClientCertificates provides a mock function with given fields:
+func (_m *MockBaseClient) SetClientCertificates(certFile string, keyFile string) {
+	_m.Called()
+}
+
 // UpdateConnector provides a mock function with given fields: req
 func (_m *MockBaseClient) UpdateConnector(req CreateConnectorRequest) (ConnectorResponse, error) {
 	ret := _m.Called(req)

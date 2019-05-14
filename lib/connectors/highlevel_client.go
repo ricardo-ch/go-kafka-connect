@@ -32,6 +32,7 @@ type HighLevelClient interface {
 	DeployMultipleConnector(connectors []CreateConnectorRequest) (err error)
 	SetInsecureSSL()
 	SetDebug()
+	SetClientCertificates(certFile string, keyFile string)
 	SetParallelism(value int)
 }
 
@@ -57,6 +58,10 @@ func (c *highLevelClient) SetInsecureSSL() {
 
 func (c *highLevelClient) SetDebug() {
 	c.client.SetDebug()
+}
+
+func (c *highLevelClient) SetClientCertificates(certFile string, keyFile string) {
+	c.client.SetClientCertificates(certFile, keyFile)
 }
 
 //GetAll gets the list of all active connectors
