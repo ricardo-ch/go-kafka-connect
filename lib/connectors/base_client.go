@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/pkg/errors"
 	"gopkg.in/resty.v1"
-	"log"
 	"strconv"
 	"time"
 )
@@ -29,7 +28,7 @@ type BaseClient interface {
 
 	SetInsecureSSL()
 	SetDebug()
-	SetClientCertificates(certFile string, keyFile string)
+	SetClientCertificates(certs ...tls.Certificate)
 }
 
 type baseClient struct {
@@ -44,14 +43,8 @@ func (c *baseClient) SetDebug() {
 	c.restClient.SetDebug(true)
 }
 
-func (c *baseClient) SetClientCertificates(certFile string, keyFile string) {
-	cert, err := tls.LoadX509KeyPair(certFile, keyFile)
-
-	if err != nil {
-		log.Fatalf("ERROR client certificate: %s", err)
-	}
-
-	c.restClient.SetCertificates(cert)
+func (c *baseClient) SetClientCertificates(certs ...tls.Certificate) {
+	c.restClient.SetCertificates(certs...)
 }
 
 //ErrorResponse is generic error returned by kafka connect

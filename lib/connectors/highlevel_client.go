@@ -1,6 +1,7 @@
 package connectors
 
 import (
+	"crypto/tls"
 	"fmt"
 	"sync"
 	"time"
@@ -32,7 +33,7 @@ type HighLevelClient interface {
 	DeployMultipleConnector(connectors []CreateConnectorRequest) (err error)
 	SetInsecureSSL()
 	SetDebug()
-	SetClientCertificates(certFile string, keyFile string)
+	SetClientCertificates(certs ...tls.Certificate)
 	SetParallelism(value int)
 }
 
@@ -60,8 +61,8 @@ func (c *highLevelClient) SetDebug() {
 	c.client.SetDebug()
 }
 
-func (c *highLevelClient) SetClientCertificates(certFile string, keyFile string) {
-	c.client.SetClientCertificates(certFile, keyFile)
+func (c *highLevelClient) SetClientCertificates(certs ...tls.Certificate) {
+	c.client.SetClientCertificates(certs...)
 }
 
 //GetAll gets the list of all active connectors
