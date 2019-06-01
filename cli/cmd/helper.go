@@ -1,9 +1,11 @@
 package cmd
 
 import (
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"github.com/ricardo-ch/go-kafka-connect/lib/connectors"
+	"log"
 )
 
 func printResponse(response interface{}) error {
@@ -22,6 +24,14 @@ func getClient() connectors.HighLevelClient {
 	}
 	if SSLInsecure {
 		client.SetInsecureSSL()
+	}
+	if len(SSLClientCertificate) > 0 && len(SSLClientPrivateKey) > 0 {
+		cert, err := tls.LoadX509KeyPair(SSLClientCertificate, SSLClientPrivateKey)
+		if err != nil {
+			log.Fatalf("client: loadkeys: %s", err)
+		} else {
+			client.SetClientCertificates(cert)
+		}
 	}
 	return client
 }

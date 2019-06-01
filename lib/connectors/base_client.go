@@ -28,6 +28,7 @@ type BaseClient interface {
 
 	SetInsecureSSL()
 	SetDebug()
+	SetClientCertificates(certs ...tls.Certificate)
 }
 
 type baseClient struct {
@@ -40,6 +41,10 @@ func (c *baseClient) SetInsecureSSL() {
 
 func (c *baseClient) SetDebug() {
 	c.restClient.SetDebug(true)
+}
+
+func (c *baseClient) SetClientCertificates(certs ...tls.Certificate) {
+	c.restClient.SetCertificates(certs...)
 }
 
 //ErrorResponse is generic error returned by kafka connect
