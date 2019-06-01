@@ -22,19 +22,19 @@ import (
 )
 
 var (
-	url          	        string
-	connector    	        string
-	filePath     	        string
-	configString 	        string
-	sync         	        bool
-	status       	        bool
-	config       	        bool
-	tasks        	        bool
-	verbose      	        bool
-	SSLInsecure  	        bool
-	parallel     	        int
-	SSLClientCertificate    string
-	SSLClientPrivateKey     string
+	url                  string
+	connector            string
+	filePath             string
+	configString         string
+	sync                 bool
+	status               bool
+	config               bool
+	tasks                bool
+	verbose              bool
+	SSLInsecure          bool
+	parallel             int
+	SSLClientCertificate string
+	SSLClientPrivateKey  string
 )
 
 var RootCmd = &cobra.Command{
@@ -58,6 +58,6 @@ func init() {
 	RootCmd.PersistentFlags().StringVarP(&url, "url", "u", "http://localhost:8083", "kafka connect URL")
 	RootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, `/!\ very verbose`)
 	RootCmd.PersistentFlags().BoolVarP(&SSLInsecure, "insecure-skip-verify", "i", false, `skip SSL/TLS verification`)
-	RootCmd.PersistentFlags().StringVarP(&SSLClientCertificate, "ssl-client-certificate", "C", "", `client certificate, must contain PEM encoded data`)
-	RootCmd.PersistentFlags().StringVarP(&SSLClientPrivateKey, "ssl-client-key", "K", "", `client private key`)
+	RootCmd.PersistentFlags().StringVarP(&SSLClientCertificate, "ssl-client-certificate", "C", "", `path to client certificate, must contain PEM encoded data`)
+	RootCmd.PersistentFlags().StringVarP(&SSLClientPrivateKey, "ssl-client-key", "K", "", `path to client private key`)
 }
