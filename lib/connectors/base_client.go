@@ -3,10 +3,11 @@ package connectors
 import (
 	"crypto/tls"
 	"fmt"
-	"github.com/pkg/errors"
-	"gopkg.in/resty.v1"
 	"strconv"
 	"time"
+
+	"github.com/pkg/errors"
+	"gopkg.in/resty.v1"
 )
 
 // BaseClient implement the kafka-connect contract as a client
@@ -29,6 +30,7 @@ type BaseClient interface {
 	SetInsecureSSL()
 	SetDebug()
 	SetClientCertificates(certs ...tls.Certificate)
+	SetBasicAuth(username string, password string)
 }
 
 type baseClient struct {
@@ -45,6 +47,10 @@ func (c *baseClient) SetDebug() {
 
 func (c *baseClient) SetClientCertificates(certs ...tls.Certificate) {
 	c.restClient.SetCertificates(certs...)
+}
+
+func (c *baseClient) SetBasicAuth(username string, password string) {
+	c.restClient.SetBasicAuth(username, password)
 }
 
 //ErrorResponse is generic error returned by kafka connect

@@ -35,6 +35,8 @@ var (
 	parallel             int
 	SSLClientCertificate string
 	SSLClientPrivateKey  string
+	basicAuthUsername    string
+	basicAuthPassword    string
 )
 
 var RootCmd = &cobra.Command{
@@ -60,4 +62,6 @@ func init() {
 	RootCmd.PersistentFlags().BoolVarP(&SSLInsecure, "insecure-skip-verify", "i", false, `skip SSL/TLS verification`)
 	RootCmd.PersistentFlags().StringVarP(&SSLClientCertificate, "ssl-client-certificate", "C", "", `path to client certificate, must contain PEM encoded data`)
 	RootCmd.PersistentFlags().StringVarP(&SSLClientPrivateKey, "ssl-client-key", "K", "", `path to client private key`)
+	RootCmd.PersistentFlags().StringVarP(&basicAuthUsername, "username", "U", "", `HTTP Basic Auth username`)
+	RootCmd.PersistentFlags().StringVarP(&basicAuthPassword, "password", "P", "", `HTTP Basic Auth password`)
 }

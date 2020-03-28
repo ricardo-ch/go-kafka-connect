@@ -4,8 +4,9 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
-	"github.com/ricardo-ch/go-kafka-connect/lib/connectors"
 	"log"
+
+	"github.com/ricardo-ch/go-kafka-connect/lib/connectors"
 )
 
 func printResponse(response interface{}) error {
@@ -24,6 +25,9 @@ func getClient() connectors.HighLevelClient {
 	}
 	if SSLInsecure {
 		client.SetInsecureSSL()
+	}
+	if basicAuthUsername != "" && basicAuthPassword != "" {
+		client.SetBasicAuth(basicAuthUsername, basicAuthPassword)
 	}
 	if len(SSLClientCertificate) > 0 && len(SSLClientPrivateKey) > 0 {
 		cert, err := tls.LoadX509KeyPair(SSLClientCertificate, SSLClientPrivateKey)
