@@ -313,6 +313,11 @@ func (_m *MockHighLevelClient) ResumeConnector(req ConnectorRequest, sync bool) 
 	return r0, r1
 }
 
+// SetBasicAuth provides a mock function with given fields: username, password
+func (_m *MockHighLevelClient) SetBasicAuth(username string, password string) {
+	_m.Called(username, password)
+}
+
 // SetClientCertificates provides a mock function with given fields: certs
 func (_m *MockHighLevelClient) SetClientCertificates(certs ...tls.Certificate) {
 	_va := make([]interface{}, len(certs))
