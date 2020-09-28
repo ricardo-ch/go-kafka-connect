@@ -1,10 +1,11 @@
 package connectors
 
 import (
-	"github.com/stretchr/testify/assert"
-	"gopkg.in/jarcoal/httpmock.v1"
 	"net/http"
 	"testing"
+
+	"github.com/jarcoal/httpmock"
+	"github.com/stretchr/testify/assert"
 )
 
 // This test a side effect of resty: when retry on 409 the error of response is not reinitialized
