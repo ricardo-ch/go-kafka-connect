@@ -269,6 +269,10 @@ func (_m *MockBaseClient) SetBasicAuth(username string, password string) {
 	_m.Called(username, password)
 }
 
+func (_m *MockBaseClient) SetHeader(name string, value string) {
+	_m.Called(name, value)
+}
+
 // SetClientCertificates provides a mock function with given fields: certs
 func (_m *MockBaseClient) SetClientCertificates(certs ...tls.Certificate) {
 	_va := make([]interface{}, len(certs))

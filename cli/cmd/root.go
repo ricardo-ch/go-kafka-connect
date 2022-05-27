@@ -16,9 +16,8 @@ package cmd
 
 import (
 	"fmt"
-	"os"
-
 	"github.com/spf13/cobra"
+	"os"
 )
 
 var (
@@ -37,6 +36,7 @@ var (
 	SSLClientPrivateKey  string
 	basicAuthUsername    string
 	basicAuthPassword    string
+	extraHeaders         HeadersFlag
 )
 
 var RootCmd = &cobra.Command{
@@ -64,4 +64,5 @@ func init() {
 	RootCmd.PersistentFlags().StringVarP(&SSLClientPrivateKey, "ssl-client-key", "K", "", `path to client private key`)
 	RootCmd.PersistentFlags().StringVarP(&basicAuthUsername, "username", "U", "", `HTTP Basic Auth username`)
 	RootCmd.PersistentFlags().StringVarP(&basicAuthPassword, "password", "P", "", `HTTP Basic Auth password`)
+	RootCmd.PersistentFlags().VarP(&extraHeaders, "header", "H", "extra HTTP headers to attach to REST API requests")
 }
