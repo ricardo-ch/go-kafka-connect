@@ -36,6 +36,7 @@ type HighLevelClient interface {
 	SetClientCertificates(certs ...tls.Certificate)
 	SetParallelism(value int)
 	SetBasicAuth(username string, password string)
+	SetHeader(name string, value string)
 }
 
 type highLevelClient struct {
@@ -68,6 +69,10 @@ func (c *highLevelClient) SetClientCertificates(certs ...tls.Certificate) {
 
 func (c *highLevelClient) SetBasicAuth(username string, password string) {
 	c.client.SetBasicAuth(username, password)
+}
+
+func (c *highLevelClient) SetHeader(name string, value string) {
+	c.client.SetHeader(name, value)
 }
 
 //GetAll gets the list of all active connectors

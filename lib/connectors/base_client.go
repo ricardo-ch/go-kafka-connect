@@ -31,6 +31,7 @@ type BaseClient interface {
 	SetDebug()
 	SetClientCertificates(certs ...tls.Certificate)
 	SetBasicAuth(username string, password string)
+	SetHeader(name string, value string)
 }
 
 type baseClient struct {
@@ -51,6 +52,10 @@ func (c *baseClient) SetClientCertificates(certs ...tls.Certificate) {
 
 func (c *baseClient) SetBasicAuth(username string, password string) {
 	c.restClient.SetBasicAuth(username, password)
+}
+
+func (c *baseClient) SetHeader(name string, value string) {
+	c.restClient.SetHeader(name, value)
 }
 
 //ErrorResponse is generic error returned by kafka connect

@@ -37,5 +37,11 @@ func getClient() connectors.HighLevelClient {
 			client.SetClientCertificates(cert)
 		}
 	}
+	if len(extraHeaders.Headers) > 0 {
+		for _, header := range extraHeaders.Headers {
+			client.SetHeader(header.Name, header.Value)
+		}
+	}
+
 	return client
 }
