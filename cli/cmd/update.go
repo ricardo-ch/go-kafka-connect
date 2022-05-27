@@ -20,7 +20,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/ricardo-ch/go-kafka-connect/lib/connectors"
+	"github.com/ricardo-ch/go-kafka-connect/v3/lib/connectors"
 	"github.com/spf13/cobra"
 )
 
