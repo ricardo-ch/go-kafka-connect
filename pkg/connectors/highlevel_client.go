@@ -3,11 +3,13 @@ package connectors
 import (
 	"crypto/tls"
 	"fmt"
+	"strconv"
 	"sync"
 	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 )
 
 // HighLevelClient support all function of kafka-connect API + some more features
@@ -37,16 +39,24 @@ type HighLevelClient interface {
 	SetParallelism(value int)
 	SetBasicAuth(username string, password string)
 	SetHeader(name string, value string)
+	SetPauseBeforeDeploy(pauseBeforeDeploy bool)
+	SetLogFormatter(formatter logrus.Formatter)
 }
 
 type highLevelClient struct {
 	client             BaseClient
 	maxParallelRequest int
+	pauseBeforeDeploy  bool
+	logger             *logrus.Entry
 }
 
 //NewClient generates a new client
 func NewClient(url string) HighLevelClient {
-	return &highLevelClient{client: newBaseClient(url), maxParallelRequest: 3}
+	return &highLevelClient{
+		client:             newBaseClient(url),
+		maxParallelRequest: 3,
+		logger:             logrus.WithField("component", "high-level-client"),
+	}
 }
 
 //Set the limit of parallel call to kafka-connect server
@@ -63,12 +73,20 @@ func (c *highLevelClient) SetDebug() {
 	c.client.SetDebug()
 }
 
+func (c *highLevelClient) SetLogFormatter(formatter logrus.Formatter) {
+	c.logger.Logger.Formatter = formatter
+}
+
 func (c *highLevelClient) SetClientCertificates(certs ...tls.Certificate) {
 	c.client.SetClientCertificates(certs...)
 }
 
 func (c *highLevelClient) SetBasicAuth(username string, password string) {
 	c.client.SetBasicAuth(username, password)
+}
+
+func (c *highLevelClient) SetPauseBeforeDeploy(pauseBeforeDeploy bool) {
+	c.pauseBeforeDeploy = pauseBeforeDeploy
 }
 
 func (c *highLevelClient) SetHeader(name string, value string) {
@@ -254,11 +272,24 @@ func convertConfigValueToString(value interface{}) string {
 func tryUntil(exec func() bool, limit time.Duration) bool {
 	timeLimit := time.After(limit)
 
+	mu := &sync.Mutex{}
 	run := true
-	defer func() { run = false }()
+
+	defer func() {
+		mu.Lock()
+		defer mu.Unlock()
+		run = false
+	}()
+
 	success := make(chan bool)
 	go func() {
-		for run {
+		for {
+			mu.Lock()
+			if !run {
+				break
+			}
+			mu.Unlock()
+
 			if exec() {
 				success <- true
 				return
@@ -278,36 +309,64 @@ func tryUntil(exec func() bool, limit time.Duration) bool {
 //DeployConnector checks if the configuration changed before deploying.
 //It does nothing if it is the same
 func (c *highLevelClient) DeployConnector(req CreateConnectorRequest) (err error) {
+	logger := c.logger.WithField("connector", req.Name)
+	logger.Info("Connector deployment starting...")
+
 	existingConnector, err := c.GetConnector(ConnectorRequest{Name: req.Name})
 	if err != nil {
 		return err
 	}
 
 	if existingConnector.Code != 404 {
+		logger.Info("Connector already exists")
+
 		var upToDate bool
 		upToDate, err = c.IsUpToDate(req.Name, req.Config)
 		if err != nil {
 			return err
 		}
+
 		// Connector is already up to date, stop there and return ok
 		if upToDate {
+			logger.Info("Connector is up to date, skipping update")
 			return nil
 		}
 
-		_, err = c.PauseConnector(ConnectorRequest{Name: req.Name}, true)
+		if !c.pauseBeforeDeploy {
+			logger.Info("Connector pause before deploy skipped per configuration")
+			goto updateConnector
+		}
+
+		existingConnectorStatus, err := c.GetConnectorStatus(ConnectorRequest{Name: req.Name})
 		if err != nil {
 			return err
 		}
 
-		defer func() {
-			_, err = c.ResumeConnector(ConnectorRequest{Name: req.Name}, true)
-		}()
+		if existingConnectorStatus.ConnectorStatus["state"] == "RUNNING" {
+			logger = logger.WithField("pause", strconv.FormatBool(true))
+
+			logger.Info("Connector status is RUNNING, pausing it\n")
+			_, err = c.PauseConnector(ConnectorRequest{Name: req.Name}, true)
+			logger.WithError(err).Info("Connector status is now PAUSED")
+			if err != nil {
+				return err
+			}
+
+			defer func() {
+				logger.Info("Connector status was RUNNING, resuming it")
+				_, err = c.ResumeConnector(ConnectorRequest{Name: req.Name}, true)
+				logger.WithError(err).Info("Connector is now RUNNING")
+			}()
+		} else {
+			logger.Infof("Connector status '%s' is NOT 'RUNNING', connector will NOT be paused\n", existingConnectorStatus.ConnectorStatus["state"])
+		}
 	}
 
+updateConnector:
+
+	logger.Info("Connector update starting...")
 	_, err = c.UpdateConnector(req, true)
-	if err != nil {
-		return err
-	}
+	logger.WithError(err).Info("Connector is now updated")
 
 	return err
 }

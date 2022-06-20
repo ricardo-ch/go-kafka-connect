@@ -15,6 +15,7 @@
 package cmd
 
 import (
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -28,13 +29,17 @@ var deployCmd = &cobra.Command{
 }
 
 func RunEDeploy(cmd *cobra.Command, args []string) error {
-	configs, err := getCreateCmdConfig(cmd)
+	configs, err := getCreateCmdConfig(cmd, expandEnv)
 	if err != nil {
 		return err
 	}
 
 	client := getClient()
 	client.SetParallelism(parallel)
+	client.SetPauseBeforeDeploy(pauseBeforeDeploy)
+	if jsonLog {
+		client.SetLogFormatter(&logrus.JSONFormatter{})
+	}
 
 	return client.DeployMultipleConnector(configs)
 }
@@ -46,4 +51,7 @@ func init() {
 	deployCmd.MarkFlagFilename("path")
 	deployCmd.PersistentFlags().StringVarP(&configString, "string", "s", "", "JSON configuration string")
 	deployCmd.PersistentFlags().IntVarP(&parallel, "parallel", "r", 3, "limit of parallel call to kafka-connect")
+	deployCmd.PersistentFlags().BoolVar(&pauseBeforeDeploy, "pause", true, "pause connector before performing it's deployment")
+	deployCmd.PersistentFlags().BoolVar(&expandEnv, "expand-env", false, "expand environment variables for each connector file using os.Expand, skip $Key/$Value, if value is not found in env, it will be returned as $YOUR_DEFINED_ENV_VAR")
+	deployCmd.PersistentFlags().BoolVarP(&jsonLog, "json-log", "j", false, "Log in JSON format")
 }

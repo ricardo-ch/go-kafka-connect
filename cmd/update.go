@@ -20,7 +20,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/ricardo-ch/go-kafka-connect/v3/lib/connectors"
+	"github.com/heetch/go-kafka-connect/v4/pkg/connectors"
 	"github.com/spf13/cobra"
 )
 
@@ -66,6 +66,7 @@ func getUpdateCmdConfig(cmd *cobra.Command) (map[string]interface{}, error) {
 		if err != nil {
 			return config, err
 		}
+		defer fileReader.Close()
 
 		err = json.NewDecoder(fileReader).Decode(&config)
 		if err != nil {

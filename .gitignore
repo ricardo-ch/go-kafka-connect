@@ -1,9 +1,7 @@
 .idea
 .vscode
-*.exe
 
-./kccli
-cli/bin
+bin/*
 
 vendor
 vendor.orig

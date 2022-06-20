@@ -16,8 +16,9 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/spf13/cobra"
 	"os"
+
+	"github.com/spf13/cobra"
 )
 
 var (
@@ -31,7 +32,10 @@ var (
 	tasks                bool
 	verbose              bool
 	SSLInsecure          bool
+	jsonLog              bool
 	parallel             int
+	pauseBeforeDeploy    bool
+	expandEnv            bool
 	SSLClientCertificate string
 	SSLClientPrivateKey  string
 	basicAuthUsername    string
@@ -40,7 +44,7 @@ var (
 )
 
 var RootCmd = &cobra.Command{
-	Use:   "kccli [command] [args]",
+	Use:   "kc-cli [command] [args]",
 	Short: "CLI wrapper for kafka-connect API",
 	Long: `This is a small tool to perform all available task on kafka-connect API via a CLI.
 also contains two 'bonus' features:

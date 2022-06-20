@@ -15,23 +15,23 @@
 package cmd
 
 import (
-	"github.com/ricardo-ch/go-kafka-connect/v3/lib/connectors"
+	"github.com/heetch/go-kafka-connect/v4/pkg/connectors"
 	"github.com/spf13/cobra"
 )
 
-// pauseCmd represents the pause command
-var pauseCmd = &cobra.Command{
-	Use:   "pause",
-	Short: "Pause a connector",
-	RunE:  RunEPause,
+// resumeCmd represents the resume command
+var resumeCmd = &cobra.Command{
+	Use:   "resume",
+	Short: "Resume a connector",
+	RunE:  RunEResume,
 }
 
-//RunEPause ...
-func RunEPause(cmd *cobra.Command, args []string) error {
+//RunEResume ...
+func RunEResume(cmd *cobra.Command, args []string) error {
 	req := connectors.ConnectorRequest{
 		Name: connector,
 	}
-	resp, err := getClient().PauseConnector(req, sync)
+	resp, err := getClient().ResumeConnector(req, sync)
 	if err != nil {
 		return err
 	}
@@ -39,8 +39,8 @@ func RunEPause(cmd *cobra.Command, args []string) error {
 }
 
 func init() {
-	RootCmd.AddCommand(pauseCmd)
+	RootCmd.AddCommand(resumeCmd)
 
-	pauseCmd.PersistentFlags().BoolVarP(&sync, "sync", "y", false, "execute synchronously")
-	pauseCmd.PersistentFlags().StringVarP(&connector, "connector", "n", "", "name of the target connector")
+	resumeCmd.PersistentFlags().BoolVarP(&sync, "sync", "y", false, "execute synchronously")
+	resumeCmd.PersistentFlags().StringVarP(&connector, "connector", "n", "", "name of the target connector")
 }
