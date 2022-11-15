@@ -16,12 +16,13 @@ package cmd
 
 import (
 	"encoding/json"
-	"github.com/pkg/errors"
 	"io/ioutil"
 	"log"
 	"os"
 	"path"
 	"strings"
+
+	"github.com/pkg/errors"
 
 	"github.com/ricardo-ch/go-kafka-connect/v3/lib/connectors"
 	"github.com/spf13/cobra"
@@ -88,19 +89,20 @@ func getCreateCmdConfig(cmd *cobra.Command) ([]connectors.CreateConnectorRequest
 }
 
 func getConfigFromFolder(folderPath string) ([]connectors.CreateConnectorRequest, error) {
-	configs := []connectors.CreateConnectorRequest{}
+	var configs []connectors.CreateConnectorRequest
 	configFiles, err := ioutil.ReadDir(folderPath)
 	if err != nil {
 		return configs, err
 	}
 	for _, fileInfo := range configFiles {
+		// Do not evaluate folders
 		if fileInfo.IsDir() {
 			log.Printf("found unexpected subfolder in folder: %s. This command will not search through it.", filePath)
 			continue
 		}
 		config, err := getConfigFromFile(path.Join(folderPath, fileInfo.Name()))
 		if err != nil {
-			log.Printf("found unexpected not config file in folder: %s", filePath)
+			return []connectors.CreateConnectorRequest{}, errors.Wrapf(err, "could not read configuration file: %s", fileInfo.Name())
 		} else {
 			configs = append(configs, config)
 		}
@@ -109,7 +111,7 @@ func getConfigFromFolder(folderPath string) ([]connectors.CreateConnectorRequest
 }
 
 func getConfigFromFile(filePath string) (connectors.CreateConnectorRequest, error) {
-	config := connectors.CreateConnectorRequest{}
+	var config connectors.CreateConnectorRequest
 	fileReader, err := os.Open(filePath)
 	if err != nil {
 		return config, err
@@ -126,5 +128,4 @@ func init() {
 	createCmd.MarkFlagFilename("path")
 	createCmd.PersistentFlags().StringVarP(&configString, "string", "s", "", "JSON configuration string")
 	createCmd.PersistentFlags().BoolVarP(&sync, "sync", "y", false, "execute synchronously")
-
 }
