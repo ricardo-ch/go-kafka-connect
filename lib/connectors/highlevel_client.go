@@ -277,15 +277,14 @@ func tryUntil(exec func() bool, limit time.Duration) bool {
 
 //DeployConnector checks if the configuration changed before deploying.
 //It does nothing if it is the same
-func (c *highLevelClient) DeployConnector(req CreateConnectorRequest) (err error) {
+func (c *highLevelClient) DeployConnector(req CreateConnectorRequest) error {
 	existingConnector, err := c.GetConnector(ConnectorRequest{Name: req.Name})
 	if err != nil {
 		return err
 	}
 
 	if existingConnector.Code != 404 {
-		var upToDate bool
-		upToDate, err = c.IsUpToDate(req.Name, req.Config)
+		upToDate, err := c.IsUpToDate(req.Name, req.Config)
 		if err != nil {
 			return err
 		}
@@ -293,21 +292,9 @@ func (c *highLevelClient) DeployConnector(req CreateConnectorRequest) (err error
 		if upToDate {
 			return nil
 		}
-
-		_, err = c.PauseConnector(ConnectorRequest{Name: req.Name}, true)
-		if err != nil {
-			return err
-		}
-
-		defer func() {
-			_, err = c.ResumeConnector(ConnectorRequest{Name: req.Name}, true)
-		}()
 	}
 
 	_, err = c.UpdateConnector(req, true)
-	if err != nil {
-		return err
-	}
 
 	return err
 }
