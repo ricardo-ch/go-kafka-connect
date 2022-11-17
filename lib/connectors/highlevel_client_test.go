@@ -1,13 +1,14 @@
-//+build !integration
+//go:build !integration
 
 package connectors
 
 import (
-	"github.com/pkg/errors"
 	"reflect"
 	"sync"
 	"testing"
 	"time"
+
+	"github.com/pkg/errors"
 
 	"bou.ke/monkey"
 	"github.com/stretchr/testify/assert"
@@ -142,14 +143,6 @@ func Test_DeployConnector_Ok(t *testing.T) {
 		Return(ConnectorResponse{Name: "test1", Config: configOnline}, nil)
 	mockBaseClient.On("GetConnectorConfig", mock.Anything).
 		Return(GetConnectorConfigResponse{Config: configOnline}, nil).Once()
-	mockBaseClient.On("PauseConnector", mock.Anything, mock.Anything).
-		Return(EmptyResponse{}, nil)
-	mockBaseClient.On("GetConnectorStatus", mock.Anything).
-		Return(GetConnectorStatusResponse{EmptyResponse: EmptyResponse{Code: 200}, ConnectorStatus: map[string]string{"state": "PAUSED"}}, nil).Once()
-	mockBaseClient.On("ResumeConnector", mock.Anything, mock.Anything).
-		Return(EmptyResponse{}, nil)
-	mockBaseClient.On("GetConnectorStatus", mock.Anything).
-		Return(GetConnectorStatusResponse{EmptyResponse: EmptyResponse{Code: 200}, ConnectorStatus: map[string]string{"state": "RUNNING"}}, nil).Once()
 	mockBaseClient.On("UpdateConnector", mock.Anything).
 		Return(ConnectorResponse{}, nil)
 	mockBaseClient.On("GetConnectorConfig", mock.Anything).
