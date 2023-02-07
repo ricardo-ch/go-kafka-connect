@@ -45,8 +45,12 @@ type highLevelClient struct {
 }
 
 //NewClient generates a new client
-func NewClient(url string) HighLevelClient {
-	return &highLevelClient{client: newBaseClient(url), maxParallelRequest: 3}
+func NewClient(url string, timeout_optional ...int ) HighLevelClient {
+    timeout := 10
+    if len(timeout_optional) > 0 {
+        timeout = timeout_optional[0]
+        }
+	return &highLevelClient{client: newBaseClient(url, timeout), maxParallelRequest: 3}
 }
 
 //Set the limit of parallel call to kafka-connect server

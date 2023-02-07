@@ -72,7 +72,7 @@ func newBaseClient(url string, timeout_optional ...int) BaseClient {
     timeout := 10
     if len(timeout_optional) > 0 {
         timeout = timeout_optional[0]
-      }
+        }
 	restClient := resty.New().
 		SetError(ErrorResponse{}).
 		SetHostURL(url).
