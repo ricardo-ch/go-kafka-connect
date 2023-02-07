@@ -68,7 +68,11 @@ func (err ErrorResponse) Error() string {
 	return fmt.Sprintf("error code: %d , message: %s", err.ErrorCode, err.Message)
 }
 
-func newBaseClient(url string) BaseClient {
+func newBaseClient(url string, timeout_optional ...int) BaseClient {
+    timeout := 10
+    if len(timeout_optional) > 0 {
+        timeout = timeout_optional[0]
+      }
 	restClient := resty.New().
 		SetError(ErrorResponse{}).
 		SetHostURL(url).
@@ -76,7 +80,7 @@ func newBaseClient(url string) BaseClient {
 		SetRetryCount(5).
 		SetRetryWaitTime(500 * time.Millisecond).
 		SetRetryMaxWaitTime(5 * time.Second).
-		SetTimeout(10 * time.Second).
+		SetTimeout(timeout * time.Second).
 		AddRetryCondition(func(resp *resty.Response) (bool, error) {
 			return resp.StatusCode() == 409, nil
 		})
