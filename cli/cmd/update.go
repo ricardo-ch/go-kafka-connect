@@ -20,8 +20,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/winniehuang-ap/kafka-connect/v4/lib/connectors"
 	"github.com/spf13/cobra"
+	"github.com/winniehuang-ap/kafka-connect/v3/lib/connectors"
 )
 
 type updateCmdConfig struct {
@@ -39,7 +39,7 @@ var updateCmd = &cobra.Command{
 	RunE:  RunEUpdate,
 }
 
-//RunEUpdate ...
+// RunEUpdate ...
 func RunEUpdate(cmd *cobra.Command, args []string) error {
 	req := connectors.CreateConnectorRequest{}
 

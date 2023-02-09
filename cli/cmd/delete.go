@@ -15,8 +15,8 @@
 package cmd
 
 import (
-	"github.com/winniehuang-ap/kafka-connect/v4/lib/connectors"
 	"github.com/spf13/cobra"
+	"github.com/winniehuang-ap/kafka-connect/v3/lib/connectors"
 )
 
 // deleteCmd represents the delete command
@@ -26,7 +26,7 @@ var deleteCmd = &cobra.Command{
 	RunE:  RunEDelete,
 }
 
-//RunEDelete ...
+// RunEDelete ...
 func RunEDelete(cmd *cobra.Command, args []string) error {
 	req := connectors.ConnectorRequest{
 		Name: connector,

@@ -15,8 +15,8 @@
 package cmd
 
 import (
-	"github.com/winniehuang-ap/kafka-connect/v4/lib/connectors"
 	"github.com/spf13/cobra"
+	"github.com/winniehuang-ap/kafka-connect/v3/lib/connectors"
 )
 
 // resumeCmd represents the resume command
@@ -26,7 +26,7 @@ var resumeCmd = &cobra.Command{
 	RunE:  RunEResume,
 }
 
-//RunEResume ...
+// RunEResume ...
 func RunEResume(cmd *cobra.Command, args []string) error {
 	req := connectors.ConnectorRequest{
 		Name: connector,

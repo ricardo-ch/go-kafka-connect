@@ -14,7 +14,7 @@
 
 package main
 
-import "github.com/winniehuang-ap/kafka-connect/v4/cli/cmd"
+import "github.com/winniehuang-ap/kafka-connect/v3/cli/cmd"
 
 func main() {
 	cmd.Execute()

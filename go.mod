@@ -1,4 +1,4 @@
-module github.com/winniehuang-ap/kafka-connect/v4
+module github.com/winniehuang-ap/kafka-connect/v3
 
 go 1.17
 
