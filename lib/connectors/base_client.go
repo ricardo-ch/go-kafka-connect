@@ -68,10 +68,10 @@ func (err ErrorResponse) Error() string {
 	return fmt.Sprintf("error code: %d , message: %s", err.ErrorCode, err.Message)
 }
 
-func newBaseClient(url string, timeout_optional ...time.Duration) BaseClient {
+func newBaseClient(url string, timeoutOptional ...time.Duration) BaseClient {
 	timeout := 10 * time.Second
-	if len(timeout_optional) > 0 {
-		timeout = timeout_optional[0] * time.Second
+	if len(timeoutOptional) > 0 {
+		timeout = timeoutOptional[0] * time.Second
 	}
 	restClient := resty.New().
 		SetError(ErrorResponse{}).
