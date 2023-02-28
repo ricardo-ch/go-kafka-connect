@@ -6,8 +6,8 @@ import (
 	"os"
 	"testing"
 
+	"github.com/ricardo-ch/go-kafka-connect/v3/lib/connectors"
 	"github.com/stretchr/testify/assert"
-	"github.com/winniehuang-ap/kafka-connect/v3/lib/connectors"
 )
 
 func Test_getCreateCmdConfig_Invalid_Path(t *testing.T) {

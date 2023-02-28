@@ -24,8 +24,8 @@ import (
 
 	"github.com/pkg/errors"
 
+	"github.com/ricardo-ch/go-kafka-connect/v3/lib/connectors"
 	"github.com/spf13/cobra"
-	"github.com/winniehuang-ap/kafka-connect/v3/lib/connectors"
 )
 
 // createCmd represents the create command

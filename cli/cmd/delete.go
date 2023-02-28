@@ -15,8 +15,8 @@
 package cmd
 
 import (
+	"github.com/ricardo-ch/go-kafka-connect/v3/lib/connectors"
 	"github.com/spf13/cobra"
-	"github.com/winniehuang-ap/kafka-connect/v3/lib/connectors"
 )
 
 // deleteCmd represents the delete command

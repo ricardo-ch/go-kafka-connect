@@ -1,4 +1,4 @@
-module github.com/winniehuang-ap/kafka-connect/v3
+module github.com/ricardo-ch/go-kafka-connect/v3
 
 go 1.17
 
@@ -19,9 +19,5 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/spf13/pflag v1.0.0 // indirect
 	github.com/stretchr/objx v0.1.1 // indirect
-	github.com/vektra/mockery v1.1.2 // indirect
-	golang.org/x/mod v0.2.0 // indirect
 	golang.org/x/net v0.0.0-20200226121028-0de0cce0169b // indirect
-	golang.org/x/tools v0.0.0-20200323144430-8dcfad9e016e // indirect
-	golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543 // indirect
 )
