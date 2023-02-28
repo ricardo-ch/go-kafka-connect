@@ -26,7 +26,7 @@ var resumeCmd = &cobra.Command{
 	RunE:  RunEResume,
 }
 
-//RunEResume ...
+// RunEResume ...
 func RunEResume(cmd *cobra.Command, args []string) error {
 	req := connectors.ConnectorRequest{
 		Name: connector,

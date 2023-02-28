@@ -26,7 +26,7 @@ var deleteCmd = &cobra.Command{
 	RunE:  RunEDelete,
 }
 
-//RunEDelete ...
+// RunEDelete ...
 func RunEDelete(cmd *cobra.Command, args []string) error {
 	req := connectors.ConnectorRequest{
 		Name: connector,

@@ -26,7 +26,7 @@ var pauseCmd = &cobra.Command{
 	RunE:  RunEPause,
 }
 
-//RunEPause ...
+// RunEPause ...
 func RunEPause(cmd *cobra.Command, args []string) error {
 	req := connectors.ConnectorRequest{
 		Name: connector,

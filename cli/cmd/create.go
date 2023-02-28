@@ -35,7 +35,7 @@ var createCmd = &cobra.Command{
 	RunE:  RunECreate,
 }
 
-//RunECreate ...
+// RunECreate ...
 func RunECreate(cmd *cobra.Command, args []string) error {
 	configs, err := getCreateCmdConfig(cmd)
 	if err != nil {

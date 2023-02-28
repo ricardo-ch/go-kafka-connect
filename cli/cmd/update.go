@@ -39,7 +39,7 @@ var updateCmd = &cobra.Command{
 	RunE:  RunEUpdate,
 }
 
-//RunEUpdate ...
+// RunEUpdate ...
 func RunEUpdate(cmd *cobra.Command, args []string) error {
 	req := connectors.CreateConnectorRequest{}
 

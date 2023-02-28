@@ -44,13 +44,17 @@ type highLevelClient struct {
 	maxParallelRequest int
 }
 
-//NewClient generates a new client
-func NewClient(url string) HighLevelClient {
-	return &highLevelClient{client: newBaseClient(url), maxParallelRequest: 3}
+// NewClient generates a new client
+func NewClient(url string, timeout_optional ...time.Duration) HighLevelClient {
+	timeout := 10 * time.Second
+	if len(timeout_optional) > 0 {
+		timeout = timeout_optional[0]
+	}
+	return &highLevelClient{client: newBaseClient(url, timeout), maxParallelRequest: 3}
 }
 
-//Set the limit of parallel call to kafka-connect server
-//Default to 3
+// Set the limit of parallel call to kafka-connect server
+// Default to 3
 func (c *highLevelClient) SetParallelism(value int) {
 	c.maxParallelRequest = value
 }
@@ -75,17 +79,17 @@ func (c *highLevelClient) SetHeader(name string, value string) {
 	c.client.SetHeader(name, value)
 }
 
-//GetAll gets the list of all active connectors
+// GetAll gets the list of all active connectors
 func (c *highLevelClient) GetAll() (GetAllConnectorsResponse, error) {
 	return c.client.GetAll()
 }
 
-//GetConnector return information on specific connector
+// GetConnector return information on specific connector
 func (c *highLevelClient) GetConnector(req ConnectorRequest) (ConnectorResponse, error) {
 	return c.client.GetConnector(req)
 }
 
-//CreateConnector create connector using specified config and name
+// CreateConnector create connector using specified config and name
 func (c *highLevelClient) CreateConnector(req CreateConnectorRequest, sync bool) (ConnectorResponse, error) {
 	result, err := c.client.CreateConnector(req)
 	if err != nil {
@@ -107,7 +111,7 @@ func (c *highLevelClient) CreateConnector(req CreateConnectorRequest, sync bool)
 	return result, nil
 }
 
-//UpdateConnector update a connector config
+// UpdateConnector update a connector config
 func (c *highLevelClient) UpdateConnector(req CreateConnectorRequest, sync bool) (ConnectorResponse, error) {
 	result, err := c.client.UpdateConnector(req)
 	if err != nil {
@@ -129,7 +133,7 @@ func (c *highLevelClient) UpdateConnector(req CreateConnectorRequest, sync bool)
 	return result, nil
 }
 
-//DeleteConnector delete a connector
+// DeleteConnector delete a connector
 func (c *highLevelClient) DeleteConnector(req ConnectorRequest, sync bool) (EmptyResponse, error) {
 	result, err := c.client.DeleteConnector(req)
 	if err != nil {
@@ -151,23 +155,23 @@ func (c *highLevelClient) DeleteConnector(req ConnectorRequest, sync bool) (Empt
 	return result, nil
 }
 
-////GetConnectorConfig return config of a connector
+// //GetConnectorConfig return config of a connector
 func (c *highLevelClient) GetConnectorConfig(req ConnectorRequest) (GetConnectorConfigResponse, error) {
 	return c.client.GetConnectorConfig(req)
 }
 
-//GetConnectorStatus return current status of connector
+// GetConnectorStatus return current status of connector
 func (c *highLevelClient) GetConnectorStatus(req ConnectorRequest) (GetConnectorStatusResponse, error) {
 	return c.client.GetConnectorStatus(req)
 }
 
-//RestartConnector restart connector
+// RestartConnector restart connector
 func (c *highLevelClient) RestartConnector(req ConnectorRequest) (EmptyResponse, error) {
 	return c.client.RestartConnector(req)
 }
 
-//PauseConnector pause a running connector
-//asynchronous operation
+// PauseConnector pause a running connector
+// asynchronous operation
 func (c *highLevelClient) PauseConnector(req ConnectorRequest, sync bool) (EmptyResponse, error) {
 	result, err := c.client.PauseConnector(req)
 	if err != nil {
@@ -188,8 +192,8 @@ func (c *highLevelClient) PauseConnector(req ConnectorRequest, sync bool) (Empty
 	return result, nil
 }
 
-//ResumeConnector resume a paused connector
-//asynchronous operation
+// ResumeConnector resume a paused connector
+// asynchronous operation
 func (c *highLevelClient) ResumeConnector(req ConnectorRequest, sync bool) (EmptyResponse, error) {
 	result, err := c.client.ResumeConnector(req)
 	if err != nil {
@@ -210,8 +214,8 @@ func (c *highLevelClient) ResumeConnector(req ConnectorRequest, sync bool) (Empt
 	return result, nil
 }
 
-//IsUpToDate checks if the given configuration is different from the deployed one.
-//Returns true if they are the same
+// IsUpToDate checks if the given configuration is different from the deployed one.
+// Returns true if they are the same
 func (c *highLevelClient) IsUpToDate(connector string, config map[string]interface{}) (bool, error) {
 	// copy the map to safely interact with it
 	// we are going to need to add connector name to be able to exact match
@@ -275,8 +279,8 @@ func tryUntil(exec func() bool, limit time.Duration) bool {
 	}
 }
 
-//DeployConnector checks if the configuration changed before deploying.
-//It does nothing if it is the same
+// DeployConnector checks if the configuration changed before deploying.
+// It does nothing if it is the same
 func (c *highLevelClient) DeployConnector(req CreateConnectorRequest) error {
 	existingConnector, err := c.GetConnector(ConnectorRequest{Name: req.Name})
 	if err != nil {
@@ -327,17 +331,17 @@ func (c *highLevelClient) DeployMultipleConnector(connectors []CreateConnectorRe
 
 // --------------- tasks ---------------------
 
-//GetAllTasks return list of running task
+// GetAllTasks return list of running task
 func (c *highLevelClient) GetAllTasks(req ConnectorRequest) (GetAllTasksResponse, error) {
 	return c.client.GetAllTasks(req)
 }
 
-//GetTaskStatus return current status of task
+// GetTaskStatus return current status of task
 func (c *highLevelClient) GetTaskStatus(req TaskRequest) (TaskStatusResponse, error) {
 	return c.client.GetTaskStatus(req)
 }
 
-//RestartTask try to restart task
+// RestartTask try to restart task
 func (c *highLevelClient) RestartTask(req TaskRequest) (EmptyResponse, error) {
 	return c.client.RestartTask(req)
 }
