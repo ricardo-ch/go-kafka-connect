@@ -1,0 +1,25 @@
+name: go-kafka-connect
+
+on:
+  push:
+    branches:
+      - master
+      - main
+    paths:
+      - '**.go'
+      - '**go.*'
+      - Makefile
+  pull_request:
+    paths:
+      - '**.go'
+      - '**go.*'
+      - Makefile
+
+jobs:
+  build:
+    name: go-kafka-connect
+    uses: heetch/actions/.github/workflows/reusable-go-library.yml@main
+    with:
+      directory: "."
+    secrets:
+      git_token: ${{ secrets.ORG_GITHUB_TOKEN }}

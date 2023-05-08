@@ -1,0 +1,58 @@
+name: merge-gatekeeper
+
+on:
+  push:
+    branches:
+      - master
+      - main
+  pull_request:
+    branches:
+      - master
+      - main
+
+jobs:
+  merge-gatekeeper:
+    runs-on: ${{ fromJSON(vars.PUBLIC_RUNNER_TAGS) }}
+    permissions:
+      checks: read
+      statuses: read
+    steps:
+      - name: Run Merge Gatekeeper
+        uses: upsidr/merge-gatekeeper@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: ${{ github.event_name == 'push' && ( github.ref_name == 'main' || github.ref_name == 'master' ) && github.sha || github.event.pull_request.head.sha }}
+  notify:
+    runs-on: ${{ fromJSON(vars.PUBLIC_RUNNER_TAGS) }}
+    needs:
+      - merge-gatekeeper
+    if: ${{ always() }}
+    steps:
+      - id: get-success
+        name: Get success
+        run: |
+          echo success=${{ needs.merge-gatekeeper.result == 'success' }} >> $GITHUB_OUTPUT
+      - id: shortened-sha
+        name: Get shortened sha
+        run: |
+          sha="${{ github.sha }}" && echo sha=${sha:0:8} >> $GITHUB_OUTPUT
+      - id: get-branch
+        name: Get branch
+        run: |
+          echo branch=${{ github.event_name == 'pull_request' && github.head_ref || github.ref_name }} >> $GITHUB_OUTPUT
+      - name: Notify master failure
+        if: github.event_name == 'push' && ( github.ref_name == 'main' || github.ref_name == 'master' ) && steps.get-success.outputs.success == 'false'
+        uses: slackapi/slack-github-action@v1.23.0
+        with:
+          channel-id: 'dev-delivery' #todo fix
+          payload: |
+            {
+              "attachments": [
+                {
+                  "color": "${{ steps.get-success.outputs.success == 'true' && 'good' || 'danger'  }}",
+                  "text": "${{ format('{0} <https://github.com/heetch/clients/actions?query=branch%3A{1}|heetch/clients#{2}> ({3}) by {4}', steps.get-success.outputs.success == 'true' && 'success' || 'failure' , steps.get-branch.outputs.branch, steps.shortened-sha.outputs.sha , steps.get-branch.outputs.branch, github.actor) }}"
+                }
+              ]
+            }
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.org_gh_actions_slack_token }}
