@@ -3,6 +3,7 @@ package connectors
 import (
 	"crypto/tls"
 	"fmt"
+	"strings"
 	"sync"
 	"time"
 
@@ -37,11 +38,13 @@ type HighLevelClient interface {
 	SetParallelism(value int)
 	SetBasicAuth(username string, password string)
 	SetHeader(name string, value string)
+	SetDisableInternalConfig(value bool)
 }
 
 type highLevelClient struct {
-	client             BaseClient
-	maxParallelRequest int
+	client                BaseClient
+	maxParallelRequest    int
+	disableInternalConfig bool
 }
 
 //NewClient generates a new client
@@ -73,6 +76,14 @@ func (c *highLevelClient) SetBasicAuth(username string, password string) {
 
 func (c *highLevelClient) SetHeader(name string, value string) {
 	c.client.SetHeader(name, value)
+}
+
+//SetDisableInternalConfig controls how Kafka Connect's runtime "__internal." prefixed
+//keys are handled when IsUpToDate compares the deployed and desired config.
+//When true, the internal keys are stripped from both sides and ignored.
+//Default is false, meaning the internal keys are kept and compared as-is.
+func (c *highLevelClient) SetDisableInternalConfig(value bool) {
+	c.disableInternalConfig = value
 }
 
 //GetAll gets the list of all active connectors
@@ -233,11 +244,22 @@ func (c *highLevelClient) IsUpToDate(connector string, config map[string]interfa
 		return false, errors.New(fmt.Sprintf("status code: %d", configResp.Code))
 	}
 
-	if len(configResp.Config) != len(copyConfig) {
+	// Kafka Connect may inject runtime keys (prefixed with "__internal.") into the deployed
+	// config that never appear in the submitted config. When disableInternalConfig is set we
+	// strip them from both sides so they don't cause a false "not up to date" result.
+	// Otherwise (the default) they are kept and compared as-is.
+	deployedConfig := configResp.Config
+	desiredConfig := copyConfig
+	if c.disableInternalConfig {
+		deployedConfig = withoutInternalConfigKeys(configResp.Config)
+		desiredConfig = withoutInternalConfigKeys(copyConfig)
+	}
+
+	if len(deployedConfig) != len(desiredConfig) {
 		return false, nil
 	}
-	for key, value := range configResp.Config {
-		if convertConfigValueToString(copyConfig[key]) != convertConfigValueToString(value) {
+	for key, value := range deployedConfig {
+		if convertConfigValueToString(desiredConfig[key]) != convertConfigValueToString(value) {
 			return false, nil
 		}
 	}
@@ -247,6 +269,20 @@ func (c *highLevelClient) IsUpToDate(connector string, config map[string]interfa
 // Because trying to compare the same field on 2 different config may return false negative if one is encoded as a string and not the other
 func convertConfigValueToString(value interface{}) string {
 	return fmt.Sprintf("%v", value)
+}
+
+// withoutInternalConfigKeys returns a copy of config with the keys Kafka Connect adds at
+// runtime (prefixed with "__internal.") removed, so they are ignored when comparing
+// deployed vs desired config. The input map is left unmodified.
+func withoutInternalConfigKeys(config map[string]interface{}) map[string]interface{} {
+	filtered := make(map[string]interface{}, len(config))
+	for key, value := range config {
+		if strings.HasPrefix(key, "__internal.") {
+			continue
+		}
+		filtered[key] = value
+	}
+	return filtered
 }
 
 // tryUntil repeats exec until it return true or timeout is reached

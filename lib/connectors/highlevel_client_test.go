@@ -41,6 +41,149 @@ func Test_IsUpToDate_Should_Be_True(t *testing.T) {
 	assert.True(t, isUpToDate)
 }
 
+func Test_IsUpToDate_Ignores_Internal_Keys(t *testing.T) {
+	configOnline := map[string]interface{}{
+		"name":                    "test1",
+		"param1":                  2,
+		"param2":                  "abc",
+		"param3":                  "3",
+		"__internal.offset.topic": "connect-offsets",
+		"__internal.task.id":      "0",
+	}
+
+	configLocal := map[string]interface{}{
+		"param1": 2,
+		"param2": "abc",
+		"param3": 3,
+	}
+
+	mockBaseClient := &MockBaseClient{}
+	mockBaseClient.On("GetConnectorConfig", mock.Anything).
+		Return(GetConnectorConfigResponse{Config: configOnline}, nil)
+
+	client := &highLevelClient{client: mockBaseClient}
+	client.SetDisableInternalConfig(true)
+
+	isUpToDate, err := client.IsUpToDate("test1", configLocal)
+
+	assert.NoError(t, err)
+	assert.True(t, isUpToDate)
+}
+
+// By default "__internal." keys are NOT stripped: deployed-only internal keys make the
+// config differ and report not up to date.
+func Test_IsUpToDate_Keeps_Internal_Keys_By_Default(t *testing.T) {
+	configOnline := map[string]interface{}{
+		"name":                    "test1",
+		"param1":                  2,
+		"param2":                  "abc",
+		"param3":                  "3",
+		"__internal.offset.topic": "connect-offsets",
+		"__internal.task.id":      "0",
+	}
+
+	configLocal := map[string]interface{}{
+		"param1": 2,
+		"param2": "abc",
+		"param3": 3,
+	}
+
+	mockBaseClient := &MockBaseClient{}
+	mockBaseClient.On("GetConnectorConfig", mock.Anything).
+		Return(GetConnectorConfigResponse{Config: configOnline}, nil)
+
+	client := &highLevelClient{client: mockBaseClient}
+
+	isUpToDate, err := client.IsUpToDate("test1", configLocal)
+
+	assert.NoError(t, err)
+	assert.False(t, isUpToDate)
+}
+
+// Internal keys present on BOTH sides with different values must still be ignored,
+// proving the value is genuinely dropped rather than just count-balanced.
+func Test_IsUpToDate_Ignores_Internal_Keys_With_Differing_Values(t *testing.T) {
+	configOnline := map[string]interface{}{
+		"name":             "test1",
+		"param1":           2,
+		"param2":           "abc",
+		"__internal.state": "deployed-value",
+	}
+
+	configLocal := map[string]interface{}{
+		"param1":           2,
+		"param2":           "abc",
+		"__internal.state": "local-value",
+	}
+
+	mockBaseClient := &MockBaseClient{}
+	mockBaseClient.On("GetConnectorConfig", mock.Anything).
+		Return(GetConnectorConfigResponse{Config: configOnline}, nil)
+
+	client := &highLevelClient{client: mockBaseClient}
+	client.SetDisableInternalConfig(true)
+
+	isUpToDate, err := client.IsUpToDate("test1", configLocal)
+
+	assert.NoError(t, err)
+	assert.True(t, isUpToDate)
+}
+
+// A mismatch on a NON-internal key must still be detected even when internal keys are
+// present, proving stripping does not mask a real diff.
+func Test_IsUpToDate_Detects_Real_Diff_When_Internal_Keys_Present(t *testing.T) {
+	configOnline := map[string]interface{}{
+		"name":             "test1",
+		"param1":           3,
+		"param2":           "abc",
+		"__internal.state": "deployed-value",
+	}
+
+	configLocal := map[string]interface{}{
+		"param1": 2,
+		"param2": "abc",
+	}
+
+	mockBaseClient := &MockBaseClient{}
+	mockBaseClient.On("GetConnectorConfig", mock.Anything).
+		Return(GetConnectorConfigResponse{Config: configOnline}, nil)
+
+	client := &highLevelClient{client: mockBaseClient}
+	client.SetDisableInternalConfig(true)
+
+	isUpToDate, err := client.IsUpToDate("test1", configLocal)
+
+	assert.NoError(t, err)
+	assert.False(t, isUpToDate)
+}
+
+// Keys that merely contain "__internal." but are not prefixed by it must NOT be stripped.
+func Test_IsUpToDate_Does_Not_Strip_Substring_Keys(t *testing.T) {
+	configOnline := map[string]interface{}{
+		"name":                   "test1",
+		"param1":                 2,
+		"transforms.__internal.": "should-not-be-stripped",
+	}
+
+	configLocal := map[string]interface{}{
+		"param1": 2,
+	}
+
+	mockBaseClient := &MockBaseClient{}
+	mockBaseClient.On("GetConnectorConfig", mock.Anything).
+		Return(GetConnectorConfigResponse{Config: configOnline}, nil)
+
+	client := &highLevelClient{client: mockBaseClient}
+	client.SetDisableInternalConfig(true)
+
+	isUpToDate, err := client.IsUpToDate("test1", configLocal)
+
+	assert.NoError(t, err)
+	// The substring key survives, so the deployed config has an extra key the local one
+	// lacks -> not up to date.
+	assert.False(t, isUpToDate)
+}
+
 func Test_IsUpToDate_Should_Be_False(t *testing.T) {
 	configOnline := map[string]interface{}{
 		"name":   "test1",

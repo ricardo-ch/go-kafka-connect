@@ -334,6 +334,16 @@ func (_m *MockHighLevelClient) SetDebug() {
 	_m.Called()
 }
 
+// SetDisableInternalConfig provides a mock function with given fields: value
+func (_m *MockHighLevelClient) SetDisableInternalConfig(value bool) {
+	_m.Called(value)
+}
+
+// SetHeader provides a mock function with given fields: name, value
+func (_m *MockHighLevelClient) SetHeader(name string, value string) {
+	_m.Called(name, value)
+}
+
 // SetInsecureSSL provides a mock function with given fields:
 func (_m *MockHighLevelClient) SetInsecureSSL() {
 	_m.Called()
