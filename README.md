@@ -21,6 +21,11 @@ It also contains two 'bonus' features:
   This function checks if the target connector exists. If it exists, it will then be paused before being updated.
   Before being updating it check the current config. If it match the deployment's config, nothing will be done.
   The new connector is then deployed, and resumed. This function is always synchronous.
+- Ignore internal config keys: On Confluent Platform 8.x+, Kafka Connect injects runtime
+  `__internal.*` keys (e.g. `__internal.config.version`) into connector config responses.
+  These keys are not part of user-submitted config and can cause false "out of date" results
+  in `IsUpToDate` and `DeployConnector`. Call `SetDisableInternalConfig(true)` on the client
+  to strip them before comparing.
 
 
 # Running
@@ -45,8 +50,11 @@ enjoy!
 
 - Deploy a connector which config is stored in a json:
 
+On Confluent Platform 8.x+, pass `--ignore-internal-config` so runtime `__internal.*` keys
+injected by Kafka Connect do not cause unnecessary redeploys.
+
 ```bash
-./kccli deploy -u http://kafka-connect.local -f my-connector-config.json
+./kccli deploy -u http://kafka-connect.local --ignore-internal-config -f my-connector-config.json
 ```
 
 - Deploy a bunch of connector in parallel and wait for the end:
