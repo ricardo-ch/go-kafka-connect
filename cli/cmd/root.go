@@ -38,6 +38,7 @@ var (
 	basicAuthUsername    string
 	basicAuthPassword    string
 	extraHeaders         HeadersFlag
+	ignoreInternalConfig bool
 )
 
 var RootCmd = &cobra.Command{
@@ -66,4 +67,5 @@ func init() {
 	RootCmd.PersistentFlags().StringVarP(&basicAuthUsername, "username", "U", "", `HTTP Basic Auth username`)
 	RootCmd.PersistentFlags().StringVarP(&basicAuthPassword, "password", "P", "", `HTTP Basic Auth password`)
 	RootCmd.PersistentFlags().VarP(&extraHeaders, "header", "H", "extra HTTP headers to attach to REST API requests")
+	RootCmd.PersistentFlags().BoolVarP(&ignoreInternalConfig, "ignore-internal-config", "I", false, "ignore Kafka Connect runtime __internal.* keys when comparing connector config (needed on Confluent Platform 8.x)")
 }

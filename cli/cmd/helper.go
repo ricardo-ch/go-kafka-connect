@@ -42,6 +42,9 @@ func getClient() connectors.HighLevelClient {
 			client.SetHeader(header.Name, header.Value)
 		}
 	}
+	if ignoreInternalConfig {
+		client.SetDisableInternalConfig(true)
+	}
 
 	return client
 }
