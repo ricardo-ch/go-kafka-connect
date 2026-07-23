@@ -34,6 +34,7 @@ type HighLevelClient interface {
 	DeployMultipleConnector(connectors []CreateConnectorRequest) (err error)
 	SetInsecureSSL()
 	SetDebug()
+	SetRootCertificate(cert string)
 	SetClientCertificates(certs ...tls.Certificate)
 	SetParallelism(value int)
 	SetBasicAuth(username string, password string)
@@ -64,6 +65,10 @@ func (c *highLevelClient) SetInsecureSSL() {
 
 func (c *highLevelClient) SetDebug() {
 	c.client.SetDebug()
+}
+
+func (c *highLevelClient) SetRootCertificate(cert string) {
+	c.client.SetRootCertificate(cert)
 }
 
 func (c *highLevelClient) SetClientCertificates(certs ...tls.Certificate) {
