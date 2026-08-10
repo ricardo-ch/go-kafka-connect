@@ -67,6 +67,81 @@ func Test_IsUpToDate_Should_Be_False(t *testing.T) {
 	assert.False(t, isUpToDate)
 }
 
+func Test_IsUpToDate_Ignores_Runtime_Injected_Keys(t *testing.T) {
+	configOnline := map[string]interface{}{
+		"name":                      "test1",
+		"param1":                    2,
+		"param2":                    "abc",
+		"param3":                    "3",
+		"__internal.config.version": "adf7fcf190d56275cb4da448b0d232a4d1211f942f1f8d1f91b64641c424bf27",
+	}
+
+	configLocal := map[string]interface{}{
+		"param1": 2,
+		"param2": "abc",
+		"param3": 3,
+	}
+
+	mockBaseClient := &MockBaseClient{}
+	mockBaseClient.On("GetConnectorConfig", mock.Anything).
+		Return(GetConnectorConfigResponse{Config: configOnline}, nil)
+
+	client := &highLevelClient{client: mockBaseClient}
+
+	isUpToDate, err := client.IsUpToDate("test1", configLocal)
+
+	assert.NoError(t, err)
+	assert.True(t, isUpToDate)
+}
+
+func Test_IsUpToDate_Ignores_Masked_Values(t *testing.T) {
+	configOnline := map[string]interface{}{
+		"name":             "test1",
+		"param1":           2,
+		"sasl.jaas.config": "••••••••••••",
+	}
+
+	configLocal := map[string]interface{}{
+		"param1":           2,
+		"sasl.jaas.config": "software.amazon.msk.auth.iam.IAMLoginModule required awsRoleArn=arn:aws:iam::123456789012:role/x",
+	}
+
+	mockBaseClient := &MockBaseClient{}
+	mockBaseClient.On("GetConnectorConfig", mock.Anything).
+		Return(GetConnectorConfigResponse{Config: configOnline}, nil)
+
+	client := &highLevelClient{client: mockBaseClient}
+
+	isUpToDate, err := client.IsUpToDate("test1", configLocal)
+
+	assert.NoError(t, err)
+	assert.True(t, isUpToDate)
+}
+
+func Test_IsUpToDate_Still_Detects_Real_Value_Drift(t *testing.T) {
+	configOnline := map[string]interface{}{
+		"name":             "test1",
+		"param1":           2,
+		"sasl.jaas.config": "••••••••••••",
+	}
+
+	configLocal := map[string]interface{}{
+		"param1":           99,
+		"sasl.jaas.config": "software.amazon.msk.auth.iam.IAMLoginModule required awsRoleArn=arn:aws:iam::123456789012:role/x",
+	}
+
+	mockBaseClient := &MockBaseClient{}
+	mockBaseClient.On("GetConnectorConfig", mock.Anything).
+		Return(GetConnectorConfigResponse{Config: configOnline}, nil)
+
+	client := &highLevelClient{client: mockBaseClient}
+
+	isUpToDate, err := client.IsUpToDate("test1", configLocal)
+
+	assert.NoError(t, err)
+	assert.False(t, isUpToDate)
+}
+
 func Test_tryUntil_When_Success(t *testing.T) {
 	result := tryUntil(
 		func() bool {

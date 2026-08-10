@@ -238,15 +238,32 @@ func (c *highLevelClient) IsUpToDate(connector string, config map[string]interfa
 		return false, errors.New(fmt.Sprintf("status code: %d", configResp.Code))
 	}
 
-	if len(configResp.Config) != len(copyConfig) {
-		return false, nil
-	}
-	for key, value := range configResp.Config {
-		if convertConfigValueToString(copyConfig[key]) != convertConfigValueToString(value) {
+	for key, want := range copyConfig {
+		got, ok := configResp.Config[key]
+		if !ok {
+			return false, nil
+		}
+		gotStr := convertConfigValueToString(got)
+		if isMaskedValue(gotStr) {
+			continue
+		}
+		if convertConfigValueToString(want) != gotStr {
 			return false, nil
 		}
 	}
 	return true, nil
+}
+
+func isMaskedValue(v string) bool {
+	if v == "" {
+		return false
+	}
+	for _, r := range v {
+		if r != '•' {
+			return false
+		}
+	}
+	return true
 }
 
 // Because trying to compare the same field on 2 different config may return false negative if one is encoded as a string and not the other
