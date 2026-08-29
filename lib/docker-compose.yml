@@ -1,22 +1,78 @@
+# version: '2'
+# services:
+#   kafka-connect:
+#     image: landoop/fast-data-dev:latest
+#     container_name: kafka-connect
+#     ports:
+#       - "8081:8081"  # Schema Registry
+#       - "8082:8082"  # REST Proxy
+#       - "8083:8083"  # Kafka Connect
+#       - "9093:9092"  # Kafka Broker (Changed from 9092)
+#       - "2182:2181"  # Zookeeper (Changed from 2181)
+#       - "3031:3030"  # Landoop UI (Changed from 3030)
+#     environment:
+#       ADV_HOST: "localhost"  # Change this if running on a remote server
+#       SAMPLEDATA: "0"
+#       RUNNING_SAMPLEDATA: "0"
+#       RUNTESTS: "0"
+#       FORWARDLOGS: "0"
+#       DISABLE_JMX: "1"
+#       DEBUG: "1"
+#       SUPERVISORWEB: "0"
+#       CONNECTORS: "debezium-postgres"
+
+#       # 🔹 Add plugin directory for Go-based connector
+#       CONNECT_PLUGIN_PATH: "/var/lib/kafka-connect-plugins"
+
+#     volumes:
+#       # 🔹 Mount your Go Kafka Connect plugin
+#       - ./connectors:/var/lib/kafka-connect-plugins  # Change this to the actual location of your Go connector
+#       - ./data:/var/lib/kafka/data  # Optional: Persist Kafka data
+#       - ./logs:/var/log/kafka  # Optional: Persist logs
+#       - ./debezium-plugins:/opt/connectors
+
+#     restart: unless-stopped
+
+
 version: '2'
 services:
-  connect:
-    image: landoop/fast-data-dev:1.0.1
-    ports:
-      - "9581-9585:9581-9585"
-      - "8081-8083:8081-8083"
-      - "9092:9092"
-      - "2181:2181"
-      - "3030:3030"
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    container_name: zookeeper
     environment:
-      - ADV_HOST=localhost
-      - SAMPLEDATA=0
-      - RUNNING_SAMPLEDATA=0
-      - RUNTESTS=0
-      - FORWARDLOGS=0
-      - DISABLE_JMX=1
-      - DEBUG=1
-      - SUPERVISORWEB=0
-      - CONNECTORS=file
+      ZOOKEEPER_CLIENT_PORT: 2181
+    ports:
+      - "2181:2181"
 
-# you will find config in '/var/run/{SERVICE_NAME}' folder inside container
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+  kafka-connect:
+    image: confluentinc/cp-kafka-connect:latest
+    container_name: kafka-connect
+    depends_on:
+      - kafka
+    ports:
+      - "8083:8083"
+    environment:
+      CONNECT_BOOTSTRAP_SERVERS: "kafka:9092"  # Fix the Kafka connection issue (bootstrap server)
+      CONNECT_REST_ADVERTISED_HOST_NAME: "localhost"
+      CONNECT_GROUP_ID: "connect-cluster"
+      CONNECT_CONFIG_STORAGE_TOPIC: "connect-configs"
+      CONNECT_OFFSET_STORAGE_TOPIC: "connect-offsets"
+      CONNECT_STATUS_STORAGE_TOPIC: "connect-status"
+      CONNECT_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      CONNECT_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      CONNECT_PLUGIN_PATH: "/connectors"
+    volumes:
+      - ./debezium-plugins/postgresql:/connectors
+    restart: unless-stopped

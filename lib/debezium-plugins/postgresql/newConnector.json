@@ -1,0 +1,21 @@
+{
+  "name": "product_connector",
+  "config": {
+    "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+    "tasks.max": "1",
+    "database.hostname": "host.docker.internal",
+    "database.port": "5432",
+    "database.user": "",
+    "database.password": "",
+    "database.dbname": "anicloud",
+    "database.server.name": "postgres",
+    "topic.prefix": "anicloud",
+    "slot.name": "kafka_slot2",
+    "key.converter": "org.apache.kafka.connect.storage.StringConverter",
+    "key.converter.schemas.enable": "false",
+    "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "value.converter.schemas.enable": "false",
+    "include.schema.changes": "false",
+    "plugin.name": "pgoutput"
+  }
+}
